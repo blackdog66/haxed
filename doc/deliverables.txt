@@ -1,0 +1,117 @@
+
+1. haxelib should support a new, property-style format for defining  
+projects, one which is based on the Haskell tool "Cabal", and which  
+provides support for additional fields useful for haXe developers.
+
+XML is good for machines and for tree-like data, but project files are  
+written by humans and do not contain tree-like data, therefore, XML is  
+a poor choice as the format for library definitions.
+
+The definitive reference for the new format is "Cabal" itself, albeit  
+with haXe-specific changes. However, the attached provides a good  
+general summary of what it will look like and the fields that it will  
+support. You can see the format supports additional metadata,  
+including the location of the repository where the "head" is stored  
+and where the "release" is stored. Such metadata is badly needed but  
+not currently available on haxelib, which forces developers to embed  
+such information in the project description or other places where it  
+does not belong and is not standardized.
+
+haxelib should be backward compatible with the old XML format, but a  
+warning can be printed indicating it's deprecated and new projects  
+should use the new property-style format. Perhaps the file extension  
+can be "habal" or something to indicate similarity with Cabal.
+
+2. haxelib should support new license types. However, any license that  
+is not currently supported (BSD/LGPL/GPL/PublicDomain) will display  
+the entire license text, and force the user to explicitly agree to the  
+license, by typing "I agree" on the command-line (such agreements  
+would be made whenever a library with a non-standard license is  
+installed or upgraded).
+
+3. haxelib should have a list of built-in repositories, which it  
+treats as first-class repositories. These will include: http://lib.haxe.org 
+  and http://haxe.bazaarware.com/lib/ (the latter not yet  
+functioning). All operations will operate on an aggregation of all  
+repositories, with built-in repositories taking precedence over user- 
+defined repositories. haxelib will search for needed libraries (listed  
+in "depends") across all repositories, so project names should be  
+globally unique (if they're not, first one wins). Commands like  
+'haxelib search/info/list' will scan across all repositories and  
+aggregate results. Whenever a project is displayed, source repo &  
+license type should be displayed so user knows where it comes from and  
+what license it is available under.
+
+4. haxelib should use e-mail & password, no username. There's no need  
+for a concept of username since everyone already has an e-mail.  
+However, as a result, haxelib should support changing e-mail  
+addresses, changing passwords, and also password retrieval. "haxelib  
+create-account", "haxelib change-account", "haxelib remind-password"  
+or something like that.
+
+5. haxelib should support new meta data fields, such as those in the  
+attached sample. You can do something simple for the display end,  
+nothing fancy required (with CSS it should be possible to make it look  
+nice).
+
+6. haxelib should run on the PHP target. Right now it's a neko  
+application. There's no reason why it should be neko-only.
+
+7. Finally, database upgrade script should be created to upgrade  
+existing haxelib database to the new format.
+
+
+--Apple-Mail-195--126708625
+Content-Disposition: attachment; filename=new-haxelib.txt
+Content-Type: text/plain; name="new-haxelib.txt"
+Content-Transfer-Encoding: 8bit
+
+name:               project-name (required)
+version:            numbers (required)
+synopsis:           freeform
+description:        freeform
+category:           freeform
+tags:               tag, tag, ...
+derives-from:       project-name & version
+haxelib-version:    >, <=, etc. & numbers
+license:            GPL | LGPL | BSD3 | BSD4 | freeform
+license-url:        URL
+copyright:          freeform
+author:             freeform
+maintainer:         address
+stability:          freeform
+homepage:           URL
+bug-reports:        URL
+package-url:        URL
+
+tested-with:        compiler list
+data-files:         filename list
+data-dir:           directory
+extra-source-files: filename list
+extra-tmp-files:    filename list
+    
+source-repository head
+      type:     darcs
+      location: http://darcs.haskell.org/cabal/
+
+source-repository this
+      type:     darcs
+      location: http://darcs.haskell.org/cabal-branches/cabal-1.6/
+      tag:      1.6.1
+
+library
+    build-depends:      package list (e.g. base >= 2, foo >= 1.2 && < 1.3, bar)
+    haxe-source-dirs:   directory list (default: “.”)
+    buildable:          boolean (default: True)
+    haxe-options:       token list
+    
+    
+Executable foo
+    main-is:            filename (required)
+    
+    build-depends:      package list (e.g. base >= 2, foo >= 1.2 && < 1.3, bar)
+    haxe-source-dirs:   directory list (default: “.”)
+    buildable:          boolean (default: True)
+    haxe-options:       token list
+
+

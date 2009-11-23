@@ -1,0 +1,6 @@
+www/index.php
+www/lib/
+*.n
+*.log
+*.zip
+*.db

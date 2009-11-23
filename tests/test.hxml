@@ -1,0 +1,6 @@
+
+-cp ./src/
+-lib hxJson2
+-neko tests.n
+-main tools.haxelib.Tests
+-cmd neko tests.n
