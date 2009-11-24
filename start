@@ -1,0 +1,2 @@
+spawn-fcgi -p 10000 -f /home/blackdog/Usr/php/bin/php-cgi
+nginx -p . -c nginx.conf
