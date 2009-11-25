@@ -5,13 +5,19 @@ import tools.haxelib.Habal;
 import tools.haxelib.Package;
 import tools.haxelib.Config;
 
-class TestConfigs extends haxe.unit.TestCase {
+import utest.Assert;
+import utest.Runner;
+import utest.ui.text.TraceReport;
+
+class TestConfigs  {
   static var testFile = "./test.hbl";
   var hbl:Habal;
   var hblConf:Config;
   var jsonConf:Config;
+
+  public function new() {}
   
-  override public
+  public
   function setup() {
     hbl = HblTools.process(testFile);
     hblConf = HblTools.getConfig(hbl);
@@ -20,10 +26,11 @@ class TestConfigs extends haxe.unit.TestCase {
   
   public function
   testEquality() {
-    assertEquals(jsonConf.globals().name,hblConf.globals().name);
-    assertEquals(jsonConf.library().sourceDirs[0],hblConf.library().sourceDirs[0]);
-    assertEquals(jsonConf.library().buildable,hblConf.library().buildable);
-    assertTrue(jsonConf.library().buildable);
+    Assert.isTrue(jsonConf != null); 
+    Assert.equals(jsonConf.globals().name,hblConf.globals().name);
+    Assert.equals(jsonConf.library().sourceDirs[0],hblConf.library().sourceDirs[0]);
+    Assert.equals(jsonConf.library().buildable,hblConf.library().buildable);
+    Assert.isTrue(jsonConf.library().buildable);
   }
 
   
