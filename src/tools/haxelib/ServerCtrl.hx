@@ -25,11 +25,16 @@ class ServerCtrl  {
         var
           email = params.get("email"),
           password = params.get("password"),
-          name = params.get("name"),
-          fullName = params.get("fullName");
+          fullName = params.get("fullname");
+
+        // if( !Datas.alphanum.match(name) )
+    //  throw "Invalid user name, please use alphanumeric characters";
+    //if( name.length < 3 )
+    //  throw "User name must be at least 3 characters";
+
         
         REGISTER(email,password,fullName);
-        
+  
       case "info":
         var prj = params.get("prj");
         trace("info");

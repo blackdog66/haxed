@@ -91,24 +91,31 @@ class ServerHxRepo implements Repository {
     else
       throw "need a haxelib.json config";
 
+    var glbs = conf.globals();
+    
     trace("globals "+conf.globals());
+
+    var u = user(glbs.authorEmail);
+    if (u == null)
+      throw "User "+glbs.authorEmail+" is not registered";
+
     
     
   }
   
   public 
-  function register(email:String,pass:String,fullName:String) {
-    // if( !Datas.alphanum.match(name) )
-    //  throw "Invalid user name, please use alphanumeric characters";
-    //if( name.length < 3 )
-    //  throw "User name must be at least 3 characters";
-
+  function register(email:String,pass:String,fullName:String):Dynamic {
+ 
+    if (user(email) != null)
+      return {ERR:1,ERRMSG:"user registered"};
+    
     var u = new User();
     //u.name = name;
     u.pass = pass;
     u.email = email;
     u.fullname = fullName;
     u.insert();
+    return {ERR:0};
   }
 
   public function checkPassword( email : String, pass : String ) : Bool {
@@ -119,8 +126,7 @@ class ServerHxRepo implements Repository {
   public function user(email:String):UserInfo {
     var u = User.manager.search({ email : email }).first();
     if( u == null )
-      throw "No such user : "+email;
-
+      return null;
     var
       pl = Project.manager.search({ owner : u.id }),
       projects = new Array();
