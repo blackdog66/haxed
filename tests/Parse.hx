@@ -3,75 +3,81 @@ package tests;
 import tools.haxelib.Os;
 import tools.haxelib.Habal;
 import tools.haxelib.Package;
+import tools.haxelib.Config;
 
 class Parse extends haxe.unit.TestCase{
 
   static var testFile = "./test.hbl";
+
   var hbl:Habal;
+  var conf:Config;  
   
   override public
   function setup() {
     hbl = HblTools.process(testFile);
+    conf = HblTools.getConfig(hbl);
   }
   
   public function
   testGlobals() {
-    var globals = hbl.globals();
+    var globals = conf.globals();
     assertFalse(globals == null);
     assertEquals(globals.synopsis,"freeform");
     assertEquals(globals.name,"project-name");
 
-    assertTrue(Std.is(globals.tags,List));
+    assertTrue(Std.is(globals.tags,Array));
 
   }
 
   public function
   testLibrary() {
-    var library = hbl.library();
+    var library = conf.library();
     assertFalse(library == null);
-    assertTrue(Std.is(library.sourceDirs,List));
-    assertEquals("/home/blackdog/Projects/haxelib/src",library.sourceDirs.first());
+    assertTrue(Std.is(library.sourceDirs,Array));
+    assertEquals("/home/blackdog/Projects/haxelib/src",library.sourceDirs[0]);
   }
 
 
   public
   function testExecutable() {
-    var exe = hbl.executable();
+    var exe = conf.executable();
     assertFalse(exe == null);
     assertEquals("filename (required)",exe.mainIs);
-    assertEquals("foo",exe.attrs.first());
+    assertEquals("foo",exe.attrs[0]);
   }
 
   public
   function testRepo() {
-    var repo = hbl.repo();
+    var repo = conf.repo();
     assertFalse(repo == null);
-    assertEquals("this",repo.attrs.first());
+    assertEquals("this",repo.attrs[0]);
     assertEquals("darcs",repo.type);
 
-    //    trace(JSON.encode(hbl));
+    //    trace(JSON.encode(conf));
   }
 }
 
 class PackageTests extends haxe.unit.TestCase {
   var hbl:Habal;
+  var conf:Config;
   
   override public
   function setup() {
     // initialises package dir, process habal
     Package.initPackDir();
     hbl = HblTools.process(Parse.testFile);
+    conf = HblTools.getConfig(hbl);
   }
   
   function testXml() {
-    Package.xml(hbl);
+    Package.xml(conf);
     assertTrue(Os.exists(Package.packDir+"haxelib.xml"));
   }
 
   function testPackageSources() {
-    Package.sources(hbl) ;
+    Package.sources(conf) ;
     var
-      libs = hbl.library();
+      libs = conf.library();
     for (d in libs.sourceDirs) {
         var top = neko.FileSystem.readDirectory(d);
         for (t in top) {
@@ -84,15 +90,15 @@ class PackageTests extends haxe.unit.TestCase {
   }
 
    function testJson() {
-    Package.json(hbl);
-    var g = hbl.globals();
+    Package.json(conf);
+    var g = conf.globals();
     assertTrue(Os.exists(Package.packDir+"haxelib.json"));
   }
   
   function testZip() {
-    Package.zip(hbl);
-    var g = hbl.globals();
-    assertTrue(Os.exists(neko.io.Path.directory(hbl.file) + "/"+g.name+".zip"));
+    Package.zip(conf);
+    var g = conf.globals();
+    assertTrue(Os.exists(neko.io.Path.directory(conf.file()) + "/"+g.name+".zip"));
   }
 
  

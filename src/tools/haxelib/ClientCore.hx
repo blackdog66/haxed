@@ -1,6 +1,7 @@
 
 package tools.haxelib;
 
+import tools.haxelib.Habal;
 import tools.haxelib.Package;
 
 /*
@@ -244,6 +245,9 @@ class ClientCore {
 
   public
   function packit(hblFile:String) {
-    Package.createFrom(hblFile);
+    var hbl = HblTools.process(hblFile),
+      conf = HblTools.getConfig(hbl);
+    
+    Package.createFrom(conf);
   }
 }

@@ -1,7 +1,7 @@
 package tools.haxelib;
 
-import tools.haxelib.Habal;
 import tools.haxelib.Os;
+import tools.haxelib.Config;
 
 
 class Package {
@@ -25,9 +25,9 @@ class Package {
   }
 
   static
-  function packageXml(hbl:Habal) {
+  function packageXml(conf:Config) {
     var
-      glbs = hbl.globals(),
+      glbs = conf.globals(),
       tags = Lambda.map(glbs.tags,function(el) { return { tag : el };}),
       tmpl =  '
 <project name="::glbs.name::" url="::glbs.url::" license="::glbs.license::">
@@ -44,14 +44,14 @@ class Package {
   }
 
   public static
-  function packageJson(hbl:Habal) {
-    return hxjson2.JSON.encode(hbl) ;
+  function packageJson(conf:Config) {
+    return hxjson2.JSON.encode(conf) ;
   }
   
   public
-  static function sources(hbl:Habal) {
+  static function sources(conf:Config) {
     var
-      libs = hbl.library();
+      libs = conf.library();
       Lambda.iter(libs.sourceDirs,function(d) {
           if (!Os.exists(d))
             throw "Source dir "+d+" does not exist";
@@ -60,33 +60,30 @@ class Package {
   }
 
   public static
-  function xml(hbl:Habal) {
+  function xml(conf:Config) {
     var
-      glbs = hbl.globals();
-    Os.fileOut(toPackDir("haxelib.xml"),packageXml(hbl));
+      glbs = conf.globals();
+    Os.fileOut(toPackDir("haxelib.xml"),packageXml(conf));
   }
 
   public static
-  function json(hbl:Habal) {
-    Os.fileOut(toPackDir("haxelib.json"),packageJson(hbl));
+  function json(conf:Config) {
+    Os.fileOut(toPackDir("haxelib.json"),packageJson(conf));
   } 
 
   public static
-  function zip(hbl:Habal) {
-    var name = hbl.globals().name+".zip";
-    Os.zip(outFile(name,hbl.file),Os.files(packDir),packDir);
+  function zip(conf:Config) {
+    var name = conf.globals().name+".zip";
+    Os.zip(outFile(name,conf.file()),Os.files(packDir),packDir);
   }
   
   public static
-  function createFrom(hblFile:String) {
-    if (Os.exists(hblFile)) {
+  function createFrom(config:Config) {
       initPackDir();
-      var hbl = HblTools.process(hblFile);
-      sources(hbl);
-      xml(hbl);
-      json(hbl);
-      zip(hbl);
-    } else throw "package: "+hblFile + "does not exist!"; 
+      sources(config);
+      xml(config);
+      json(config);
+      zip(config);
   }
 
   

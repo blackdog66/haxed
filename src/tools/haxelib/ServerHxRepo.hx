@@ -3,6 +3,8 @@ package tools.haxelib;
 
 import tools.haxelib.ServerData;
 import tools.haxelib.ServerModel;
+import tools.haxelib.ZipReader;
+import tools.haxelib.Config;
 
 #if php
 import php.io.File;
@@ -70,13 +72,30 @@ class ServerHxRepo implements Repository {
     if( file != null ) {
       file.close();
       Lib.print("File # accepted : "+bytes+" bytes written");
-      File.copy(TMP_DIR+"/"+sid+".tmp",repo + sid) ;        
-
+      processUploaded(TMP_DIR+"/"+sid+".tmp");
       return;
     }
   
   }
 
+  private
+  function processUploaded(tmpFile:String) {
+    // File.copy(TMP_DIR+"/"+sid+".tmp",repo + sid) ;        
+    // Unzip to get the json descriptor
+    
+    var json = ZipReader.content(tmpFile,"haxelib.json"),
+      conf;
+    
+    if (json != null)
+      conf = new ConfigJson(json);
+    else
+      throw "need a haxelib.json config";
+
+    trace("globals "+conf.globals());
+    
+    
+  }
+  
   public 
   function register(email:String,pass:String,fullName:String) {
     // if( !Datas.alphanum.match(name) )

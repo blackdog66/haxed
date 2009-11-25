@@ -5,7 +5,7 @@ package tests;
 
 
 import tests.Parse;
-import tests.Submit;
+import tests.TestConfigs;
 
 class Tests {
     
@@ -13,7 +13,7 @@ class Tests {
     var r = new haxe.unit.TestRunner();
     r.add(new Parse());
     r.add(new PackageTests());
-    // r.add(new Submit());
+    r.add(new TestConfigs());
     r.run();
   }
 }

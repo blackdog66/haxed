@@ -1,38 +1,13 @@
 package tools.haxelib;
 
+import tools.haxelib.Config;
+
 using Lambda;
 
 enum Token {
   PROPERTY(name:String,value:String,info:Info);
   SECTION(name:String,attrs:String,info:Info);
   UNKNOWN(info:Info);
-}
-
-typedef Global = {
-  var name:String;
-  var version:String;
-  var synopsis:String;
-  var category:String;
-  var tags:List<String>;
-}
-
-typedef Library = {
-  var attrs:List<String>;
-  var depends:List<String>;
-  var sourceDirs:List<String>;
-  var buildable:Bool;
-  var options: List<String>;
-}
-
-typedef Executable = {  > Library,
-  var mainIs:String;
-}
-
-typedef Repo = {
-  var attrs:List<String>;
-  var type:String;
-  var location:String;
-  var tag:String;
 }
 
 
@@ -79,7 +54,7 @@ class Habal {
   public var file:String;
   var properties:Hash<Property>;
   var curSection:String;
-  var hbl:Dynamic;
+  public var hbl:Dynamic;
   
   
   public
@@ -123,7 +98,7 @@ class Habal {
 
   public
   function spaceSeparated(s) {
-    return Lambda.map(s.split(" "),function(el) { return StringTools.trim(el); });
+    return Lambda.map(s.split(" "),function(el) { return StringTools.trim(el); }).array();
   }
   
   function parseProperty(fld:String,val:Dynamic):Dynamic {
@@ -138,32 +113,49 @@ class Habal {
     
   }
   
-  public
-  function globals():Global {
-    return Reflect.field(hbl,"global");
-  }
-
-  public
-  function library():Library {
-    return Reflect.field(hbl,"library");
-  }
-
-  public
-  function executable():Executable {
-    return Reflect.field(hbl,"executable");
-  }
-
-  public
-  function repo():Repo {
-    return Reflect.field(hbl,"sourceRepo");
-  }  
 }
 
 typedef Info = {
   var lineNo:Int;
   var indent:Int;
 }
+
+
+
+class ConfigHabal implements Config  {
+  var hbl:Habal;
   
+  public
+  function new(h:Habal) {
+    hbl = h;
+  }
+  
+  public
+  function globals():Global {
+    return Reflect.field(hbl.hbl,"global");
+  }
+  
+  public
+  function library():Library {
+    return Reflect.field(hbl.hbl,"library");
+  }
+  
+  public
+  function executable(?id:String):Executable {
+    return Reflect.field(hbl.hbl,"executable");
+  }
+  
+  public
+  function repo(?id:String):Repo {
+    return Reflect.field(hbl.hbl,"sourceRepo");
+  }
+
+  public
+  function file():String {
+    return hbl.file;
+  }
+}
+
 class HblTools {
 
   static var reProp = ~/^([A-Z0-9\-]+):\s+(.*)/i ;
@@ -232,19 +224,13 @@ class HblTools {
   public static
   function process(file:String):Habal {
     Fields.init();
-    
-    var
-      hbl = parse(file),
-      glbs = hbl.globals();
-
-    for (r in Fields.required()) {
-      if(Reflect.field(glbs,r) == null)
-        throw "Field "+r+" must be present";
-    }
-
-    return hbl;
+    return parse(file);
   }
-
+ 
+  public static
+  function getConfig(hbl:Habal):Config {
+    return new ConfigHabal(hbl);
+  } 
 }
 
 
