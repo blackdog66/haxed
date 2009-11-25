@@ -4,3 +4,4 @@ www/lib/
 *.log
 *.zip
 *.db
+.svn/
