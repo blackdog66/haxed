@@ -102,15 +102,20 @@ class Habal {
   }
   
   function parseProperty(fld:String,val:Dynamic):Dynamic {
-    return switch(fld) {
-    case "sourceDirs":
-      spaceSeparated(val);
-    case "tags":
-      spaceSeparated(val);
-    default:
-      val;
-    }
+    var ret:Dynamic;
     
+    switch(fld) {
+    case "sourceDirs":
+      ret = spaceSeparated(val);
+    case "tags":
+      ret = spaceSeparated(val);
+    case "buildable":
+      ret = (val == "true") ? true : false;
+    default:
+      ret = val;
+    }
+
+    return ret;
   }
   
 }

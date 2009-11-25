@@ -10,6 +10,7 @@ package tools.haxelib;
 
 typedef Global = {
   var name:String;
+  var authorEmail:String;
   var version:String;
   var synopsis:String;
   var category:String;
@@ -56,22 +57,22 @@ class ConfigJson implements Config {
 
   public 
   function globals():Global {
-    return Reflect.field(json.hbl.hbl,"global");
+    return Reflect.field(json.hbl,"global");
   }
 
   public
   function library():Library {
-    return Reflect.field(json.hbl.hbl,"library");
+    return Reflect.field(json.hbl,"library");
   }
 
   public 
   function executable(?id:String):Executable {
-    return Reflect.field(json.hbl.hbl,"executable");
+    return Reflect.field(json.hbl,"executable");
   }
 
   public 
   function repo(?id:String):Repo {
-    return Reflect.field(json.hbl.hbl,"sourceRepo");
+    return Reflect.field(json.hbl,"sourceRepo");
   }
 
   public 
