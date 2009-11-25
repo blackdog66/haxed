@@ -1,5 +1,6 @@
 package tools.haxelib;
 
+import tools.haxelib.ClientCommands;
 import tools.haxelib.ClientCore;
 
 
@@ -8,28 +9,6 @@ enum Answer {
   No;
   Always;
 }
-
-enum Command {
-  NOOP;
-  LIST;
-  REMOVE(pkg:String,ver:String);
-  SET(prj:String,ver:String);
-  SETUP(path:String);
-  CONFIG;
-  PATH(paths:Array<{project:String,version:String}>);
-  RUN(param:String);
-  TEST(pkg:String);
-  INSTALL(pkg:String);
-  SEARCH(query:String);
-  INFO(project:String);
-  USER(email:String);
-  REGISTER(email:String,password:String);
-  SUBMIT(pkgPath:String);
-  DEV(prj:String,dir:String);
-  CAPABILITIES;
-  PACKAGE(hblFile:String);
-}
-
 
 class ClientCtrl {
   static var commands = {
@@ -54,6 +33,7 @@ class ClientCtrl {
 
   static var curArg = 0;
   static var args = neko.Sys.args();
+  static var emailRe = ~/[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z][A-Z][A-Z]?/i;
 
   public
   static function print(str) {
@@ -66,6 +46,7 @@ class ClientCtrl {
       while (StringTools.startsWith(args[curArg],"-"))
         curArg+=2;
     }
+    return new Options();
   }
 
   static inline
@@ -109,10 +90,20 @@ class ClientCtrl {
   
   public static
   function process():Command {
-    getSwitches();
+    var options = getSwitches();
     return switch (getCommand()) {
+    case "register":
+      var
+        email = param("Email"),
+        password = param("Password"),
+        fullName = param("Full Name");
+
+      if (!emailRe.match(email)) throw "need a valid email address";
+      if (password.length < 5 ) throw "need a password of 5 chars or more";
+      
+      REGISTER(options,email,password,fullName);
     case "list":
-      LIST;
+      LIST(options);
     case "path":
       var projects = new Array<{project:String,version:String}>();
       eachParam(function(p) {
@@ -121,36 +112,36 @@ class ClientCtrl {
             version = (pv.length == 1) ? null : pv[1];
           projects.push({project:pv[0],version:version});
         });
-      PATH(projects);
+      PATH(options,projects);
     case "remove":
       var prj = param("Project");
       var ver = paramOpt();
-      REMOVE(prj,ver);
+      REMOVE(options,prj,ver);
     case "set":
       var
         prj = param("Project"),
         version = param("Version");
-       SET(prj,version);
+      SET(options,prj,version);
     case "dev":
       var
         prj = param("Project"),
         dir = paramOpt();
-      DEV(prj,dir);
+      DEV(options,prj,dir);
     case "setup":
       print("Please enter haxelib repository path with write access");
       print("Hit enter for default ("+ClientCore.getRepository()+")");
       var line = param("Path");
       if( line != "")
-        SETUP(line);
+        SETUP(options,line);
       else throw "Need a path";
     case "package":
       print("Enter the path to the hbl file");
       var hbl = param("Hbl File");
-      PACKAGE(hbl);
+      PACKAGE(options,hbl);
     case "submit":
       print("Enter the path to the package zip file");
       var path = param("Zip file");
-      SUBMIT(path);
+      SUBMIT(options,path);
     default:
       NOOP;
     }	      	

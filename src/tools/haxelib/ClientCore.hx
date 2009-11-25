@@ -3,6 +3,7 @@ package tools.haxelib;
 
 import tools.haxelib.Habal;
 import tools.haxelib.Package;
+import tools.haxelib.ClientCommands;
 
 /*
   Implement all the local functions, remote operations are implemented by
@@ -66,7 +67,7 @@ class ClientCore {
   }
 
   public
-  function list() {
+  function list(options:Options) {
     var rep = getRepository();
     for( p in Os.dir(rep) ) {
       if( p.charAt(0) == "." )
@@ -100,7 +101,7 @@ class ClientCore {
   }
   
   public
-  function remove(prj:String,version:String) {
+  function remove(option:Options,prj:String,version:String) {
     var rep = getRepository();
     var pdir = rep + Os.safe(prj);
 
@@ -179,7 +180,7 @@ class ClientCore {
   }
 
   public
-  function config(){
+  function config(options:Options){
 	Os.print(getRepository());
   }
 

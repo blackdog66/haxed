@@ -13,45 +13,43 @@ class ClientMain {
     defaultRepos.push("http://bazarrware");
 
     var
-      client = new RestfulClient(defaultRepos),
+      client = new ClientRestful(defaultRepos),
       command = ClientCtrl.process();
 
     switch(command) {
     case NOOP:
       ClientCtrl.usage();
-    case LIST:
-       client.list();
-    case REMOVE(pkg,ver):
-      client.remove(pkg,ver);
-    case SET(prj,ver):
+    case LIST(options):
+       client.list(options);
+    case REMOVE(options,pkg,ver):
+      client.remove(options,pkg,ver);
+    case SET(options,prj,ver):
       client.set(prj,ver);
-    case SETUP(path):
+    case SETUP(options,path):
       client.setup(path);
-    case CONFIG:
-      client.config();
-    case PATH(pkgs):
+    case CONFIG(options):
+      client.config(options);
+    case PATH(options,pkgs):
       client.path(pkgs);
-    case RUN(params):
+    case RUN(options,params):
       client.run();
-    case DEV(prj,dir):
+    case DEV(options,prj,dir):
       client.dev(prj,dir);
-    case TEST(path):
-    case PACKAGE(hblFile):
+    case TEST(options,path):
+    case PACKAGE(options,hblFile):
       client.packit(hblFile);
       // server
-    case INSTALL(projectName):
-      client.install(projectName);
-    case SEARCH(query):
-      client.search(query);
-    case INFO(project):
-      client.info(project);
-    case USER(email):
-    case REGISTER(email,password):
-      client.register(email,password);
-    case SUBMIT(packagePath):
-      client.submit(packagePath);
-    case CAPABILITIES:
-      client.capabilities();
+    case INSTALL(options,projectName):
+      client.install(options,projectName);
+    case SEARCH(options,query):
+      client.search(options,query);
+    case INFO(options,project):
+      client.info(options,project);
+    case USER(options,email):
+    case REGISTER(options,email,password,fullName):
+      client.register(options,email,password,fullName);
+    case SUBMIT(options,packagePath):
+      client.submit(options,packagePath);
     }
   }
 }
