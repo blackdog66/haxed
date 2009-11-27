@@ -125,39 +125,12 @@ typedef Info = {
   var indent:Int;
 }
 
-
-
-class ConfigHabal implements Config  {
-  var hbl:Habal;
-  
+class ConfigHabal extends Config  {
   public
   function new(h:Habal) {
-    hbl = h;
-  }
-  
-  public
-  function globals():Global {
-    return Reflect.field(hbl.hbl,"global");
-  }
-  
-  public
-  function library():Library {
-    return Reflect.field(hbl.hbl,"library");
-  }
-  
-  public
-  function executable(?id:String):Executable {
-    return Reflect.field(hbl.hbl,"executable");
-  }
-  
-  public
-  function repo(?id:String):Repo {
-    return Reflect.field(hbl.hbl,"sourceRepo");
-  }
-
-  public
-  function file():String {
-    return hbl.file;
+    super();
+    data = h.hbl;
+    Reflect.setField(data,"file",Reflect.field(h,"file"));
   }
 }
 

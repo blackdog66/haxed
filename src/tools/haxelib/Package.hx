@@ -3,7 +3,6 @@ package tools.haxelib;
 import tools.haxelib.Os;
 import tools.haxelib.Config;
 
-
 class Package {
 
   public static var packDir = "/tmp/haxelib-pgk/";
@@ -45,7 +44,7 @@ class Package {
 
   public static
   function packageJson(conf:Config) {
-    return hxjson2.JSON.encode(conf) ;
+    return hxjson2.JSON.encode(conf.data) ;
   }
   
   public

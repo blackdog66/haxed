@@ -37,46 +37,44 @@ typedef Repo = {
 }
 
   
-  interface Config {
-    function globals():Global ;
-    function library():Library;
-    function executable(?id:String):Executable;
-    function repo(?id:String):Repo;
-    function file():String;
-  }  
+class Config {
+  public var data:Dynamic;
 
-
-
-class ConfigJson implements Config {
-  var json:Dynamic;
-  
-  public
-  function new (j:String) {
-    json = hxjson2.JSON.decode(j);
+  public function new() {
   }
-
+  
   public 
   function globals():Global {
-    return Reflect.field(json.hbl,"global");
+    return Reflect.field(data,"global");
   }
-
+  
   public
   function library():Library {
-    return Reflect.field(json.hbl,"library");
+    return Reflect.field(data,"library");
   }
-
+  
   public 
   function executable(?id:String):Executable {
-    return Reflect.field(json.hbl,"executable");
+    return Reflect.field(data,"executable");
   }
-
+  
   public 
   function repo(?id:String):Repo {
-    return Reflect.field(json.hbl,"sourceRepo");
+    return Reflect.field(data,"sourceRepo");
   }
-
+  
   public 
   function file():String {
-    return json.hbl.file;
+    return Reflect.field(data,"file");
+  }
+  
+}  
+
+
+class ConfigJson extends Config {
+  public
+  function new (j:String) {
+    super();
+    data =  hxjson2.JSON.decode(j);
   }
 }
