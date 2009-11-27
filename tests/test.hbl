@@ -45,7 +45,7 @@ Executable foo
       main-is:            filename (required)
     
       build-depends:      package list (e.g. base >= 2, foo >= 1.2 && < 1.3, bar)
-      haxe-source-dirs:   directory list (default: “.”)
-      buildable:          boolean (default: True)
+      haxe-source-dirs:   directory list
+      buildable:          boolean
       haxe-options:       token list
       

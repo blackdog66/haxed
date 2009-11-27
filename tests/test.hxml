@@ -1,5 +1,17 @@
 
 -cp ../src/
+-php ../www
+-main tools.haxelib.ServerMain
+
+--next
+
+-cp ../src/
+-neko ../client.n
+-main tools.haxelib.ClientMain
+
+--next 
+
+-cp ../src/
 -cp ..
 -lib hxJson2
 -neko tests.n

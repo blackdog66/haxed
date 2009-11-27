@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd ..
+rm haxelib.db
+
+cat scripts/schema.sql | sqlite haxelib.db

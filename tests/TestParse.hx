@@ -7,7 +7,7 @@ import tools.haxelib.Config;
 
 import utest.Assert;
 
-class Parse {
+class TestParse {
 
   public static var testFile = "./test.hbl";
 
@@ -70,7 +70,7 @@ class PackageTests  {
   function setup() {
     // initialises package dir, process habal
     Package.initPackDir();
-    hbl = HblTools.process(Parse.testFile);
+    hbl = HblTools.process(TestParse.testFile);
     conf = HblTools.getConfig(hbl);
   }
   

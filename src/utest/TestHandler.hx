@@ -40,7 +40,7 @@ class TestHandler<T> {
 	}
 
 	function checkTested() {
-#if (flash || js)
+#if (flash || js ||neko)
 		if(expireson == null || asyncStack.length == 0) {
 			tested();
 		} else if(haxe.Timer.stamp() > expireson) {
@@ -109,7 +109,7 @@ class TestHandler<T> {
 			}
 			try {
 				handler.bindHandler();
-				f();
+				f(); 
 			} catch(e : Dynamic) {
 				handler.results.add(AsyncError(e));
 			}
@@ -120,7 +120,7 @@ class TestHandler<T> {
 		asyncStack.add(f);
 		var handler = this;
 		setTimeout(timeout);
-		return function(e : EventArg) {
+	 	return function(e : EventArg) {
 			if(!handler.asyncStack.remove(f)) {
 				handler.results.add(AsyncError("event already executed"));
 				return;
