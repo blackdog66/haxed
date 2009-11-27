@@ -7,7 +7,7 @@ class Options {
     repos = new List<String>();
     repos.add("localhost:8200");
     repos.add("lib.haxelib.org");
-    repos.add("www.bazarrware.com");
+    repos.add("www.bazaarware.com");
   }
 
   public var repo(getRepo,setRepo) : String;
@@ -37,7 +37,7 @@ enum Command {
   INFO(options:Options,project:String);
   USER(options:Options,email:String);
   REGISTER(options:Options,email:String,password:String,fullName:String);
-  SUBMIT(options:Options,pkgPath:String);
+  SUBMIT(options:Options,password:String,pkgPath:String);
   DEV(options:Options,prj:String,dir:String);
   PACKAGE(options:Options,hblFile:String);
 }
