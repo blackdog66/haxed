@@ -45,7 +45,7 @@ enum Command {
 
 interface Repository {
   public function cleanup():Void;
-  public function submit():Void;
+  public function submit():Dynamic;
   public function register(email:String,password:String,fullName:String):Dynamic;
   public function user(email:String):UserInfo;
   

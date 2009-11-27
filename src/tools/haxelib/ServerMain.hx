@@ -20,19 +20,20 @@ class ServerMain {
 
     repo = new ServerHxRepo("/home/blackdog/Projects/haxelib/");
 
-    var ret = {ERR:0};
+    var ret:Dynamic = {ERR:1,ERRMSG:"Not implemented"};
     
     switch(command) {
     case SEARCH(query):
     case INFO(project):
     case USER(email):
+      ret = repo.user(email);
     case REGISTER(email,password,fullName):
       ret = repo.register(email,password,fullName);
     case SUBMIT(pkg):
-      repo.submit();
+      ret = repo.submit();
     case DEV(prj,dir):
     }
-
+    
     Lib.print(hxjson2.JSON.encode(ret));
 
     repo.cleanup();

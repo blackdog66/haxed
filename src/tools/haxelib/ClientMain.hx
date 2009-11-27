@@ -48,8 +48,8 @@ class ClientMain {
     case USER(options,email):
     case REGISTER(options,email,password,fullName):
       client.register(options,email,password,fullName);
-    case SUBMIT(options,packagePath):
-      client.submit(options,packagePath);
+    case SUBMIT(options,password,packagePath):
+      client.submit(options,password,packagePath);
     }
   }
 }

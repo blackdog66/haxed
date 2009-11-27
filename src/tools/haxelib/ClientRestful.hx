@@ -22,7 +22,7 @@ class ClientRestful extends ClientCore {
       for (f in flds) {
         sb.add(f);
         sb.add("=");
-        sb.add(Reflect.field(prms,f));
+        sb.add(StringTools.urlEncode(Reflect.field(prms,f)));
         sb.add("&");
       }
       parameters = sb.toString().substr(0,-1);
@@ -30,9 +30,11 @@ class ClientRestful extends ClientCore {
 
     trace("request is "+r+"&"+parameters);
     var h = new haxe.Http(r+"&"+parameters);
-    h.onData = function(d) {
-      fn(hxjson2.JSON.decode(d));
-    };
+    if (fn != null) {
+      h.onData = function(d) {
+        fn(hxjson2.JSON.decode(d));
+      };
+    }
     h.request(false);
   }
   
@@ -47,8 +49,11 @@ class ClientRestful extends ClientCore {
   }
 
   public
-  function submit(options:Options,packagePath:String) {
-    Os.filePost(packagePath,url(options,"submit"),true); 
+  function
+  submit(options:Options,password:String,packagePath:String,?fn:Dynamic->Void) {
+    Os.filePost(packagePath,url(options,"submit"),true,{},function(d) {
+        fn(hxjson2.JSON.decode(d));
+      }); 
   }
 
   public
@@ -60,7 +65,9 @@ class ClientRestful extends ClientCore {
   }
 
   public
-  function user(options:Options) {
+  function user(options:Options,email:String,?fn:Dynamic->Void) {
+    var u = url(options,"user");
+    request(u,{email:email},fn);
   }
 
   public
@@ -69,11 +76,9 @@ class ClientRestful extends ClientCore {
   }
 
   public
-  function register(options:Options,email:String,password:String,fullName:String):Void {
+  function register(options:Options,email:String,password:String,fullName:String,?fn:Dynamic->Void):Void {
     var u = url(options,"register");
-    request(u,{email:email,password:password,fullname:fullName},function(d) {
-        trace(d);
-      });
+    request(u,{email:email,password:password,fullname:fullName},fn);
   }
 
 }

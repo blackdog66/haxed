@@ -52,7 +52,7 @@ class ServerHxRepo implements Repository {
   } 
 
   public
-  function submit() {
+  function submit():Dynamic {
     var
       TMP_DIR = "/tmp",
       file = null,
@@ -71,11 +71,11 @@ class ServerHxRepo implements Repository {
       });
     if( file != null ) {
       file.close();
-      Lib.print("File # accepted : "+bytes+" bytes written");
+      //Lib.print("File # accepted : "+bytes+" bytes written");
       processUploaded(TMP_DIR+"/"+sid+".tmp");
-      return;
+      return {ERR:0};
     }
-  
+    return {ERR:1};
   }
 
   private
@@ -92,15 +92,9 @@ class ServerHxRepo implements Repository {
       throw "need a haxelib.json config";
 
     var glbs = conf.globals();
-    
-    trace("globals "+conf.globals());
-
-    var u = user(glbs.authorEmail);
+        var u = user(glbs.authorEmail);
     if (u == null)
       throw "User "+glbs.authorEmail+" is not registered";
-
-    
-    
   }
   
   public 
@@ -125,6 +119,7 @@ class ServerHxRepo implements Repository {
 
   public function user(email:String):UserInfo {
     var u = User.manager.search({ email : email }).first();
+
     if( u == null )
       return null;
     var

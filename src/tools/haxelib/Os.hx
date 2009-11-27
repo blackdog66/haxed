@@ -201,7 +201,7 @@ class Os {
   /* http multipart upload */
   public static
 	function filePost(filePath:String,dstUrl:String,binary:Bool,
-		?params:Dynamic,?fn:String->Void) {
+		params:Dynamic,fn:String->Void) {
 
 		if (!neko.FileSystem.exists(filePath))
 			throw "file not found";
@@ -211,7 +211,6 @@ class Os {
 
 		var path = new neko.io.Path(filePath);
 		var stat = neko.FileSystem.stat(filePath);
-		trace("size is "+stat.size);
 		req.fileTransfert("file",path.file+"."+path.ext,
 			neko.io.File.read(filePath,binary),stat.size);
 

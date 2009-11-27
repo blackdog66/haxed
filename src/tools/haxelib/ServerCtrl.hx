@@ -40,9 +40,8 @@ class ServerCtrl  {
         trace("info");
         INFO(prj);
       case "user":
-        var user = params.get("user");
-        USER(user);
-        
+        var email = params.get("email");
+        USER(email);
       case "dev":
         var
         prj = params.get("prj"),

@@ -140,8 +140,11 @@ class ClientCtrl {
       PACKAGE(options,hbl);
     case "submit":
       print("Enter the path to the package zip file");
-      var path = param("Zip file");
-      SUBMIT(options,path);
+      var
+        path = param("Zip file"),
+        password = param("Password");
+
+      SUBMIT(options,password,path);
     default:
       NOOP;
     }	      	
