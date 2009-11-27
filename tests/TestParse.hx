@@ -25,7 +25,7 @@ class TestParse {
   public function
   testGlobals() {
     var globals = conf.globals();
-    Assert.isFalse(globals == null);
+    Assert.notNull(globals);
     Assert.equals(globals.synopsis,"freeform");
     Assert.equals(globals.name,"project-name");
     Assert.isTrue(Std.is(globals.tags,Array));
@@ -35,7 +35,7 @@ class TestParse {
   public function
   testLibrary() {
     var library = conf.library();
-    Assert.equals(library,null);
+    Assert.notNull(library);
     Assert.isTrue(Std.is(library.sourceDirs,Array));
     Assert.equals("/home/blackdog/Projects/haxelib/src",library.sourceDirs[0]);
   }
@@ -44,7 +44,7 @@ class TestParse {
   public
   function testExecutable() {
     var exe = conf.executable();
-    Assert.isFalse(exe == null);
+    Assert.notNull(exe);
     Assert.equals("filename (required)",exe.mainIs);
     Assert.equals("foo",exe.attrs[0]);
   }
@@ -52,7 +52,7 @@ class TestParse {
   public
   function testRepo() {
     var repo = conf.repo();
-    Assert.isFalse(repo == null);
+    Assert.notNull(repo);
     Assert.equals("this",repo.attrs[0]);
     Assert.equals("darcs",repo.type);
 
