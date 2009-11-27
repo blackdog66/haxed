@@ -35,7 +35,7 @@ class TestParse {
   public function
   testLibrary() {
     var library = conf.library();
-    Assert.isFalse(library == null);
+    Assert.equals(library,null);
     Assert.isTrue(Std.is(library.sourceDirs,Array));
     Assert.equals("/home/blackdog/Projects/haxelib/src",library.sourceDirs[0]);
   }

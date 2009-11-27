@@ -33,8 +33,6 @@ class TestSubmit  {
     var
       me = this,
       onSubmission = Assert.createEvent(function(d:Dynamic) {
-          trace(Type.getClass(d));
-          trace("IN HERE OK:"+d);
           Assert.equals(0,d.ERR);
         });
     

@@ -33,13 +33,13 @@ class TestCli  {
     var
       me = this,
       notRegistered = Assert.createEvent(function(d:Dynamic) {
-          Assert.isTrue(d.ERR == 0);
+          Assert.equals(d.ERR,0);
         }),
       registered = Assert.createEvent(function(d:Dynamic) {
-          Assert.isTrue(d.ERR == 1);
+          Assert.equals(d.ERR,1);
         }),
       anotherRegistered = Assert.createEvent(function(d:Dynamic) {
-          Assert.isTrue(d.ERR == 0);
+          Assert.equals(d.ERR,0);
         });
 
     cr.register(options,email,"bd1","fullname",notRegistered);
@@ -52,8 +52,8 @@ class TestCli  {
     var
       me = this,
       as = Assert.createEvent(function(d:Dynamic) {
-        Assert.isTrue(d.email == me.email);
-        Assert.isTrue(d.projects.length == 0);
+          Assert.equals(d.email,me.email);
+          Assert.equals(d.projects.length,0);
       });
     
     cr.user(options,email,as);
