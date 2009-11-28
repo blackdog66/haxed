@@ -79,7 +79,6 @@ class Version extends Object {
 
 }
 
-/*
 class Developer extends Object {
 
 	static var TABLE_IDS = ["user","project"];
@@ -90,13 +89,13 @@ class Developer extends Object {
 		];
 	}
 
-	public static var manager = Manager<Developer>(Developer);
+	public static var manager = new Manager<Developer>(Developer);
 
 	public var user(dynamic,dynamic) : User;
 	public var project(dynamic,dynamic) : Project;
 
 }
-*/
+
 
 class ProjectManager extends Manager<Project> {
 

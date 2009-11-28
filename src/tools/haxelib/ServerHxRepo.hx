@@ -1,6 +1,7 @@
 
 package tools.haxelib;
 
+import tools.haxelib.Common;
 import tools.haxelib.ServerData;
 import tools.haxelib.ServerModel;
 import tools.haxelib.ZipReader;
@@ -10,10 +11,14 @@ import tools.haxelib.Config;
 import php.io.File;
 import php.Web;
 import php.Lib;
+import php.db.Manager;
+import php.db.Sqlite;
 #elseif neko
 import neko.io.File;
 import neko.Web;
 import neko.Lib;
+import neko.db.Manager;
+import neko.db.Sqlite;
 #end
 
 /*
@@ -36,23 +41,23 @@ class ServerHxRepo implements Repository {
       
     }
     
-    var db = php.db.Sqlite.open(dataDir + DB);
-    php.db.Manager.cnx = db;
-	php.db.Manager.initialize();
+    var db = Sqlite.open(dataDir + DB);
+    Manager.cnx = db;
+	Manager.initialize();
   }
 
   public
   function cleanup() {
     try {
-    php.db.Manager.cnx.close();
-    php.db.Manager.cnx = null;
+      Manager.cnx.close();
+      Manager.cnx = null;
     } catch(exc:Dynamic) {
       trace("problem closing db");
     }
   } 
 
   public
-  function submit():Dynamic {
+  function submit(password:String):Status {
     var
       TMP_DIR = "/tmp",
       file = null,
@@ -72,56 +77,61 @@ class ServerHxRepo implements Repository {
     if( file != null ) {
       file.close();
       //Lib.print("File # accepted : "+bytes+" bytes written");
-      processUploaded(TMP_DIR+"/"+sid+".tmp");
-      return {ERR:0};
+      return processUploaded(password,TMP_DIR+"/"+sid+".tmp");
     }
-    return {ERR:1};
+    return ERR_UNKNOWN;
   }
 
   private
-  function processUploaded(tmpFile:String) {
-    // File.copy(TMP_DIR+"/"+sid+".tmp",repo + sid) ;        
-    // Unzip to get the json descriptor
+  function processUploaded(password:String,tmpFile:String):Status {
+    var
+      json = ZipReader.content(tmpFile,"haxelib.json") ;
     
-    var json = ZipReader.content(tmpFile,"haxelib.json"),
-      conf;
+    if (json == null)
+      return ERR_HAXELIBJSON;
+        
+    var
+      conf = new ConfigJson(json),
+      glbs = conf.globals(),
+      email = glbs.authorEmail,  
+      user = User.manager.search({ email : email }).first();
     
-    if (json != null)
-      conf = new ConfigJson(json);
-    else
-      throw "need a haxelib.json config";
+    if (user == null)
+      return ERR_USER(email);
 
-    var glbs = conf.globals();
-        var u = user(glbs.authorEmail);
-    if (u == null)
-      throw "User "+glbs.authorEmail+" is not registered";
+    if (user.pass != password)
+      return ERR_PASSWORD;
+    
+    var prj = Project.manager.search({ name : glbs.name }).first();
+    if (prj == null)
+      prj = createProject(user,glbs) ;
+
+    if(!developer(user,prj))
+      return ERR_DEVELOPER;
+
+    return OK;
   }
   
   public 
-  function register(email:String,pass:String,fullName:String):Dynamic {
- 
-    if (user(email) != null)
-      return {ERR:1,ERRMSG:"user registered"};
-    
+  function register(email:String,pass:String,fullName:String):Status {
+    if (user(email) != ERR_UNKNOWN)
+      return ERR_REGISTERED;
+
     var u = new User();
-    //u.name = name;
     u.pass = pass;
     u.email = email;
     u.fullname = fullName;
     u.insert();
-    return {ERR:0};
+    return OK;
   }
 
-  public function checkPassword( email : String, pass : String ) : Bool {
-    var u = User.manager.search({ email : email }).first();
-    return u != null && u.pass == pass;
-  }
-
-  public function user(email:String):UserInfo {
+  public
+  function user(email:String):Status {
     var u = User.manager.search({ email : email }).first();
 
     if( u == null )
-      return null;
+      return ERR_UNKNOWN;
+
     var
       pl = Project.manager.search({ owner : u.id }),
       projects = new Array();
@@ -129,10 +139,58 @@ class ServerHxRepo implements Repository {
     for( p in pl )
       projects.push(p.name);
 
-    return {
+    return OK_USER({
         fullname : u.fullname,
         email : u.email,
-        projects : projects,
-		};
+        projects : projects
+    });
   }
+
+  function createProject(u:User,g:Global):Project {
+    var p = new Project();
+
+    p.name = g.name;
+    p.description = g.description;
+    p.website = g.projectUrl;
+    p.license = g.license;
+    p.owner = u;
+    p.downloads = 0;
+    p.insert();
+
+    // TODO
+    var devs = new List<User>();
+    devs.push(u);
+      
+    for( u in devs ) {
+      var d = new Developer();
+      d.user = u;
+      d.project = p;
+      d.insert();
+    }
+      
+    for( tag in g.tags ) {
+      var t = new Tag();
+      t.tag = tag;
+      t.project = p;
+      t.insert();
+    }
+
+    return p;
+  }
+
+  function developer(u:User,p:Project) {
+    var
+      pdevs = Developer.manager.search({ project : p.id }),
+      isdev = false;
+
+    for( d in pdevs ) {
+      if( d.user.id == u.id ) {
+        isdev = true;
+        break;
+      }
+    }
+
+    return isdev;
+  }
+  
 }

@@ -1,5 +1,6 @@
 package tools.haxelib;
 
+import tools.haxelib.Common;
 import tools.haxelib.ServerModel;
 import tools.haxelib.ServerHxRepo;
 
@@ -20,21 +21,18 @@ class ServerMain {
 
     repo = new ServerHxRepo("/home/blackdog/Projects/haxelib/");
 
-    var ret:Dynamic = {ERR:1,ERRMSG:"Not implemented"};
-    
-    switch(command) {
-    case SEARCH(query):
-    case INFO(project):
-    case USER(email):
-      ret = repo.user(email);
-    case REGISTER(email,password,fullName):
-      ret = repo.register(email,password,fullName);
-    case SUBMIT(pkg):
-      ret = repo.submit();
-    case DEV(prj,dir):
-    }
-    
-    Lib.print(hxjson2.JSON.encode(ret));
+    Lib.print(
+      ERR.msg(
+        switch(command) {
+        case CMD_USER(email):
+          repo.user(email);
+        case CMD_REGISTER(email,password,fullName):
+          repo.register(email,password,fullName);
+        case CMD_SUBMIT(password):
+          repo.submit(password);
+        default:
+          ERR_UNKNOWN;
+        }));
 
     repo.cleanup();
   }

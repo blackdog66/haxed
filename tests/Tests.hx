@@ -15,14 +15,22 @@ class Tests {
     
   static function main(){
     var r = new Runner();
+    
     r.addCase(new TestParse());
-    r.addCase(new PackageTests());
+
     r.addCase(new TestConfigs());
+    r.addCase(new TestPackage());
     r.addCase(new TestCli());
+    
     var report = new TraceReport(r);
     r.run();
     neko.Sys.sleep(5);
 
+    var r3 = new Runner() ;
+    r3.addCase(new TestZip());
+    report = new TraceReport(r3);
+    r3.run();
+    
     var r2 = new Runner();
     r2.addCase(new TestSubmit());
     report = new TraceReport(r2);

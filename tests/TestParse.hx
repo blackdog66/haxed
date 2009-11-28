@@ -21,9 +21,9 @@ class TestParse {
     hbl = HblTools.process(testFile);
     conf = HblTools.getConfig(hbl);
   }
-  
+
   public function
-  testGlobals() {
+  testAGlobals() {
     var globals = conf.globals();
     Assert.notNull(globals);
     Assert.equals(globals.synopsis,"freeform");
@@ -31,18 +31,18 @@ class TestParse {
     Assert.isTrue(Std.is(globals.tags,Array));
 
   }
-
+ 
   public function
-  testLibrary() {
+  testBLibrary() {
     var library = conf.library();
     Assert.notNull(library);
     Assert.isTrue(Std.is(library.sourceDirs,Array));
-    Assert.equals("/home/blackdog/Projects/haxelib/src",library.sourceDirs[0]);
+    Assert.equals("/home/blackdog/Projects/hxV8/v8",library.sourceDirs[0]);
   }
 
 
   public
-  function testExecutable() {
+  function testCExecutable() {
     var exe = conf.executable();
     Assert.notNull(exe);
     Assert.equals("filename (required)",exe.mainIs);
@@ -50,7 +50,7 @@ class TestParse {
   }
 
   public
-  function testRepo() {
+  function testDRepo() {
     var repo = conf.repo();
     Assert.notNull(repo);
     Assert.equals("this",repo.attrs[0]);
@@ -58,28 +58,30 @@ class TestParse {
 
     //    trace(JSON.encode(conf));
   }
+ 
 }
 
-class PackageTests  {
+class TestPackage  {
   var hbl:Habal;
   var conf:Config;
 
-  public function new() {}
+  public function new() {
+    Package.initPackDir();
+  }
   
   public
   function setup() {
     // initialises package dir, process habal
-    Package.initPackDir();
     hbl = HblTools.process(TestParse.testFile);
     conf = HblTools.getConfig(hbl);
   }
-  
-  function testXml() {
+ 
+  function testAXml() {
     Package.xml(conf);
     Assert.isTrue(Os.exists(Package.packDir+"haxelib.xml"));
   }
-
-  function testPackageSources() {
+  
+  function testBPackageSources() {
     Package.sources(conf) ;
     var
       libs = conf.library();
@@ -88,23 +90,38 @@ class PackageTests  {
         for (t in top) {
           //if (!StringTools.startsWith(t,"."))
           //continue;
-          
           Assert.isTrue(Os.exists(Package.packDir  + t));
         }
     };
-  }
-
-   function testJson() {
+ }
+  
+  function testCJson() {
     Package.json(conf);
     var g = conf.globals();
     Assert.isTrue(Os.exists(Package.packDir+"haxelib.json"));
-  }
+  }  
+ 
+}
+
+
+class TestZip  {
+  var hbl:Habal;
+  var conf:Config;
+
+  public function new() { }
   
-  function testZip() {
+  public
+  function setup() {
+    // initialises package dir, process habal
+    hbl = HblTools.process(TestParse.testFile);
+    conf = HblTools.getConfig(hbl);
+  }
+ 
+  function testDZip() {
     Package.zip(conf);
     var g = conf.globals();
     Assert.isTrue(Os.exists(neko.io.Path.directory(conf.file()) + "/"+g.name+".zip"));
   }
-
  
+
 }

@@ -37,7 +37,7 @@ source-repository this
 
 library
       build-depends:      package list (e.g. base >= 2, foo >= 1.2 && < 1.3, bar)
-      haxe-source-dirs:   /home/blackdog/Projects/haxelib/src
+      haxe-source-dirs:   /home/blackdog/Projects/hxV8/v8
       buildable:          true
       haxe-options:       token list
     

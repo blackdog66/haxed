@@ -20,6 +20,8 @@ class Package {
 
   public static
   function initPackDir() {
+    // TODO
+    neko.Sys.command("rm -rf "+packDir);
     Os.mkdir(packDir);
   }
 
@@ -49,19 +51,17 @@ class Package {
   
   public
   static function sources(conf:Config) {
-    var
-      libs = conf.library();
-      Lambda.iter(libs.sourceDirs,function(d) {
-          if (!Os.exists(d))
-            throw "Source dir "+d+" does not exist";
-          Os.copyTree(Os.slash(d),packDir);
-        });
+    var libs = conf.library();
+    Lambda.iter(libs.sourceDirs,function(d) {
+        if (!Os.exists(d))
+          throw "Source dir "+d+" does not exist";
+        Os.copyTree(Os.slash(d),packDir);
+      });
   }
 
   public static
   function xml(conf:Config) {
-    var
-      glbs = conf.globals();
+    var glbs = conf.globals();
     Os.fileOut(toPackDir("haxelib.xml"),packageXml(conf));
   }
 
@@ -73,6 +73,8 @@ class Package {
   public static
   function zip(conf:Config) {
     var name = conf.globals().name+".zip";
+    trace("Zipping");
+    trace(Os.files(packDir));
     Os.zip(outFile(name,conf.file()),Os.files(packDir),packDir);
   }
   

@@ -33,9 +33,9 @@ class TestSubmit  {
     var
       me = this,
       onSubmission = Assert.createEvent(function(d:Dynamic) {
-          Assert.equals(0,d.ERR);
+          Assert.equals("OK",d.ERR);
         });
     
-    cr.submit(options,"pw",pkg,onSubmission);
+    cr.submit(options,"bd1",pkg,onSubmission);
   }
 }

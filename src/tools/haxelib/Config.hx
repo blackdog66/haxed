@@ -13,8 +13,11 @@ typedef Global = {
   var authorEmail:String;
   var version:String;
   var synopsis:String;
+  var description:String;
   var category:String;
   var tags:Array<String>;
+  var projectUrl:String;
+  var license:String;
 }
   
 typedef Library = {

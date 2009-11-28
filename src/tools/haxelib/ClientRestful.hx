@@ -51,7 +51,7 @@ class ClientRestful extends ClientCore {
   public
   function
   submit(options:Options,password:String,packagePath:String,?fn:Dynamic->Void) {
-    Os.filePost(packagePath,url(options,"submit"),true,{},function(d) {
+    Os.filePost(packagePath,url(options,"submit"),true,{password:password},function(d) {
         fn(hxjson2.JSON.decode(d));
       }); 
   }

@@ -1,52 +1,36 @@
 package tools.haxelib;
 
+import tools.haxelib.Common;
+import hxjson2.JSON;
 
-typedef UserInfo = {
-	var fullname : String;
-	var email : String;
-	var projects : Array<String>;
+class ERR {
+  public static
+  function msg(s:Status) {
+    var m = Type.enumConstructor(s);
+    return switch(s) {
+    case OK_USER(ui):
+      JSON.encode({ERR:m,INFO:ui});
+    case ERR_USER(email):
+      JSON.encode({ERR:m,EMAIL:email});
+    default:
+      JSON.encode({ERR:m});
+    }
+  }
 }
-
-typedef VersionInfo = {
-	var date : String;
-	var name : String;
-	var comments : String;
-}
-
-typedef ProjectInfo = {
-	var name : String;
-	var desc : String;
-	var website : String;
-	var owner : String;
-	var license : String;
-	var curversion : String;
-	var versions : Array<VersionInfo>;
-}
-
-typedef XmlInfo = {
-	var project : String;
-	var website : String;
-	var desc : String;
-	var license : String;
-	var version : String;
-	var versionComments : String;
-	var developers : List<String>;
-	var dependencies : List<{ project : String, version : String }>;
-}
-
+ 
 enum Command {
-  SEARCH(query:String);
-  INFO(project:String);
-  USER(email:String);
-  REGISTER(email:String,password:String,fullName:String);
-  SUBMIT(pkgPath:String);
-  DEV(prj:String,dir:String);
+  CMD_SEARCH(query:String);
+  CMD_INFO(project:String);
+  CMD_USER(email:String);
+  CMD_REGISTER(email:String,password:String,fullName:String);
+  CMD_SUBMIT(pkgPath:String);
+  CMD_DEV(prj:String,dir:String);
 }
 
 interface Repository {
   public function cleanup():Void;
-  public function submit():Dynamic;
-  public function register(email:String,password:String,fullName:String):Dynamic;
-  public function user(email:String):UserInfo;
+  public function submit(password:String):Status;
+  public function register(email:String,password:String,fullName:String):Status;
+  public function user(email:String):Status;
   
 }

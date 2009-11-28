@@ -20,7 +20,8 @@ class ServerCtrl  {
     return
       switch(params.get("method")) {
       case "submit":
-        SUBMIT("");
+        var password = params.get("password");
+        CMD_SUBMIT(password);
       case "register":
         var
           email = params.get("email"),
@@ -33,24 +34,24 @@ class ServerCtrl  {
     //  throw "User name must be at least 3 characters";
 
         
-        REGISTER(email,password,fullName);
+        CMD_REGISTER(email,password,fullName);
   
       case "info":
         var prj = params.get("prj");
         trace("info");
-        INFO(prj);
+        CMD_INFO(prj);
       case "user":
         var email = params.get("email");
-        USER(email);
+        CMD_USER(email);
       case "dev":
         var
         prj = params.get("prj"),
         dir = params.get("dir");
-      DEV(prj,dir);
+        CMD_DEV(prj,dir);
       
       case "search":
         var query = params.get("query");
-        SEARCH(query);
+        CMD_SEARCH(query);
       }
   }
   

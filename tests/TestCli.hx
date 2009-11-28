@@ -1,6 +1,7 @@
 
 package tests;
 
+import tools.haxelib.Common;
 import tools.haxelib.ClientRestful;
 import tools.haxelib.ClientCommands;
 
@@ -33,13 +34,14 @@ class TestCli  {
     var
       me = this,
       notRegistered = Assert.createEvent(function(d:Dynamic) {
-          Assert.equals(d.ERR,0);
+          trace(d);
+          Assert.equals("OK",d.ERR);
         }),
       registered = Assert.createEvent(function(d:Dynamic) {
-          Assert.equals(d.ERR,1);
+          Assert.equals("ERR_REGISTERED",d.ERR);
         }),
       anotherRegistered = Assert.createEvent(function(d:Dynamic) {
-          Assert.equals(d.ERR,0);
+          Assert.equals("OK",d.ERR);
         });
 
     cr.register(options,email,"bd1","fullname",notRegistered);
@@ -52,8 +54,9 @@ class TestCli  {
     var
       me = this,
       as = Assert.createEvent(function(d:Dynamic) {
-          Assert.equals(d.email,me.email);
-          Assert.equals(d.projects.length,0);
+          trace(d);
+          Assert.equals(d.INFO.email,me.email);
+          Assert.equals(d.INFO.projects.length,0);
       });
     
     cr.user(options,email,as);
