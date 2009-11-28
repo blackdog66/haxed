@@ -1,9 +1,8 @@
-
-
 package tests;
 
 import tools.haxelib.ClientRestful;
 import tools.haxelib.ClientCommands;
+import tools.haxelib.Common;
 
 import utest.Assert;
 import utest.Runner;
@@ -14,6 +13,7 @@ class TestSubmit  {
   var cr:ClientRestful;
   var options:Options;
   var pkg:String;
+  var prj:String;
   var email:String;
   var email2:String;
 
@@ -23,13 +23,15 @@ class TestSubmit  {
   function setup() {
     cr = new ClientRestful(["other repo"]);
     options = new Options() ;
-    pkg = "project-name.zip";
+    prj = "project-name";
+    pkg = prj+".zip";
     email = "blackdog@ipowerhouse.com";
     email2 = "another@w00t.com";
+    
   }
 
   public function
-  testSubmit() {
+  testASubmit() {
     var
       me = this,
       onSubmission = Assert.createEvent(function(d:Dynamic) {
@@ -37,5 +39,47 @@ class TestSubmit  {
         });
     
     cr.submit(options,"bd1",pkg,onSubmission);
-  }
+  }  
+
 }
+
+
+class TestPostSubmit  {
+
+  var cr:ClientRestful;
+  var options:Options;
+  var pkg:String;
+  var prj:String;
+  var email:String;
+  var email2:String;
+
+  public function new() {}
+  
+  public
+  function setup() {
+    cr = new ClientRestful(["other repo"]);
+    options = new Options() ;
+    prj = "project-name";
+    pkg = prj+".zip";
+    email = "blackdog@ipowerhouse.com";
+    email2 = "another@w00t.com";
+  }
+
+
+  public function
+  testInfo() {
+    var
+      me = this,
+      as = Assert.createEvent(function(d) {
+          var info:ProjectInfo = d.INFO;
+          Assert.equals(d.ERR,"OK_PROJECT");
+          Assert.equals(me.prj,info.name);
+      });
+    
+    cr.info(options,prj,as);
+  }
+  
+}
+
+
+

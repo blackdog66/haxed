@@ -21,7 +21,7 @@ typedef ProjectInfo = {
 	var owner : String;
 	var license : String;
 	var curversion : String;
-	var versions : Array<VersionInfo>;
+  	var versions : Array<VersionInfo>;
 }
 
 typedef XmlInfo = {
@@ -38,12 +38,14 @@ typedef XmlInfo = {
 enum Status {
   OK;
   OK_USER(ui:UserInfo);
+  OK_PROJECT(pi:ProjectInfo);
   
   ERR_UNKNOWN;
   ERR_PASSWORD;
   ERR_DEVELOPER;
   ERR_HAXELIBJSON;
   ERR_USER(email:String);
-  ERR_REGISTERED;  
+  ERR_REGISTERED;
+  ERR_PROJECTNOTFOUND;
 }
 

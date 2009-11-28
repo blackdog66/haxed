@@ -30,6 +30,8 @@ class ServerMain {
           repo.register(email,password,fullName);
         case CMD_SUBMIT(password):
           repo.submit(password);
+        case CMD_INFO(pkg):
+          repo.info(pkg);
         default:
           ERR_UNKNOWN;
         }));

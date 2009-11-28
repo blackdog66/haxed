@@ -71,8 +71,9 @@ class ClientRestful extends ClientCore {
   }
 
   public
-  function info(options:Options,pkg:String) {
-
+  function info(options:Options,prj:String,?fn:Dynamic->Void) {
+    var u = url(options,"info");
+    request(u,{prj:prj},fn);
   }
 
   public

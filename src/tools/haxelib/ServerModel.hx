@@ -10,9 +10,12 @@ class ERR {
     return switch(s) {
     case OK_USER(ui):
       JSON.encode({ERR:m,INFO:ui});
+    case OK_PROJECT(info):
+      JSON.encode({ERR:m,INFO:info});
+   
     case ERR_USER(email):
       JSON.encode({ERR:m,EMAIL:email});
-    default:
+     default:
       JSON.encode({ERR:m});
     }
   }
@@ -32,5 +35,6 @@ interface Repository {
   public function submit(password:String):Status;
   public function register(email:String,password:String,fullName:String):Status;
   public function user(email:String):Status;
+  public function info(pkg:String):Status;
   
 }

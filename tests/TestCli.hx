@@ -14,6 +14,7 @@ class TestCli  {
   var cr:ClientRestful;
   var options:Options;
   var pkg:String;
+  var prj:String;
   var email:String;
   var email2:String;
 
@@ -23,7 +24,8 @@ class TestCli  {
   function setup() {
     cr = new ClientRestful(["other repo"]);
     options = new Options() ;
-    pkg = "project-name.zip";
+    prj = "project-name";
+    pkg = prj+"zip";
     email = "blackdog@ipowerhouse.com";
     email2 = "another@w00t.com";
   }

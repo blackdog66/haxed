@@ -104,7 +104,7 @@ class ServerHxRepo implements Repository {
     
     var prj = Project.manager.search({ name : glbs.name }).first();
     if (prj == null)
-      prj = createProject(user,glbs) ;
+      prj = createProject(user,glbs,json) ;
 
     if(!developer(user,prj))
       return ERR_DEVELOPER;
@@ -146,7 +146,7 @@ class ServerHxRepo implements Repository {
     });
   }
 
-  function createProject(u:User,g:Global):Project {
+  function createProject(u:User,g:Global,json:String):Project {
     var p = new Project();
 
     p.name = g.name;
@@ -155,6 +155,7 @@ class ServerHxRepo implements Repository {
     p.license = g.license;
     p.owner = u;
     p.downloads = 0;
+    p.meta = json;
     p.insert();
 
     // TODO
@@ -169,7 +170,7 @@ class ServerHxRepo implements Repository {
     }
       
     for( tag in g.tags ) {
-      var t = new Tag();
+     var t = new Tag();
       t.tag = tag;
       t.project = p;
       t.insert();
@@ -191,6 +192,26 @@ class ServerHxRepo implements Repository {
     }
 
     return isdev;
+  }
+
+  public
+  function info(prj:String):Status {
+    var p = Project.manager.search({ name : prj }).first();
+    
+    if (p == null)
+      return ERR_PROJECTNOTFOUND;
+
+    var u = p.owner;
+
+    return OK_PROJECT({
+      name: p.name,
+      desc:p.description,
+      website:p.website,
+      owner: u.email,
+      license:p.license,
+      curversion:null,
+      versions:null
+      });    
   }
   
 }

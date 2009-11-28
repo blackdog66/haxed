@@ -10,6 +10,7 @@ import utest.ui.text.TraceReport;
 import tests.TestParse;
 import tests.TestConfigs;
 import tests.TestCli;
+import tests.TestSubmit;
 
 class Tests {
     
@@ -36,6 +37,13 @@ class Tests {
     report = new TraceReport(r2);
     r2.run();
 
-    neko.Sys.sleep(10);
+    neko.Sys.sleep(3);
+
+    var r4 = new Runner() ;
+    r4.addCase(new TestPostSubmit());
+    report = new TraceReport(r4);
+    r4.run();
+    
+
   }
 }

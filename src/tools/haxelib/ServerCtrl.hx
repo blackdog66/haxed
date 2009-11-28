@@ -38,7 +38,6 @@ class ServerCtrl  {
   
       case "info":
         var prj = params.get("prj");
-        trace("info");
         CMD_INFO(prj);
       case "user":
         var email = params.get("email");
