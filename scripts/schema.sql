@@ -10,7 +10,8 @@ license VARCHAR(20) NOT NULL,
 description TEXT NOT NULL,
 website VARCHAR(100) NOT NULL,
 version INT,
-downloads INT NOT NULL
+downloads INT NOT NULL,
+meta TEXT NOT NULL
 );
 CREATE TABLE Tag (
 id INTEGER  PRIMARY KEY ,
