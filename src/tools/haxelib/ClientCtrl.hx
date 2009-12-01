@@ -1,6 +1,6 @@
 package tools.haxelib;
 
-import tools.haxelib.ClientCommands;
+import tools.haxelib.ClientCommon;
 import tools.haxelib.ClientCore;
 
 
@@ -41,12 +41,17 @@ class ClientCtrl {
   }
   
   static
-  function getSwitches() {
+  function getOptions() {
+    var o = new Options();
     if (args.length > 0) {
-      while (StringTools.startsWith(args[curArg],"-"))
-        curArg+=2;
+      while (curArg < args.length && StringTools.startsWith(args[curArg],"-")) {
+        o.addSwitch(args[curArg],args[curArg+1]);
+        neko.Lib.println("adding "+args[curArg]+":"+args[curArg+1]);
+        curArg += 2;
+      }
+      neko.Lib.println("curArg="+curArg);
     }
-    return new Options();
+    return o;
   }
 
   static inline
@@ -75,6 +80,7 @@ class ClientCtrl {
   function param( name, ?passwd ) {
     if( args.length > curArg )
       return args[curArg++];
+    
     neko.Lib.print(name+" : ");
     if( passwd ) {
       var s = new StringBuf();
@@ -90,8 +96,12 @@ class ClientCtrl {
   
   public static
   function process():Command {
-    var options = getSwitches();
-    return switch (getCommand()) {
+    var
+      command = getCommand(),
+      options = getOptions();
+
+    trace("command is "+command);
+    return switch (command) {
     case "register":
       var
         email = param("Email"),
@@ -104,6 +114,8 @@ class ClientCtrl {
       REGISTER(options,email,password,fullName);
     case "list":
       LIST(options);
+    case "user":
+      USER(options,param("Email"));
     case "path":
       var projects = new Array<{project:String,version:String}>();
       eachParam(function(p) {
@@ -129,7 +141,7 @@ class ClientCtrl {
       DEV(options,prj,dir);
     case "setup":
       print("Please enter haxelib repository path with write access");
-      print("Hit enter for default ("+ClientCore.getRepository()+")");
+      print("Hit enter for default ("+ClientCore.getRepos()+")");
       var line = param("Path");
       if( line != "")
         SETUP(options,line);
@@ -138,6 +150,10 @@ class ClientCtrl {
       print("Enter the path to the hbl file");
       var hbl = param("Hbl File");
       PACKAGE(options,hbl);
+    case "info":
+      print("Enter the project name");
+      var prj = param("Project");
+      INFO(options,prj);
     case "submit":
       print("Enter the path to the package zip file");
       var
@@ -145,6 +161,12 @@ class ClientCtrl {
         password = param("Password");
 
       SUBMIT(options,password,path);
+
+    case "install":
+      var
+        prj = param("Project name"),
+        ver = paramOpt();
+      INSTALL(options,prj,ver);
     default:
       NOOP;
     }	      	

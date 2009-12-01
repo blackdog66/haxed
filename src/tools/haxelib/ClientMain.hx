@@ -1,19 +1,22 @@
 package tools.haxelib;
 
+import tools.haxelib.Common;
 import tools.haxelib.ClientRestful;
 import tools.haxelib.ClientCtrl;
 
 class ClientMain {
   public static var VERSION = "0.1";
-  static var defaultRepos = new Array<String>();
 
   static
+  function dontHandle(cmd:String,s:Status) {
+    neko.Lib.println(cmd+" doesn't handle "+s);
+  }
+  
+  static
   function main() {
-    defaultRepos.push("http://lib.haxelib.org");
-    defaultRepos.push("http://bazarrware");
 
     var
-      client = new ClientRestful(defaultRepos),
+      client = new ClientRestful(),
       command = ClientCtrl.process();
 
     switch(command) {
@@ -39,15 +42,41 @@ class ClientMain {
     case PACKAGE(options,hblFile):
       client.packit(hblFile);
       // server
-    case INSTALL(options,projectName):
-      client.install(options,projectName);
+    case INSTALL(options,projectName,version):
+      client.install(options,projectName,version);
     case SEARCH(options,query):
       client.search(options,query);
     case INFO(options,project):
-      client.info(options,project);
+      client.info(options,project,function(j) {
+          trace(j);
+          return true;
+        });
     case USER(options,email):
+      client.user(options,email,function(s:Status) {
+          return switch(s) {
+          case OK_USER(ui):
+            trace("its all good");
+            trace(ui);
+            true;
+          case ERR_UNKNOWN:
+            neko.Lib.println(".... not found");
+            return false; //not handled check next server if one exists
+          default:
+            throw dontHandle("user",s);
+          }
+        });
     case REGISTER(options,email,password,fullName):
-      client.register(options,email,password,fullName);
+      client.register(options,email,password,fullName,function(s:Status) {
+          switch(s) {
+          case OK:
+            trace("register ok");
+          case ERR_REGISTERED:
+            trace("already registered");
+          default:
+            dontHandle("register",s);
+          }
+          return true;
+        });
     case SUBMIT(options,password,packagePath):
       client.submit(options,password,packagePath);
     }

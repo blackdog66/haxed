@@ -21,6 +21,7 @@ class Os {
     Lib.println(s);
   }
 
+
   public static inline
   function slash(d:String) {
     return StringTools.endsWith(d,"/") ? d : (d + "/") ;
@@ -39,14 +40,14 @@ class Os {
   }
 
   public static
-  function fileName( lib : String, ver : String ) {
+  function pkgName( lib : String, ver : String ) {
       return safe(lib)+"-"+safe(ver)+".zip";
   }
 
   public static
   function safeDir( dir ) {
     if( FileSystem.exists(dir) ) {
-      if( !FileSystem.isDirectory(dir) )
+     if( !FileSystem.isDirectory(dir) )
         throw ("A file is preventing "+dir+" to be created");
       return false;
     }
@@ -92,9 +93,26 @@ class Os {
   } 
 
   public static
+  function mv(file:String,dst:String) {
+    FileSystem.rename(file,dst);
+  }
+  
+  public static
   function fileOut(file:String,s:String,?ctx:Dynamic) {
     try {
       var f = File.write(file,false) ;
+      f.writeString((ctx != null) ? template(s,ctx) : s);
+      f.flush();
+      f.close();
+    } catch(exc:Dynamic) {
+      trace("append: problem "+exc);
+    }
+  }
+
+  public static
+  function fileAppend(file:String,s:String,?ctx:Dynamic) {
+    try {
+      var f = File.append(file,false) ;
       f.writeString((ctx != null) ? template(s,ctx) : s);
       f.flush();
       f.close();

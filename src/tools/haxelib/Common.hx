@@ -39,7 +39,6 @@ enum Status {
   OK;
   OK_USER(ui:UserInfo);
   OK_PROJECT(pi:ProjectInfo);
-  
   ERR_UNKNOWN;
   ERR_PASSWORD;
   ERR_DEVELOPER;

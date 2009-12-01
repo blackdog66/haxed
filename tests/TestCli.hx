@@ -3,7 +3,7 @@ package tests;
 
 import tools.haxelib.Common;
 import tools.haxelib.ClientRestful;
-import tools.haxelib.ClientCommands;
+import tools.haxelib.ClientCommon;
 
 import utest.Assert;
 import utest.Runner;
@@ -22,7 +22,7 @@ class TestCli  {
   
   public
   function setup() {
-    cr = new ClientRestful(["other repo"]);
+    cr = new ClientRestful();
     options = new Options() ;
     prj = "project-name";
     pkg = prj+"zip";
@@ -55,10 +55,11 @@ class TestCli  {
   testUser() {
     var
       me = this,
-      as = Assert.createEvent(function(d:Dynamic) {
+      as = Assert.createEvent2(function(d:Dynamic) {
           trace(d);
           Assert.equals(d.INFO.email,me.email);
           Assert.equals(d.INFO.projects.length,0);
+          return true;
       });
     
     cr.user(options,email,as);

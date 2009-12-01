@@ -1,7 +1,7 @@
 package tests;
 
 import tools.haxelib.ClientRestful;
-import tools.haxelib.ClientCommands;
+import tools.haxelib.ClientCommon;
 import tools.haxelib.Common;
 
 import utest.Assert;
@@ -21,7 +21,7 @@ class TestSubmit  {
   
   public
   function setup() {
-    cr = new ClientRestful(["other repo"]);
+    cr = new ClientRestful();
     options = new Options() ;
     prj = "project-name";
     pkg = prj+".zip";
@@ -57,7 +57,7 @@ class TestPostSubmit  {
   
   public
   function setup() {
-    cr = new ClientRestful(["other repo"]);
+    cr = new ClientRestful();
     options = new Options() ;
     prj = "project-name";
     pkg = prj+".zip";
@@ -70,11 +70,12 @@ class TestPostSubmit  {
   testInfo() {
     var
       me = this,
-      as = Assert.createEvent(function(d) {
+      as = Assert.createEvent2(function(d:Dynamic) {
           var info:ProjectInfo = d.INFO;
           Assert.equals(d.ERR,"OK_PROJECT");
           Assert.equals(me.prj,info.name);
-      });
+          return true;
+        });
     
     cr.info(options,prj,as);
   }

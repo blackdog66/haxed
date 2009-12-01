@@ -9,14 +9,13 @@ class ERR {
     var m = Type.enumConstructor(s);
     return switch(s) {
     case OK_USER(ui):
-      JSON.encode({ERR:m,INFO:ui});
+      JSON.encode({ERR:m,PAYLOAD:ui});
     case OK_PROJECT(info):
-      JSON.encode({ERR:m,INFO:info});
-   
+      JSON.encode({ERR:m,PAYLOAD:info});
     case ERR_USER(email):
-      JSON.encode({ERR:m,EMAIL:email});
+      JSON.encode({ERR:m,PAYLOAD:email});
      default:
-      JSON.encode({ERR:m});
+       JSON.encode({ERR:m});
     }
   }
 }

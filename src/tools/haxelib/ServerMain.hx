@@ -19,7 +19,12 @@ class ServerMain {
       repo:Repository,
       command = ServerCtrl.dispatch();
 
-    repo = new ServerHxRepo("/home/blackdog/Projects/haxelib/");
+    var p = new php.io.Process("/bin/hostname",[]);
+    var host = StringTools.trim(p.stdout.readAll().toString());
+    if(host == "blackdog")
+      repo = new ServerHxRepo("/home/blackdog/Projects/haxelib/");
+    else
+      repo = new ServerHxRepo("/home/blackdog/haxelib/");
 
     Lib.print(
       ERR.msg(

@@ -7,6 +7,8 @@ import tools.haxelib.ServerModel;
 import tools.haxelib.ZipReader;
 import tools.haxelib.Config;
 
+using Lambda;
+
 #if php
 import php.io.File;
 import php.Web;
@@ -76,7 +78,6 @@ class ServerHxRepo implements Repository {
       });
     if( file != null ) {
       file.close();
-      //Lib.print("File # accepted : "+bytes+" bytes written");
       return processUploaded(password,TMP_DIR+"/"+sid+".tmp");
     }
     return ERR_UNKNOWN;
@@ -109,6 +110,10 @@ class ServerHxRepo implements Repository {
     if(!developer(user,prj))
       return ERR_DEVELOPER;
 
+    version(prj,glbs.version);
+
+    Os.mv(tmpFile,repo+Os.pkgName(prj.name,glbs.version));
+    
     return OK;
   }
   
@@ -158,7 +163,7 @@ class ServerHxRepo implements Repository {
     p.meta = json;
     p.insert();
 
-    // TODO
+    // TODO - more than one dev!
     var devs = new List<User>();
     devs.push(u);
       
@@ -194,6 +199,25 @@ class ServerHxRepo implements Repository {
     return isdev;
   }
 
+  function version(p:Project,version:String) {
+    var v = new Version();
+    v.project = p;
+    v.name =  Std.string(version);
+    v.comments = "comments";
+    v.downloads = 0;
+    v.date = Date.now().toString();
+    v.documentation = "docs";
+    v.insert();
+
+    p.version = v;
+    p.update();
+  }
+
+  function eachVersion(project:Project,fn:Version->Void) {
+	for( v in Version.manager.search({ project : project.id }) )
+      fn(v);
+  }
+  
   public
   function info(prj:String):Status {
     var p = Project.manager.search({ name : prj }).first();
@@ -201,16 +225,21 @@ class ServerHxRepo implements Repository {
     if (p == null)
       return ERR_PROJECTNOTFOUND;
 
-    var u = p.owner;
-
+    var u = p.owner,
+      iv = Version.manager.search({project:p.id})
+             .map(function(v) {
+                 return { date: v.date, name:v.name, comments:v.comments };
+               })
+             .array();
+    
     return OK_PROJECT({
       name: p.name,
       desc:p.description,
       website:p.website,
       owner: u.email,
       license:p.license,
-      curversion:null,
-      versions:null
+      curversion:p.version.name,
+      versions:iv
       });    
   }
   

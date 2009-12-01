@@ -3,7 +3,7 @@ package tools.haxelib;
 
 import tools.haxelib.Habal;
 import tools.haxelib.Package;
-import tools.haxelib.ClientCommands;
+import tools.haxelib.ClientCommon;
 
 /*
   Implement all the local functions, remote operations are implemented by
@@ -39,9 +39,14 @@ class ClientCore {
       throw "This is the first time you are runing haxelib. Please run haxelib setup first";
     }
   }
+
+  public
+  function getRepository() {
+    return getRepos();
+  }
   
   public static
-  function getRepository() {
+  function getRepos() {
     var sys = neko.Sys.systemName();
     if( sys == "Windows" ) {
       var haxepath = neko.Sys.getEnv("HAXEPATH");
@@ -234,6 +239,24 @@ class ClientCore {
       Os.fileOut(getConfigFile(),path) ;  // original has binary true - check!!
   }
 
+  function download(options:Options,filePath:String,fileName:String) {
+    /*
+    var
+      h = new haxe.Http(options.repo+"/"+Options.REPO_URI+"/"+fileName),
+      out = neko.io.File.write(filePath,true),
+      progress = new Progress(out);
+
+	h.onError = function(e) {
+      progress.close();
+      neko.FileSystem.deleteFile(filePath);
+      throw e;
+    };
+
+    Os.print("Downloading "+fileName+"...");
+    h.customRequest(false,progress);
+    */
+  }
+
   public
   function run() {
 
@@ -251,4 +274,54 @@ class ClientCore {
     
     Package.createFrom(conf);
   }
+}
+
+
+
+class Progress extends haxe.io.Output {
+
+	var o : haxe.io.Output;
+	var cur : Int;
+	var max : Int;
+	var start : Float;
+
+	public function new(o) {
+		this.o = o;
+		cur = 0;
+		start = haxe.Timer.stamp();
+	}
+
+	function bytes(n) {
+		cur += n;
+		if( max == null )
+			neko.Lib.print(cur+" bytes\r");
+		else
+			neko.Lib.print(cur+"/"+max+" ("+Std.int((cur*100.0)/max)+"%)\r");
+	}
+
+	public override function writeByte(c) {
+		o.writeByte(c);
+		bytes(1);
+	}
+
+	public override function writeBytes(s,p,l) {
+		var r = o.writeBytes(s,p,l);
+		bytes(r);
+		return r;
+	}
+
+	public override function close() {
+		super.close();
+		o.close();
+		var time = haxe.Timer.stamp() - start;
+		var speed = (cur / time) / 1024;
+		time = Std.int(time * 10) / 10;
+		speed = Std.int(speed * 10) / 10;
+		neko.Lib.print("Download complete : "+cur+" bytes in "+time+"s ("+speed+"KB/s)\n");
+	}
+
+	public override function prepare(m) {
+		max = m;
+	}
+
 }

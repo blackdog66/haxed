@@ -1,18 +1,23 @@
 
 package tools.haxelib;
+import tools.haxelib.Common;
+import tools.haxelib.ClientCommon;
 import tools.haxelib.ClientCore;
-import tools.haxelib.ClientCommands;
 
-class ClientRestful extends ClientCore {
+class ClientRestful extends ClientCore, implements Client {
 
-  var repos:Array<String>;
-  
-  public function new(repos:Array<String>) {
+  public function new() {
     super();
-    this.repos = repos;
+    RemoteRepos.init(this);
   }
 
-  static function request(r:String,?prms:Dynamic,fn:Dynamic->Void){
+  public
+  function url(u:String,c:String) {
+    return "http://"+u+"/index.php?method="+c;
+  }
+  
+  public
+  function request(r:String,prms:Dynamic,fn:Dynamic->Void){
     var parameters = "";
     if (prms != null) {
       var
@@ -37,21 +42,75 @@ class ClientRestful extends ClientCore {
     }
     h.request(false);
   }
-  
-  function url(options:Options,c:String) {
-    var r = options.repo ;
-    return "http://"+r+"/index.php?method="+c;
+
+  static
+  function getStatus(d):Status {
+    var e;
+    if (Reflect.field(d,"PAYLOAD"))
+      e = Type.createEnum(Status,d.ERR,[d.PAYLOAD]);
+    else
+      e = Type.createEnum(Status,d.ERR);
+    return e;
+  }
+
+  /*
+    make one request to the given -R repo, or iterate over all repos
+  */
+  function requestDispatch(options:Options,cmd:String,prms:Dynamic,fn:Status->Bool) {
+    if (options.repo != null) {
+      request(url(options.repo,cmd),prms,function(d) {
+          fn(getStatus(d)) ;
+      });
+    } else {
+      RemoteRepos.each(cmd,prms,function(d:Dynamic) {
+          return fn(getStatus(d)) ;
+        });
+    }
   }
   
   public
-  function install(options:Options,pkgName:String) {
-    
+  function install(options:Options,prj:String,ver:String) {
+    var me = this;
+    info(options,prj,function(s:Status) {
+        switch(s) {
+        case OK_PROJECT(j):
+          if (j.curversion == null)
+            throw "The project has not yet released a version";
+
+          var found = false;
+          for( v in j.versions )
+            if( v.name == ver ) {
+              found = true;
+              break;
+            }
+        
+          if( !found )
+			throw "No such version "+ver;
+
+          var localRep = me.getRepository();
+
+          if (Os.exists(localRep + Os.safe(prj) + "/" + Os.safe(ver))) {
+            Os.print("You already have "+prj+" version "+ver+" installed");
+            //setCurrent(project,version,true);
+            return true;
+          }
+         
+          var
+            fileName = Os.pkgName(prj,ver),
+            filePath = localRep + fileName;
+
+          me.download(options,filePath,fileName);
+          //    me.doInstall(j.name,ver,ver == j.curversion);
+        default:
+        }
+        return true;
+      });
   }
 
   public
   function
   submit(options:Options,password:String,packagePath:String,?fn:Dynamic->Void) {
-    Os.filePost(packagePath,url(options,"submit"),true,{password:password},function(d) {
+    Os.filePost(packagePath,url(options.repo,"submit"),true,{password:password},function(d) {
         fn(hxjson2.JSON.decode(d));
       }); 
   }
@@ -63,23 +122,23 @@ class ClientRestful extends ClientCore {
   public
   function upgrade(options:Options) {
   }
-
+  
   public
-  function user(options:Options,email:String,?fn:Dynamic->Void) {
-    var u = url(options,"user");
-    request(u,{email:email},fn);
+  function user(options:Options,email:String,fn:Status->Bool) {
+    requestDispatch(options,"user",{email:email},fn);
   }
 
   public
-  function info(options:Options,prj:String,?fn:Dynamic->Void) {
-    var u = url(options,"info");
-    request(u,{prj:prj},fn);
+  function info(options:Options,prj:String,fn:Status->Bool) {
+    requestDispatch(options,"info",{prj:prj},fn);
   }
 
   public
-  function register(options:Options,email:String,password:String,fullName:String,?fn:Dynamic->Void):Void {
-    var u = url(options,"register");
-    request(u,{email:email,password:password,fullname:fullName},fn);
+  function register(options:Options,email:String,password:String,fullName:String,fn:Status->Bool):Void {
+    var prms = {email:email,password:password,fullname:fullName};
+    requestDispatch(options,"register",prms,fn);
   }
 
 }
+
+
