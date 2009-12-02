@@ -40,7 +40,6 @@ class Project extends Object {
   public var website : String;
   public var license : String;
   public var downloads : Int;
-  public var meta:String;
   public var owner(dynamic,dynamic) : User;
   public var version(dynamic,dynamic) : Version;
 
@@ -77,7 +76,8 @@ class Version extends Object {
   public var comments : String;
   public var downloads : Int;
   public var documentation : Null<String>;
-
+  public var meta:String;
+  
 }
 
 class Developer extends Object {

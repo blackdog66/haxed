@@ -11,6 +11,7 @@ import neko.FileSystem;
 import neko.io.File;
 import neko.io.Path;
 import neko.Lib;
+import neko.zip.Reader;
 #end
 
 class Os {
@@ -204,7 +205,6 @@ class Os {
       for (f in files) {
         if (f == "." || f == "..") continue;
         if (f.indexOf(".git") != -1) continue ;
-        //        trace("zipping: "+f);
         var dt = FileSystem.stat(f);
         fl.push({fileTime:dt.mtime,fileName:f.substr(rootLen),data:neko.io.File.getBytes(f)});
       }
@@ -216,6 +216,48 @@ class Os {
     zf.close();
   }
 
+  public static function
+  readFromZip( zip : List<ZipEntry>, file:String ) {
+    for( entry in zip ) {
+      trace(entry.fileName);
+      if(entry.fileName == file) {
+        return Reader.unzip(entry).toString();
+      }
+    }
+    return null;
+  }
+
+  public static function
+  unzip(zip:List<ZipEntry>,destination:String) {
+    for( zipfile in zip ) {
+      var n = zipfile.fileName;
+      if( n.charAt(0) == "/" || n.charAt(0) == "\\" || n.split("..").length > 1 )
+        throw "Invalid filename : "+n;
+      var
+        dirs = ~/[\/\\]/g.split(n),
+        path = "",
+        file = dirs.pop();
+
+      for( d in dirs ) {
+        path += d;
+        Os.safeDir(destination+path);
+        path += "/";
+      }
+
+      if( file == "" ) {
+        if( path != "" ) print("  Created "+path);
+        continue; // was just a directory
+      }
+
+      path += file;
+      print("  Install "+path);
+      var data = neko.zip.Reader.unzip(zipfile);
+      var f = neko.io.File.write(destination+path,true);
+      f.write(data);
+      f.close();
+    }
+  }
+  
   /* http multipart upload */
   public static
 	function filePost(filePath:String,dstUrl:String,binary:Bool,

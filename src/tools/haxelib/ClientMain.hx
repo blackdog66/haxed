@@ -47,15 +47,16 @@ class ClientMain {
     case SEARCH(options,query):
       client.search(options,query);
     case INFO(options,project):
-      client.info(options,project,function(j) {
-          trace(j);
+      client.info(options,project,function(rurl:String,s:Status) {
+          neko.Lib.println("Info from:"+rurl);
+          trace(s);
           return true;
         });
     case USER(options,email):
-      client.user(options,email,function(s:Status) {
+      client.user(options,email,function(rurl:String,s:Status) {
           return switch(s) {
           case OK_USER(ui):
-            trace("its all good");
+            neko.Lib.println("user data from:"+ rurl);
             trace(ui);
             true;
           case ERR_UNKNOWN:
@@ -66,10 +67,10 @@ class ClientMain {
           }
         });
     case REGISTER(options,email,password,fullName):
-      client.register(options,email,password,fullName,function(s:Status) {
+      client.register(options,email,password,fullName,function(rurl:String,s:Status) {
           switch(s) {
           case OK:
-            trace("register ok");
+            neko.Lib.println("registered with:"+rurl);
           case ERR_REGISTERED:
             trace("already registered");
           default:
@@ -78,7 +79,9 @@ class ClientMain {
           return true;
         });
     case SUBMIT(options,password,packagePath):
-      client.submit(options,password,packagePath);
+      client.submit(options,password,packagePath,function(d) {
+          trace(d);
+        });
     }
   }
 }

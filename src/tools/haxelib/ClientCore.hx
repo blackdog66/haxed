@@ -1,6 +1,7 @@
 
 package tools.haxelib;
 
+import tools.haxelib.Config;
 import tools.haxelib.Habal;
 import tools.haxelib.Package;
 import tools.haxelib.ClientCommon;
@@ -16,9 +17,8 @@ class ClientCore {
   
   public function new() { }
 
-
-  static
-  function getConfigFile() {
+  static function
+  getConfigFile() {
     var config = neko.Sys.getEnv("HOME")+"/.haxelib";
     if (Os.exists(config))
       return config;
@@ -31,8 +31,8 @@ class ClientCore {
     return null;
   }
 
-  static
-  function getRepoDir() {
+  static function
+  getRepoDir() {
     return try {
       Os.fileIn(getConfigFile());
     } catch( e : Dynamic ) {
@@ -40,13 +40,13 @@ class ClientCore {
     }
   }
 
-  public
-  function getRepository() {
+  public function
+  getRepository() {
     return getRepos();
   }
   
-  public static
-  function getRepos() {
+  public static function
+  getRepos() {
     var sys = neko.Sys.systemName();
     if( sys == "Windows" ) {
       var haxepath = neko.Sys.getEnv("HAXEPATH");
@@ -71,8 +71,8 @@ class ClientCore {
     return rep+"/";
   }
 
-  public
-  function list(options:Options) {
+  public function
+  list(options:Options) {
     var rep = getRepository();
     for( p in Os.dir(rep) ) {
       if( p.charAt(0) == "." )
@@ -94,7 +94,8 @@ class ClientCore {
     }
   }
 
-  function deleteRec(dir) {
+  function
+  deleteRec(dir) {
     for( p in neko.FileSystem.readDirectory(dir) ) {
       var path = dir+"/"+p;
       if( neko.FileSystem.isDirectory(path) )
@@ -105,8 +106,8 @@ class ClientCore {
     neko.FileSystem.deleteDirectory(dir);
   }
   
-  public
-  function remove(option:Options,prj:String,version:String) {
+  public function
+  remove(option:Options,prj:String,version:String) {
     var rep = getRepository();
     var pdir = rep + Os.safe(prj);
 
@@ -129,7 +130,8 @@ class ClientCore {
     Os.print("Project "+prj+" version "+version+" removed");
   }
 
-  function checkRec( prj : String, version : String, l : List<{ project : String, version : String }> ) {
+  function
+  checkRec( prj : String, version : String, l : List<{ project : String, version : String }> ) {
     var pdir = getRepository() + Os.safe(prj);
     if( !Os.exists(pdir) )
       throw "Project "+prj+" is not installed";
@@ -153,8 +155,8 @@ class ClientCore {
   }
 
   
-  public
-  function path(projects:Array<{project:String,version:String}>) {
+  public function
+  path(projects:Array<{project:String,version:String}>) {
 
     var list = new List();
     for (p in projects) {
@@ -184,13 +186,80 @@ class ClientCore {
 
   }
 
-  public
-  function config(options:Options){
+  public function
+  doInstall(options:Options,repoUrl,prj,ver) {
+    var localRep = getRepository();
+
+    if (Os.exists(localRep + Os.safe(prj) + "/" + Os.safe(ver))) {
+      Os.print("You already have "+prj+" version "+ver+" installed");
+      //setCurrent(project,version,true);
+      return true;
+    }
+         
+    var
+      fileName = Os.pkgName(prj,ver),
+      filePath = localRep + fileName;
+
+    download(repoUrl,filePath,fileName);
+    return true;
+  }
+
+  static function
+  download(repoUrl:String,filePath:String,fileName:String) {
+    trace("http://"+repoUrl+"/"+RemoteRepos.REPO_URI+"/"+fileName);
+    var
+      h = new haxe.Http("http://"+repoUrl+"/"+RemoteRepos.REPO_URI+"/"+fileName),
+      out = neko.io.File.write(filePath,true),
+      dlFinished = function() {
+      	unpack(filePath,fileName);
+      },
+      progress = new Progress(dlFinished,out);
+
+	h.onError = function(e) {
+      progress.close();
+      neko.FileSystem.deleteFile(filePath);
+      throw e;
+    };
+
+    Os.print("Downloading "+fileName+"...");
+    h.customRequest(false,progress); 
+
+  }
+
+  static function
+  unpack(filePath:String,fileName:String) {
+    var
+      f = neko.io.File.read(filePath,true),
+      zip = neko.zip.Reader.readZip(f),
+      json = Os.readFromZip(zip,"haxelib.json");
+
+    f.close();
+    
+    if (json == null) 
+      throw "Package doesn't have haxelib.json";
+    
+    var
+      conf = new ConfigJson(json),
+      glbs = conf.globals();
+    
+    // create directories
+    var pdir = getRepos() + Os.safe(glbs.name);
+    Os.safeDir(pdir);
+    pdir += "/";
+    var target = pdir + Os.safe(glbs.version);
+    Os.safeDir(target);
+    target += "/";
+
+    Os.unzip(zip,target);
+  }
+    
+  public function
+  config(options:Options){
 	Os.print(getRepository());
   }
 
-  public
-  function dev(prj:String,dir:String) {
+  public function
+  dev(prj:String,dir:String) {
 	var
       rep = getRepository(),
       devfile = rep + Os.safe(prj)+"/.dev";
@@ -205,8 +274,8 @@ class ClientCore {
     }
   }
 
-  public
-  function set(prj:String,version:String){
+  public function
+  set(prj:String,version:String){
     var
       pdir = getRepository() + Os.safe(prj),
       vdir = pdir + "/" + Os.safe(version);
@@ -225,13 +294,14 @@ class ClientCore {
     Os.print("Project "+prj+" current version is now "+version);
   }
   
-  public
-  function setup(path){
+  public function
+  setup(path){
       if( !Os.exists(path) ) {
         try {
           Os.mkdir(path);
         } catch( e : Dynamic ) {
-          Os.print("Failed to create directory '"+path+"' ("+Std.string(e)+"), maybe you need appropriate user rights");
+          Os.print("Failed to create directory '"+path
+                   +"' ("+Std.string(e)+"), maybe you need appropriate user rights");
           neko.Sys.exit(1);
         }
       }
@@ -239,41 +309,25 @@ class ClientCore {
       Os.fileOut(getConfigFile(),path) ;  // original has binary true - check!!
   }
 
-  function download(options:Options,filePath:String,fileName:String) {
-    /*
-    var
-      h = new haxe.Http(options.repo+"/"+Options.REPO_URI+"/"+fileName),
-      out = neko.io.File.write(filePath,true),
-      progress = new Progress(out);
-
-	h.onError = function(e) {
-      progress.close();
-      neko.FileSystem.deleteFile(filePath);
-      throw e;
-    };
-
-    Os.print("Downloading "+fileName+"...");
-    h.customRequest(false,progress);
-    */
-  }
-
-  public
-  function run() {
+  public function
+  run() {
 
   }
 
-  public
-  function test() {
+  public function
+  test() {
 
   }
 
-  public
-  function packit(hblFile:String) {
+  public function
+  packit(hblFile:String) {
     var hbl = HblTools.process(hblFile),
       conf = HblTools.getConfig(hbl);
     
     Package.createFrom(conf);
   }
+
+  
 }
 
 
@@ -284,11 +338,13 @@ class Progress extends haxe.io.Output {
 	var cur : Int;
 	var max : Int;
 	var start : Float;
-
-	public function new(o) {
+  var finishHook:Void->Void;
+  
+  public function new(hook,o) {
 		this.o = o;
 		cur = 0;
 		start = haxe.Timer.stamp();
+        finishHook = hook;
 	}
 
 	function bytes(n) {
@@ -318,6 +374,7 @@ class Progress extends haxe.io.Output {
 		time = Std.int(time * 10) / 10;
 		speed = Std.int(speed * 10) / 10;
 		neko.Lib.print("Download complete : "+cur+" bytes in "+time+"s ("+speed+"KB/s)\n");
+        finishHook();
 	}
 
 	public override function prepare(m) {

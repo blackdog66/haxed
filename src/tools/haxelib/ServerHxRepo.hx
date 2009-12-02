@@ -105,12 +105,12 @@ class ServerHxRepo implements Repository {
     
     var prj = Project.manager.search({ name : glbs.name }).first();
     if (prj == null)
-      prj = createProject(user,glbs,json) ;
+      prj = createProject(user,glbs) ;
 
     if(!developer(user,prj))
       return ERR_DEVELOPER;
 
-    version(prj,glbs.version);
+    version(prj,glbs.version,json);
 
     Os.mv(tmpFile,repo+Os.pkgName(prj.name,glbs.version));
     
@@ -151,7 +151,7 @@ class ServerHxRepo implements Repository {
     });
   }
 
-  function createProject(u:User,g:Global,json:String):Project {
+  function createProject(u:User,g:Global):Project {
     var p = new Project();
 
     p.name = g.name;
@@ -160,7 +160,6 @@ class ServerHxRepo implements Repository {
     p.license = g.license;
     p.owner = u;
     p.downloads = 0;
-    p.meta = json;
     p.insert();
 
     // TODO - more than one dev!
@@ -199,7 +198,7 @@ class ServerHxRepo implements Repository {
     return isdev;
   }
 
-  function version(p:Project,version:String) {
+  function version(p:Project,version:String,json:String) {
     var v = new Version();
     v.project = p;
     v.name =  Std.string(version);
@@ -207,6 +206,7 @@ class ServerHxRepo implements Repository {
     v.downloads = 0;
     v.date = Date.now().toString();
     v.documentation = "docs";
+    v.meta = json;
     v.insert();
 
     p.version = v;

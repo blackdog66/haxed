@@ -22,14 +22,15 @@ class RemoteRepos {
   }
   
   static
-  function doRepo(cmd:String,prms:Dynamic,rps:List<String>,userFn:Dynamic->Bool) {
+  function doRepo(cmd:String,prms:Dynamic,rps:List<String>,
+                  userFn:String->Dynamic->Bool) {
     var next = rps.pop();
     if (next == null)
       return;
 
     var u = client.url(next,cmd),
       wrapper = function(d) {
-      	if (!userFn(d)) {
+      if (!userFn(next,d)) {
           // userFn did not handle repo, pass to next
           doRepo(cmd,prms,rps,userFn);
         }
@@ -40,7 +41,7 @@ class RemoteRepos {
   }
   
   public static
-  function each(cmd:String,prms:Dynamic,fn:Dynamic->Bool) {
+  function each(cmd:String,prms:Dynamic,fn:String->Dynamic->Bool) {
     if (repos == null) throw "must call RemoteRepos.init() first";
     
     var tmpRepos = Lambda.list(repos);

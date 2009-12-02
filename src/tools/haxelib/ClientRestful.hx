@@ -11,13 +11,13 @@ class ClientRestful extends ClientCore, implements Client {
     RemoteRepos.init(this);
   }
 
-  public
-  function url(u:String,c:String) {
+  public function
+  url(u:String,c:String) {
     return "http://"+u+"/index.php?method="+c;
   }
   
-  public
-  function request(r:String,prms:Dynamic,fn:Dynamic->Void){
+  public function
+  request(r:String,prms:Dynamic,fn:Dynamic->Void){
     var parameters = "";
     if (prms != null) {
       var
@@ -44,9 +44,10 @@ class ClientRestful extends ClientCore, implements Client {
   }
 
   static
-  function getStatus(d):Status {
+  function getStatus(d:Dynamic):Status {
     var e;
-    if (Reflect.field(d,"PAYLOAD"))
+    trace(d);
+    if (Reflect.field(d,"PAYLOAD") != null)
       e = Type.createEnum(Status,d.ERR,[d.PAYLOAD]);
     else
       e = Type.createEnum(Status,d.ERR);
@@ -56,85 +57,86 @@ class ClientRestful extends ClientCore, implements Client {
   /*
     make one request to the given -R repo, or iterate over all repos
   */
-  function requestDispatch(options:Options,cmd:String,prms:Dynamic,fn:Status->Bool) {
+  function
+  requestDispatch(options:Options,cmd:String,prms:Dynamic,fn:String->Status->Bool) {
+    
     if (options.repo != null) {
       request(url(options.repo,cmd),prms,function(d) {
-          fn(getStatus(d)) ;
+          fn(options.repo,getStatus(d)) ;
       });
     } else {
-      RemoteRepos.each(cmd,prms,function(d:Dynamic) {
-          return fn(getStatus(d)) ;
+      RemoteRepos.each(cmd,prms,function(repo:String,d:Dynamic) {
+          return fn(repo,getStatus(d)) ;
         });
     }
   }
   
-  public
-  function install(options:Options,prj:String,ver:String) {
+  public function
+  install(options:Options,prj:String,ver:String) {
     var me = this;
-    info(options,prj,function(s:Status) {
-        switch(s) {
+    info(options,prj,function(repoUrl:String,s:Status) {
+        return switch(s) {
         case OK_PROJECT(j):
           if (j.curversion == null)
-            throw "The project has not yet released a version";
+            return false;
 
-          var found = false;
-          for( v in j.versions )
-            if( v.name == ver ) {
-              found = true;
-              break;
-            }
-        
-          if( !found )
-			throw "No such version "+ver;
+          var found = true;
+          
+          if (ver != null) {
+            trace("given version is "+ver);
+            found = false;
+            for( v in j.versions )
+              if( v.name == ver ) {
+                found = true;
+                break;
+              }
+          } else
+            ver = j.curversion;
 
-          var localRep = me.getRepository();
-
-          if (Os.exists(localRep + Os.safe(prj) + "/" + Os.safe(ver))) {
-            Os.print("You already have "+prj+" version "+ver+" installed");
-            //setCurrent(project,version,true);
-            return true;
+          if (found) {
+            me.doInstall(options,repoUrl,prj,ver);
           }
-         
-          var
-            fileName = Os.pkgName(prj,ver),
-            filePath = localRep + fileName;
+          
+          return found;
 
-          me.download(options,filePath,fileName);
-          //    me.doInstall(j.name,ver,ver == j.curversion);
         default:
+          false;
         }
-        return true;
       });
   }
 
-  public
-  function
-  submit(options:Options,password:String,packagePath:String,?fn:Dynamic->Void) {
+  public function
+  submit(options:Options,password:String,packagePath:String,fn:Dynamic->Void) {
     Os.filePost(packagePath,url(options.repo,"submit"),true,{password:password},function(d) {
-        fn(hxjson2.JSON.decode(d));
+        var j:Dynamic = hxjson2.JSON.decode(d); 
+        var v = Reflect.field(j,"ERR");
+        if (v != null && v == "ERR_PASSWORD") throw "Bad password";
+        if (fn != null) fn(j);
       }); 
   }
 
-  public
-  function search(options:Options,query:String) {
+  public function
+  search(options:Options,query:String) {
   }
   
-  public
-  function upgrade(options:Options) {
+  public function
+  upgrade(options:Options) {
   }
   
-  public
-  function user(options:Options,email:String,fn:Status->Bool) {
+  public function
+  user(options:Options,email:String,fn:String->Status->Bool) {
     requestDispatch(options,"user",{email:email},fn);
   }
+  
 
-  public
-  function info(options:Options,prj:String,fn:Status->Bool) {
+  public function
+  info(options:Options,prj:String,fn:String->Status->Bool) {
     requestDispatch(options,"info",{prj:prj},fn);
   }
 
-  public
-  function register(options:Options,email:String,password:String,fullName:String,fn:Status->Bool):Void {
+  public function
+  register(options:Options,email:String,password:String,fullName:String,
+           fn:String->Status->Bool):Void {
     var prms = {email:email,password:password,fullname:fullName};
     requestDispatch(options,"register",prms,fn);
   }

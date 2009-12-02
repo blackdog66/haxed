@@ -155,7 +155,6 @@ class ClientCtrl {
       var prj = param("Project");
       INFO(options,prj);
     case "submit":
-      print("Enter the path to the package zip file");
       var
         path = param("Zip file"),
         password = param("Password");
