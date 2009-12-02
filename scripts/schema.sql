@@ -10,8 +10,7 @@ license VARCHAR(20) NOT NULL,
 description TEXT NOT NULL,
 website VARCHAR(100) NOT NULL,
 version INT,
-downloads INT NOT NULL,
-meta TEXT NOT NULL
+downloads INT NOT NULL
 );
 CREATE TABLE Tag (
 id INTEGER  PRIMARY KEY ,
@@ -31,7 +30,8 @@ downloads INTEGER NOT NULL,
 date VARCHAR(19) NOT NULL,
 name VARCHAR(32) NOT NULL,
 comments TEXT NOT NULL,
-documentation TEXT NULL
+documentation TEXT NULL,
+meta TEXT NOT NULL
 );
 
 CREATE INDEX TagSearch ON Tag(tag);
