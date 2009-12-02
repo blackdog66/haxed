@@ -207,6 +207,7 @@ class ClientCore {
           dir += "/";
         pdir = dir;
       } catch( e : Dynamic ) {
+
       }
       var ndir = dir + "ndll";
       if(Os.exists(ndir) ) {

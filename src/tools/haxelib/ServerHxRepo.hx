@@ -139,10 +139,10 @@ class ServerHxRepo implements Repository {
 
     var
       pl = Project.manager.search({ owner : u.id }),
-      projects = new Array();
+      projects = new Array<{name:String}>();
 
     for( p in pl )
-      projects.push(p.name);
+      projects.push({name:p.name});
 
     return OK_USER({
         fullname : u.fullname,

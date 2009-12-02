@@ -48,40 +48,87 @@ class ClientMain {
       client.search(options,query);
     case INFO(options,project):
       client.info(options,project,function(rurl:String,s:Status) {
-          neko.Lib.println("Info from:"+rurl);
-          trace(s);
-          return true;
+          return switch(s){
+          case ERR_PROJECTNOTFOUND:
+            return false;
+          case OK_PROJECT(pi):
+            formatRepoUrl(rurl);
+            formatProjectInfo(pi);
+            true;
+          default:
+            dontHandle("info",s);
+            true;
+          }
+          
         });
     case USER(options,email):
       client.user(options,email,function(rurl:String,s:Status) {
           return switch(s) {
           case OK_USER(ui):
-            neko.Lib.println("user data from:"+ rurl);
-            trace(ui);
+            formatRepoUrl(rurl);
+            formatUserInfo(ui);
             true;
           case ERR_UNKNOWN:
-            neko.Lib.println(".... not found");
-            return false; //not handled check next server if one exists
+            false; //not handled check next server if one exists
           default:
             throw dontHandle("user",s);
+            false;
           }
         });
     case REGISTER(options,email,password,fullName):
       client.register(options,email,password,fullName,function(rurl:String,s:Status) {
-          switch(s) {
+          return switch(s) {
           case OK:
             neko.Lib.println("registered with:"+rurl);
+            false;
           case ERR_REGISTERED:
-            trace("already registered");
+            false;
           default:
             dontHandle("register",s);
+            false;
           }
-          return true;
         });
     case SUBMIT(options,password,packagePath):
       client.submit(options,password,packagePath,function(d) {
           trace(d);
         });
     }
+  }
+
+  static function formatRepoUrl(repo:String) {
+    Os.print("In Repo: "+repo);
+  }
+
+  static function
+  formatProjectInfo(pi:ProjectInfo) {
+    var tmpl='
+Name: ::name::
+Desc: ::desc::
+Website: ::website::
+License: ::license::
+Owner: ::owner::
+Version: ::curversion::
+Releases:
+::foreach versions::
+[::name::] - ::date::
+        ::comments::
+::end::
+
+';
+    Os.print(Os.template(tmpl,pi));
+  }
+
+  static function
+  formatUserInfo(ui:UserInfo) {
+    var tmpl='
+Name: ::fullname::
+Email: ::email::
+Projects:
+::foreach projects::
+	::name::
+::end::
+
+';
+    Os.print(Os.template(tmpl,ui));
   }
 }
