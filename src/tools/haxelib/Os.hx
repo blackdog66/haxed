@@ -93,6 +93,18 @@ class Os {
     FileSystem.deleteFile(f);
   } 
 
+  public static function
+  rmdir(dir) {
+    for( p in FileSystem.readDirectory(dir) ) {
+      var path = dir+"/"+p;
+      if( FileSystem.isDirectory(path) )
+        rmdir(path);
+      else
+        Os.rm(path);
+    }
+    FileSystem.deleteDirectory(dir);
+  }
+
   public static
   function mv(file:String,dst:String) {
     FileSystem.rename(file,dst);
@@ -100,41 +112,35 @@ class Os {
   
   public static
   function fileOut(file:String,s:String,?ctx:Dynamic) {
+    var f = File.write(file,false) ;
     try {
-      var f = File.write(file,false) ;
       f.writeString((ctx != null) ? template(s,ctx) : s);
       f.flush();
-      f.close();
     } catch(exc:Dynamic) {
-      trace("append: problem "+exc);
+      f.close();
+      throw exc;
     }
   }
 
   public static
   function fileAppend(file:String,s:String,?ctx:Dynamic) {
+    var f = File.append(file,false) ;
     try {
-      var f = File.append(file,false) ;
       f.writeString((ctx != null) ? template(s,ctx) : s);
       f.flush();
-      f.close();
     } catch(exc:Dynamic) {
-      trace("append: problem "+exc);
+      f.close();
+      throw exc;
     }
   }
 
   public static
   function fileIn(file:String,?ctx:Dynamic) {
     var contents ;
-    try {
-      contents = File.getContent(file);
-      return (ctx != null)
-        ? template(contents,ctx)
-        : contents;
-      
-    } catch(exc:Dynamic) {
-      trace("fileIn: problem "+exc);
-    }
-    return null;
+    contents = File.getContent(file);
+    return (ctx != null)
+      ? template(contents,ctx)
+      : contents;
   }
   
   public static
@@ -212,14 +218,12 @@ class Os {
     } catch(exc:Dynamic) {
       trace("zip: problem "+exc) ;
     }
-    //  trace("zip: created "+fn);
     zf.close();
   }
 
   public static function
   readFromZip( zip : List<ZipEntry>, file:String ) {
     for( entry in zip ) {
-      trace(entry.fileName);
       if(entry.fileName == file) {
         return Reader.unzip(entry).toString();
       }

@@ -14,6 +14,7 @@ import tools.haxelib.ClientCommon;
 class ClientCore {
 
   static var REPNAME = "lib";
+  static var repositoryDir;
   
   public function new() { }
 
@@ -31,22 +32,11 @@ class ClientCore {
     return null;
   }
 
-  static function
-  getRepoDir() {
-    return try {
-      Os.fileIn(getConfigFile());
-    } catch( e : Dynamic ) {
-      throw "This is the first time you are runing haxelib. Please run haxelib setup first";
-    }
-  }
-
-  public function
-  getRepository() {
-    return getRepos();
-  }
-  
   public static function
   getRepos() {
+    if (repositoryDir != null)
+      return repositoryDir;
+  
     var sys = neko.Sys.systemName();
     if( sys == "Windows" ) {
       var haxepath = neko.Sys.getEnv("HAXEPATH");
@@ -64,13 +54,44 @@ class ClientCore {
       return rep+"\\";
     }
 
-    var rep = getRepoDir();
+    var rep = try {
+      Os.fileIn(getConfigFile());
+    } catch( e : Dynamic ) {
+      throw "This is the first time you are runing haxelib. Please run haxelib setup first";
+    }
       
     if( !Os.exists(rep) )
       throw "haxelib Repository "+rep+" does not exists. Please run haxelib setup again";
-    return rep+"/";
+
+    repositoryDir = rep +"/";
+    return repositoryDir;
   }
 
+ public function
+  getRepository() {
+   return getRepos();
+  }
+
+  static inline function
+  projectDir(prj) {
+    return Os.slash(getRepos() + Os.safe(prj));
+  }
+
+  static inline function
+  versionDir(prj,ver) {
+    return Os.slash(projectDir(prj) + Os.safe(ver));
+  }
+
+  static inline function
+  currentVersion(prj) {
+    return Os.fileIn(projectDir(prj) + "/.current");
+  }
+
+  static inline function
+  devVersion(prj) {
+    return Os.fileIn(projectDir(prj) + "/.dev");
+  }
+  
   public function
   list(options:Options) {
     var rep = getRepository();
@@ -78,9 +99,10 @@ class ClientCore {
       if( p.charAt(0) == "." )
         continue;
       var versions = new Array();
-      var current = Os.fileIn(rep+p+"/.current");
-      var dev = try Os.fileIn(rep+p+"/.dev") catch( e : Dynamic ) null;
-      for( v in Os.dir(rep+p) ) {
+      var current = currentVersion(p);
+      var dev = try devVersion(p) catch( e : Dynamic ) null;
+
+      for( v in Os.dir(projectDir(p)) ) {
         if( v.charAt(0) == "." )
           continue;
         v = Os.unsafe(v);
@@ -93,59 +115,55 @@ class ClientCore {
       Os.print(Os.unsafe(p) + ": "+versions.join(" "));
     }
   }
-
-  function
-  deleteRec(dir) {
-    for( p in neko.FileSystem.readDirectory(dir) ) {
-      var path = dir+"/"+p;
-      if( neko.FileSystem.isDirectory(path) )
-        deleteRec(path);
-      else
-        Os.rm(path);
-    }
-    neko.FileSystem.deleteDirectory(dir);
-  }
   
   public function
   remove(option:Options,prj:String,version:String) {
-    var rep = getRepository();
-    var pdir = rep + Os.safe(prj);
+    var pdir = projectDir(prj);
 
     if( version == null ) {
       if( !Os.exists(pdir) )
         throw "Project "+prj+" is not installed";
-      deleteRec(pdir);
+
+      Os.rmdir(pdir);
       Os.print("Project "+prj+" removed");
       return;
     }
 
-    var vdir = pdir + "/" + Os.safe(version);
+    var vdir = versionDir(prj,version);
+    
     if( !Os.exists(vdir) )
       throw "Project "+prj+" does not have version "+version+" installed";
 
-    var cur = Os.fileIn(pdir+"/.current");
+    var cur = currentVersion(prj);
     if( cur == version )
       throw "Can't remove current version of project "+prj;
-    deleteRec(vdir);
+
+    Os.rmdir(vdir);
     Os.print("Project "+prj+" version "+version+" removed");
   }
 
+  
   function
   checkRec( prj : String, version : String, l : List<{ project : String, version : String }> ) {
-    var pdir = getRepository() + Os.safe(prj);
+    var pdir = projectDir(prj);
     if( !Os.exists(pdir) )
       throw "Project "+prj+" is not installed";
-    var version = if( version != null ) version else neko.io.File.getContent(pdir+"/.current");
-    var vdir = pdir + "/" + Os.safe(version);
-    if( !neko.FileSystem.exists(vdir) )
+
+    var version = if( version != null ) version else currentVersion(prj);
+    var vdir = versionDir(prj,version);
+
+    if(!Os.exists(vdir))
       throw "Project "+prj+" version "+version+" is not installed";
+
     for( p in l )
       if( p.project == prj ) {
         if( p.version == version )
           return;
         throw "Project "+prj+" has two version included "+version+" and "+p.version;
       }
+
     l.add({ project : prj, version : version });
+
     /*
     var xml = neko.io.File.getContent(vdir+"/haxelib.xml");
     var inf = Datas.readData(xml);
@@ -168,7 +186,7 @@ class ClientCore {
       var pdir = Os.safe(d.project)+"/"+Os.safe(d.version)+"/";
       var dir = rep + pdir;
       try {
-        dir = Os.fileIn(rep+Os.safe(d.project)+"/.dev");
+        dir = devVersion(d.project);
         if( dir.length == 0 || (dir.charAt(dir.length-1) != '/' && dir.charAt(dir.length-1) != '\\') )
           dir += "/";
         pdir = dir;
@@ -244,12 +262,10 @@ class ClientCore {
       glbs = conf.globals();
     
     // create directories
-    var pdir = getRepos() + Os.safe(glbs.name);
+    var pdir = projectDir(glbs.name);
     Os.safeDir(pdir);
-    pdir += "/";
-    var target = pdir + Os.safe(glbs.version);
+    var target = versionDir(glbs.name,glbs.version);
     Os.safeDir(target);
-    target += "/";
 
     Os.unzip(zip,target);
 
@@ -281,29 +297,27 @@ class ClientCore {
   }
 
   static function
-  setCurrentVersion(pdir:String,version:String) {
-    var cd = pdir + ".current";
+  setCurrentVersion(prj:String,version:String) {
+    var pdir = projectDir(prj);
     if (!Os.exists(pdir)) throw "setCurrentVersion: "+pdir+" does not exist";
-    Os.fileOut(cd,version);
+    Os.fileOut(pdir + ".current",version);
     Os.print("  Current version is now "+version);
   }
   
   public function
   set(prj:String,version:String){
     var
-      pdir = getRepository() + Os.safe(prj),
-      vdir = pdir + "/" + Os.safe(version);
+      vdir = versionDir(prj,version);
 
     if( !Os.exists(vdir) )
       throw "Project "+prj+" version "+version+" is not installed";
 
-    var current = pdir+"/.current";
-    if(Os.fileIn(current) == version ) {
+    if (currentVersion(prj) == version) {
       Os.print("Version is "+version);
-      return;
+      return ;
     }
-
-    setCurrentVersion(pdir,version);
+    
+    setCurrentVersion(prj,version);
   }
   
   public function
