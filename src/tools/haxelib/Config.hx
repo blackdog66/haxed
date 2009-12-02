@@ -8,6 +8,12 @@ package tools.haxelib;
 
 */
 
+typedef PrjVer = {
+  var prj:String;
+  var ver:String;
+  var op:String;
+}
+
 typedef Global = {
   var name:String;
   var authorEmail:String;
@@ -22,7 +28,7 @@ typedef Global = {
   
 typedef Library = {
   var attrs:Array<String>;
-  var depends:Array<String>;
+  var depends:Array<PrjVer>;
   var sourceDirs:Array<String>;
   var buildable:Bool;
   var options: Array<String>;

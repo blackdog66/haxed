@@ -71,7 +71,7 @@ class ClientCore {
   getRepository() {
    return getRepos();
   }
-
+  
   static inline function
   projectDir(prj) {
     return Os.slash(getRepos() + Os.safe(prj));
@@ -90,6 +90,16 @@ class ClientCore {
   static inline function
   devVersion(prj) {
     return Os.fileIn(projectDir(prj) + "/.dev");
+  }
+
+  static function
+  configuration(prj:String,?ver:String):Config {
+    var
+      v = (ver == null) ? currentVersion(prj) : ver,
+      f = versionDir(prj,v) + "haxelib.json";
+    
+    if (!Os.exists(f)) throw "haxelib.json does not exist!";
+    return new ConfigJson(Os.fileIn(f));
   }
   
   public function
@@ -147,7 +157,7 @@ class ClientCore {
   checkRec( prj : String, version : String, l : List<{ project : String, version : String }> ) {
     var pdir = projectDir(prj);
     if( !Os.exists(pdir) )
-      throw "Project "+prj+" is not installed";
+      throw "Dependancy "+prj+" is not installed";
 
     var version = if( version != null ) version else currentVersion(prj);
     var vdir = versionDir(prj,version);
@@ -164,12 +174,15 @@ class ClientCore {
 
     l.add({ project : prj, version : version });
 
-    /*
-    var xml = neko.io.File.getContent(vdir+"/haxelib.xml");
-    var inf = Datas.readData(xml);
-    for( d in inf.dependencies )
-      checkRec(d.project,if( d.version == "" ) null else d.version,l);
-    */
+    var
+      conf = configuration(prj),
+      deps = conf.library().depends;
+
+    if (deps != null) {
+      trace(conf.library());
+      for( d in conf.library().depends )
+        checkRec(d.prj,if( d.ver == "" ) null else d.ver,l);
+    }
   }
 
   
@@ -206,19 +219,15 @@ class ClientCore {
 
   public function
   doInstall(options:Options,repoUrl,prj,ver) {
-    var
-      localRep = getRepository(),
-      pdir = localRep + Os.safe(prj);
-
-    if (Os.exists(pdir + "/" + Os.safe(ver))) {
+    if (Os.exists(versionDir(prj,ver))) {
       Os.print("You already have "+prj+" version "+ver+" installed");
-      setCurrentVersion(pdir,ver);
+      setCurrentVersion(prj,ver);
       return true;
     }
          
     var
       fileName = Os.pkgName(prj,ver),
-      filePath = localRep + fileName;
+      filePath = getRepos() + fileName;
 
     download(repoUrl,filePath,fileName);
     return true;
@@ -259,18 +268,16 @@ class ClientCore {
     
     var
       conf = new ConfigJson(json),
-      glbs = conf.globals();
+      glbs = conf.globals(),    
+      prj = glbs.name,
+      ver = glbs.version,
+      pdir = projectDir(prj);
     
-    // create directories
-    var pdir = projectDir(glbs.name);
     Os.safeDir(pdir);
-    var target = versionDir(glbs.name,glbs.version);
+    var target = versionDir(prj,ver);
     Os.safeDir(target);
-
     Os.unzip(zip,target);
-
-    setCurrentVersion(pdir,glbs.version);
-
+    setCurrentVersion(prj,ver);
     Os.rm(filePath);
 
   }

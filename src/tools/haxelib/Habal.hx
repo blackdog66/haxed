@@ -30,7 +30,7 @@ class Fields {
     fldMap.set("haxe-source-dirs",{keyName:"sourceDirs",required:false});
     fldMap.set("main-is",{keyName:"mainIs",required:false});
     fldMap.set("source-repository",{keyName:"sourceRepo",required:false});
-    fldMap.set("haxelib-version",{keyName:"haxelibVersion",required:false});    
+    fldMap.set("haxelib-version",{keyName:"haxelibVersion",required:false});
   }
 
   static public
@@ -111,11 +111,29 @@ class Habal {
       ret = spaceSeparated(val);
     case "buildable":
       ret = (val == "true") ? true : false;
+    case "depends":
+      ret = parseDepends(val);
     default:
       ret = val;
     }
 
     return ret;
+  }
+
+  function
+  parseDepends(str:String):Array<PrjVer> {
+    return str.split(",")
+      .map(function(el) {
+          var
+            t = StringTools.trim(el),
+            parts = t.split(" "),
+            lp = parts.length;
+          
+          if (lp == 2) return { prj:parts[0],ver:parts[1],op:null };
+          if (lp == 3) return { prj:parts[0],ver:parts[2],op:parts[1] };
+          return { prj:parts[0],ver:null,op:null };
+          
+        }).array();
   }
   
 }
