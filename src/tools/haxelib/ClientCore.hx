@@ -188,11 +188,13 @@ class ClientCore {
 
   public function
   doInstall(options:Options,repoUrl,prj,ver) {
-    var localRep = getRepository();
+    var
+      localRep = getRepository(),
+      pdir = localRep + Os.safe(prj);
 
-    if (Os.exists(localRep + Os.safe(prj) + "/" + Os.safe(ver))) {
+    if (Os.exists(pdir + "/" + Os.safe(ver))) {
       Os.print("You already have "+prj+" version "+ver+" installed");
-      //setCurrent(project,version,true);
+      setCurrentVersion(pdir,ver);
       return true;
     }
          
@@ -223,7 +225,6 @@ class ClientCore {
 
     Os.print("Downloading "+fileName+"...");
     h.customRequest(false,progress); 
-
   }
 
   static function
@@ -251,6 +252,11 @@ class ClientCore {
     target += "/";
 
     Os.unzip(zip,target);
+
+    setCurrentVersion(pdir,glbs.version);
+
+    Os.rm(filePath);
+
   }
     
   public function
@@ -274,6 +280,14 @@ class ClientCore {
     }
   }
 
+  static function
+  setCurrentVersion(pdir:String,version:String) {
+    var cd = pdir + ".current";
+    if (!Os.exists(pdir)) throw "setCurrentVersion: "+pdir+" does not exist";
+    Os.fileOut(cd,version);
+    Os.print("  Current version is now "+version);
+  }
+  
   public function
   set(prj:String,version:String){
     var
@@ -289,9 +303,7 @@ class ClientCore {
       return;
     }
 
-    Os.fileOut(current,version);
-    // var f = neko.io.File.write(current,true); ?? why is this binary??
-    Os.print("Project "+prj+" current version is now "+version);
+    setCurrentVersion(pdir,version);
   }
   
   public function
@@ -321,7 +333,8 @@ class ClientCore {
 
   public function
   packit(hblFile:String) {
-    var hbl = HblTools.process(hblFile),
+    var
+      hbl = HblTools.process(hblFile),
       conf = HblTools.getConfig(hbl);
     
     Package.createFrom(conf);
@@ -329,8 +342,6 @@ class ClientCore {
 
   
 }
-
-
 
 class Progress extends haxe.io.Output {
 
