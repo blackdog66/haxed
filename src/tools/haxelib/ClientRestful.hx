@@ -4,19 +4,19 @@ import tools.haxelib.Common;
 import tools.haxelib.ClientCommon;
 import tools.haxelib.ClientCore;
 
-class ClientRestful extends ClientCore, implements Client {
+class ClientRestful extends ClientCore {
 
   public function new() {
     super();
     RemoteRepos.init(this);
   }
 
-  public function
+  override public function
   url(u:String,c:String) {
     return "http://"+u+"/index.php?method="+c;
   }
   
-  public function
+  override public function
   request(r:String,prms:Dynamic,fn:Dynamic->Void){
     var parameters = "";
     if (prms != null) {
@@ -71,7 +71,7 @@ class ClientRestful extends ClientCore, implements Client {
     }
   }
   
-  public function
+  override public function
   install(options:Options,prj:String,ver:String) {
     var me = this;
     info(options,prj,function(repoUrl:String,s:Status) {
@@ -141,6 +141,7 @@ class ClientRestful extends ClientCore, implements Client {
     requestDispatch(options,"register",prms,fn);
   }
 
+  
 }
 
 

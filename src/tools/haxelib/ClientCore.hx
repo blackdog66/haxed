@@ -18,6 +18,10 @@ class ClientCore {
   
   public function new() { }
 
+  public function request(u:String,prms:Dynamic,fn:Dynamic->Void) { }
+  public function url(url:String,command:String) { return ""; }
+  public function install(options:Options,prj:String,ver:String) {}
+  
   static function
   getConfigFile() {
     var config = neko.Sys.getEnv("HOME")+"/.haxelib";
@@ -179,7 +183,6 @@ class ClientCore {
       deps = conf.library().depends;
 
     if (deps != null) {
-      trace(conf.library());
       for( d in conf.library().depends )
         checkRec(d.prj,if( d.ver == "" ) null else d.ver,l);
     }
@@ -214,7 +217,6 @@ class ClientCore {
       }
       Os.print(dir);
     }
-
   }
 
   public function
@@ -233,14 +235,15 @@ class ClientCore {
     return true;
   }
 
-  static function
+  function
   download(repoUrl:String,filePath:String,fileName:String) {
     trace("http://"+repoUrl+"/"+RemoteRepos.REPO_URI+"/"+fileName);
     var
       h = new haxe.Http("http://"+repoUrl+"/"+RemoteRepos.REPO_URI+"/"+fileName),
       out = neko.io.File.write(filePath,true),
+      me = this,
       dlFinished = function() {
-      	unpack(filePath,fileName);
+      	me.unpack(filePath,fileName);
       },
       progress = new Progress(dlFinished,out);
 
@@ -254,7 +257,7 @@ class ClientCore {
     h.customRequest(false,progress); 
   }
 
-  static function
+  function
   unpack(filePath:String,fileName:String) {
     var
       f = neko.io.File.read(filePath,true),
@@ -280,6 +283,12 @@ class ClientCore {
     setCurrentVersion(prj,ver);
     Os.rm(filePath);
 
+    var deps = conf.library().depends;
+
+    if (deps != null) {
+      for(d in conf.library().depends)
+        install(new Options(),d.prj,d.ver);
+    }
   }
     
   public function

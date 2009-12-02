@@ -1,18 +1,13 @@
 package tools.haxelib;
 
-interface Client {
-  function request(u:String,prms:Dynamic,fn:Dynamic->Void):Void;
-  function url(url:String,command:String):String;
-}
-
 class RemoteRepos {
   // files can be found in repo + "/"+REPO_URI
   public static var REPO_URI = "files"; 
   static var repos:List<String>;
-  static var client:Client;
+  static var client:ClientCore;
   
   public static
-  function init(c:Client) {
+  function init(c:ClientCore) {
     client = c;
     repos = new List<String>();
     repos.add("localhost:8200");
