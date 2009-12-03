@@ -24,21 +24,15 @@ typedef ProjectInfo = {
   var versions : Array<VersionInfo>;
 }
 
-typedef XmlInfo = {
-  var project : String;
-  var website : String;
-  var desc : String;
-  var license : String;
-  var version : String;
-  var versionComments : String;
-  var developers : List<String>;
-  var dependencies : List<{ project : String, version : String }>;
+typedef SearchInfo = {
+  var items : Array<{id:Int,name:String,context:String}>;
 }
 
 enum Status {
   OK;
   OK_USER(ui:UserInfo);
   OK_PROJECT(pi:ProjectInfo);
+  OK_SEARCH(si:SearchInfo);
   ERR_UNKNOWN;
   ERR_PASSWORD;
   ERR_DEVELOPER;

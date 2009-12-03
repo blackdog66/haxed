@@ -294,4 +294,10 @@ class Os {
 	}
 
   #end
+
+  public static function
+  log(msg) {
+    Os.fileAppend("haxelib.log",msg);
+  }
+
 }

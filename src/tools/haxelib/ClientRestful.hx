@@ -25,9 +25,11 @@ class ClientRestful extends ClientCore {
         sb = new StringBuf();
       
       for (f in flds) {
+        var v = Reflect.field(prms,f);
+        if (v == null) continue;
         sb.add(f);
         sb.add("=");
-        sb.add(StringTools.urlEncode(Reflect.field(prms,f)));
+        sb.add(StringTools.urlEncode(v));
         sb.add("&");
       }
       parameters = sb.toString().substr(0,-1);
@@ -43,8 +45,8 @@ class ClientRestful extends ClientCore {
     h.request(false);
   }
 
-  static
-  function getStatus(d:Dynamic):Status {
+  static function
+  getStatus(d:Dynamic):Status {
     var e;
     trace(d);
     if (Reflect.field(d,"PAYLOAD") != null)
@@ -116,7 +118,9 @@ class ClientRestful extends ClientCore {
   }
 
   public function
-  search(options:Options,query:String) {
+  search(options:Options,query:String,fn:String->Status->Bool) {
+    var prms = options.addSwitches({query:query});
+    requestDispatch(options,"search",prms,fn) ;
   }
   
   public function

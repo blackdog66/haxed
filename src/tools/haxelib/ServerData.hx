@@ -100,13 +100,19 @@ class Developer extends Object {
 
 class ProjectManager extends Manager<Project> {
 
-  public function containing( word ) : List<{ id : Int, name : String }> {
+  public function containing( word ) : List<Project> {
     word = quote("%"+word+"%");
-    return results("SELECT id, name FROM Project WHERE name LIKE "+word+" OR description LIKE "+word);
+    return objects("SELECT id, name FROM Project WHERE name LIKE "+word+" OR description LIKE "+word,true);
+    
   }
 
   public function allByName() {
     return objects("SELECT * FROM Project ORDER BY name COLLATE NOCASE",false);
+  }
+
+  public function extended(word) :List<{id:Int,name:String}>{
+    word = quote("%"+word+"%");
+    return results("SELECT id, name FROM Project WHERE name LIKE "+word+" OR description LIKE "+word);
   }
 
 }

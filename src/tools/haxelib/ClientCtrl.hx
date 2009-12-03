@@ -46,10 +46,8 @@ class ClientCtrl {
     if (args.length > 0) {
       while (curArg < args.length && StringTools.startsWith(args[curArg],"-")) {
         o.addSwitch(args[curArg],args[curArg+1]);
-        neko.Lib.println("adding "+args[curArg]+":"+args[curArg+1]);
         curArg += 2;
       }
-      neko.Lib.println("curArg="+curArg);
     }
     return o;
   }
@@ -62,7 +60,6 @@ class ClientCtrl {
   static
   function eachParam(fn:String->Void) {
     while (curArg < args.length) {
-      trace("Processing:" + args[curArg]);
        fn(args[curArg]);
        curArg++;
     }
@@ -100,7 +97,6 @@ class ClientCtrl {
       command = getCommand(),
       options = getOptions();
 
-    trace("command is "+command);
     return switch (command) {
     case "register":
       var
@@ -166,6 +162,11 @@ class ClientCtrl {
         prj = param("Project name"),
         ver = paramOpt();
       INSTALL(options,prj,ver);
+
+    case "search":
+      var
+        word = param("Word");
+      SEARCH(options,word);
     default:
       NOOP;
     }	      	

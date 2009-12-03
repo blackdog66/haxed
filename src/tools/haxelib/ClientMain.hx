@@ -7,13 +7,20 @@ import tools.haxelib.ClientCtrl;
 class ClientMain {
   public static var VERSION = "0.1";
 
-  static
-  function dontHandle(cmd:String,s:Status) {
+  static function
+  dontHandle(cmd:String,s:Status) {
     neko.Lib.println(cmd+" doesn't handle "+s);
   }
+
+  private static function
+  myTrace( v : Dynamic, ?inf : haxe.PosInfos ) {
+    Os.log(v);
+  }
   
-  static
-  function main() {
+  static function
+  main() {
+
+    haxe.Log.trace = myTrace;
 
     var
       client = new ClientRestful(),
@@ -45,7 +52,17 @@ class ClientMain {
     case INSTALL(options,projectName,version):
       client.install(options,projectName,version);
     case SEARCH(options,query):
-      client.search(options,query);
+      client.search(options,query,function(rurl:String,s:Status) {
+          return switch(s) {
+          case OK_SEARCH(si):
+            formatRepoUrl(rurl);
+            formatSearchInfo(si);
+            true;
+          default:
+            dontHandle("search",s);
+            false;
+          }
+        });
     case INFO(options,project):
       client.info(options,project,function(rurl:String,s:Status) {
           return switch(s){
@@ -130,5 +147,18 @@ Projects:
 
 ';
     Os.print(Os.template(tmpl,ui));
+  }
+
+
+    static function
+  formatSearchInfo(si:SearchInfo) {
+    var tmpl='
+::foreach items::
+	::name::
+  in context:
+::context::
+::end::
+';
+    Os.print(Os.template(tmpl,si));
   }
 }

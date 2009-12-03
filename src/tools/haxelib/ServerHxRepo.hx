@@ -48,8 +48,8 @@ class ServerHxRepo implements Repository {
 	Manager.initialize();
   }
 
-  public
-  function cleanup() {
+  public function
+  cleanup() {
     try {
       Manager.cnx.close();
       Manager.cnx = null;
@@ -58,8 +58,8 @@ class ServerHxRepo implements Repository {
     }
   } 
 
-  public
-  function submit(password:String):Status {
+  public function
+  submit(password:String):Status {
     var
       TMP_DIR = "/tmp",
       file = null,
@@ -83,8 +83,8 @@ class ServerHxRepo implements Repository {
     return ERR_UNKNOWN;
   }
 
-  private
-  function processUploaded(password:String,tmpFile:String):Status {
+  private function
+  processUploaded(password:String,tmpFile:String):Status {
     var
       json = ZipReader.content(tmpFile,"haxelib.json") ;
     
@@ -117,8 +117,8 @@ class ServerHxRepo implements Repository {
     return OK;
   }
   
-  public 
-  function register(email:String,pass:String,fullName:String):Status {
+  public function
+  register(email:String,pass:String,fullName:String):Status {
     if (user(email) != ERR_UNKNOWN)
       return ERR_REGISTERED;
 
@@ -130,8 +130,8 @@ class ServerHxRepo implements Repository {
     return OK;
   }
 
-  public
-  function user(email:String):Status {
+  public function
+  user(email:String):Status {
     var u = User.manager.search({ email : email }).first();
 
     if( u == null )
@@ -151,7 +151,8 @@ class ServerHxRepo implements Repository {
     });
   }
 
-  function createProject(u:User,g:Global):Project {
+  function
+  createProject(u:User,g:Global):Project {
     var p = new Project();
 
     p.name = g.name;
@@ -183,7 +184,8 @@ class ServerHxRepo implements Repository {
     return p;
   }
 
-  function developer(u:User,p:Project) {
+  function
+  developer(u:User,p:Project) {
     var
       pdevs = Developer.manager.search({ project : p.id }),
       isdev = false;
@@ -198,7 +200,8 @@ class ServerHxRepo implements Repository {
     return isdev;
   }
 
-  function version(p:Project,version:String,json:String) {
+  function
+  version(p:Project,version:String,json:String) {
     var v = new Version();
     v.project = p;
     v.name =  Std.string(version);
@@ -213,13 +216,14 @@ class ServerHxRepo implements Repository {
     p.update();
   }
 
-  function eachVersion(project:Project,fn:Version->Void) {
+  function
+  eachVersion(project:Project,fn:Version->Void) {
 	for( v in Version.manager.search({ project : project.id }) )
       fn(v);
   }
   
-  public
-  function info(prj:String):Status {
+  public function
+  info(prj:String):Status {
     var p = Project.manager.search({ name : prj }).first();
     
     if (p == null)
@@ -242,5 +246,79 @@ class ServerHxRepo implements Repository {
       versions:iv
       });    
   }
+
+  static function
+  getObj(o:Dynamic,path:Array<String>):Dynamic {
+    var
+      hd = path.shift(),
+      obj = Reflect.field(o,hd);
+
+    if (obj == null)
+      return null;
+
+    if (path.length > 0)
+      obj = getObj(obj,path);
+
+    return obj;
+  }
+  
+  public function
+  search(query:String,options:Hash<String>):Status {
+    if (Lambda.array(options).length == 0) {
+    return OK_SEARCH({
+        items:Project.manager.containing(query)
+            .map(function(p) {
+                return {id:p.id,name:p.name,context:null};
+              }).array()
+            
+        });
+    }
+
+    if (options.get("-Xv") != null)
+      return OK_SEARCH({ items:
+      Project.manager.all()
+        .map(function(p) {
+            if (p.version.comments.indexOf(query) != -1)
+              return {id:p.version.id,name:p.version.name,context:null};
+
+            return {id:-1,name:null,context:null};
+          })
+        .filter(function(el) {
+            return el.id != -1;
+          })
+        .array()
+        });
+
+    var path = options.get("-Xm");
+    if (path != null) {
+      return OK_SEARCH( { items:
+          Project.manager.all()
+            .map(function(p) {
+                var
+                  j = hxjson2.JSON.decode(p.version.meta),
+                  obj = getObj(j,path.split("."));
+
+                if (obj != null) {
+                var recode = hxjson2.JSON.encode(obj);
+                if (recode.indexOf(query) != -1) {
+                  return {id:p.version.id,name:p.name,context:recode};
+                }
+                }
+                
+                return {id:-1,name:null,context:null};
+                
+              })
+            .filter(function(el) {
+                return el.id != -1;
+              })
+            .array()
+            });
+
+    }
+    
+    return OK;
+  }
+
+  
   
 }

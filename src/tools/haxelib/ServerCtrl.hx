@@ -11,22 +11,38 @@ import neko.Web;
 
 class ServerCtrl  {
 
+  static function getParam(params:Hash<String>,p:String) {
+    if (params.get(p) == null)
+      return null;
+    return StringTools.urlDecode(params.get(p));
+  }
+
+  static function getOptions(params:Hash<String>) {
+    var options = new Hash<String>();
+    for (o in params.keys()) {
+      if (StringTools.startsWith(o,"-"))
+        options.set(o,params.get(o));
+    }
+    return options;
+  }
+  
   public static
   function dispatch():Command {
     var params = Web.getParams();
+    
     if (!params.exists("method"))
       throw "need a method!";
     
     return
-      switch(params.get("method")) {
+      switch(getParam(params,"method")) {
       case "submit":
-        var password = params.get("password");
+        var password = getParam(params,"password");
         CMD_SUBMIT(password);
       case "register":
         var
-          email = params.get("email"),
-          password = params.get("password"),
-          fullName = params.get("fullname");
+          email = getParam(params,"email"),
+          password = getParam(params,"password"),
+          fullName = getParam(params,"fullname");
 
         // if( !Datas.alphanum.match(name) )
     //  throw "Invalid user name, please use alphanumeric characters";
@@ -37,20 +53,20 @@ class ServerCtrl  {
         CMD_REGISTER(email,password,fullName);
   
       case "info":
-        var prj = params.get("prj");
+        var prj = getParam(params,"prj");
         CMD_INFO(prj);
       case "user":
-        var email = params.get("email");
+        var email = getParam(params,"email");
         CMD_USER(email);
       case "dev":
         var
-        prj = params.get("prj"),
-        dir = params.get("dir");
-        CMD_DEV(prj,dir);
-      
+        prj = getParam(params,"prj"),
+        dir = getParam(params,"dir");
+        CMD_DEV(prj,dir);     
       case "search":
-        var query = params.get("query");
-        CMD_SEARCH(query);
+        var
+          query = getParam(params,"query");
+        CMD_SEARCH(query,getOptions(params));
       }
   }
   

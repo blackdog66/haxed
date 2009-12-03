@@ -71,9 +71,9 @@ class ClientCore {
     return repositoryDir;
   }
 
- public function
+  public function
   getRepository() {
-   return getRepos();
+    return getRepos();
   }
   
   static inline function
@@ -112,9 +112,10 @@ class ClientCore {
     for( p in Os.dir(rep) ) {
       if( p.charAt(0) == "." )
         continue;
-      var versions = new Array();
-      var current = currentVersion(p);
-      var dev = try devVersion(p) catch( e : Dynamic ) null;
+      var
+        versions = new Array(),
+        current = currentVersion(p),
+        dev = try devVersion(p) catch( e : Dynamic ) null;
 
       for( v in Os.dir(projectDir(p)) ) {
         if( v.charAt(0) == "." )

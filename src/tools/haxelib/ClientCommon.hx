@@ -58,8 +58,20 @@ class Options {
     switches.set(k,v);
   }
 
-  function getRepo():String {
+  public function getRepo():String {
     return switches.get("-R");
+  }
+
+  public function getSearchWhere():String {
+    return switches.get("-W");
+  }
+
+  public function addSwitches(d:Dynamic):Dynamic {
+    var n = Reflect.copy(d);
+    for(s in switches.keys()) {
+      Reflect.setField(n,s,switches.get(s));
+    }
+    return n;
   }
 }
 

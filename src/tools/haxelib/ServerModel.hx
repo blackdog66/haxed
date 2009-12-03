@@ -12,6 +12,8 @@ class ERR {
       JSON.encode({ERR:m,PAYLOAD:ui});
     case OK_PROJECT(info):
       JSON.encode({ERR:m,PAYLOAD:info});
+    case OK_SEARCH(s):
+      JSON.encode({ERR:m,PAYLOAD:s});
     case ERR_USER(email):
       JSON.encode({ERR:m,PAYLOAD:email});
      default:
@@ -21,7 +23,7 @@ class ERR {
 }
  
 enum Command {
-  CMD_SEARCH(query:String);
+  CMD_SEARCH(query:String,options:Hash<String>);
   CMD_INFO(project:String);
   CMD_USER(email:String);
   CMD_REGISTER(email:String,password:String,fullName:String);
@@ -35,5 +37,5 @@ interface Repository {
   public function register(email:String,password:String,fullName:String):Status;
   public function user(email:String):Status;
   public function info(pkg:String):Status;
-  
+  public function search(query:String,options:Hash<String>):Status;
 }

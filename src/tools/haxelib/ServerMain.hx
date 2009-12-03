@@ -37,6 +37,8 @@ class ServerMain {
           repo.submit(password);
         case CMD_INFO(pkg):
           repo.info(pkg);
+        case CMD_SEARCH(query,options):
+          repo.search(query,options);
         default:
           ERR_UNKNOWN;
         }));
