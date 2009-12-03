@@ -274,7 +274,7 @@ class ServerHxRepo implements Repository {
         });
     }
 
-    if (options.get("-Xv") != null)
+    if (options.get("-Sv") != null)
       return OK_SEARCH({ items:
       Project.manager.all()
         .map(function(p) {
@@ -289,7 +289,7 @@ class ServerHxRepo implements Repository {
         .array()
         });
 
-    var path = options.get("-Xm");
+    var path = options.get("-Sm");
     if (path != null) {
       return OK_SEARCH( { items:
           Project.manager.all()
@@ -299,10 +299,10 @@ class ServerHxRepo implements Repository {
                   obj = getObj(j,path.split("."));
 
                 if (obj != null) {
-                var recode = hxjson2.JSON.encode(obj);
-                if (recode.indexOf(query) != -1) {
-                  return {id:p.version.id,name:p.name,context:recode};
-                }
+                  var recode = hxjson2.JSON.encode(obj);
+                  if (recode.indexOf(query) != -1) {
+                    return {id:p.version.id,name:p.name,context:recode};
+                  }
                 }
                 
                 return {id:-1,name:null,context:null};

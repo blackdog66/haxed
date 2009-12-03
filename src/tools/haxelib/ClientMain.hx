@@ -57,7 +57,7 @@ class ClientMain {
           case OK_SEARCH(si):
             formatRepoUrl(rurl);
             formatSearchInfo(si);
-            true;
+            false;
           default:
             dontHandle("search",s);
             false;
@@ -118,8 +118,7 @@ class ClientMain {
 
   static function
   formatProjectInfo(pi:ProjectInfo) {
-    var tmpl='
-Name: ::name::
+    var tmpl='Name: ::name::
 Desc: ::desc::
 Website: ::website::
 License: ::license::
@@ -137,8 +136,7 @@ Releases:
 
   static function
   formatUserInfo(ui:UserInfo) {
-    var tmpl='
-Name: ::fullname::
+    var tmpl='Name: ::fullname::
 Email: ::email::
 Projects:
 ::foreach projects::
@@ -152,9 +150,8 @@ Projects:
 
     static function
   formatSearchInfo(si:SearchInfo) {
-    var tmpl='
-::foreach items::
-	::name::
+    var tmpl='::foreach items::
+Project: ::name::
   in context:
 ::context::
 ::end::

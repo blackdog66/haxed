@@ -54,7 +54,7 @@ class Options {
   public var repo(getRepo,null):String;
 
   public function addSwitch(k:String,v:String) {
-    neko.Lib.println("setting "+k +"="+v);
+    //    neko.Lib.println("setting "+k +"="+v);
     switches.set(k,v);
   }
 
