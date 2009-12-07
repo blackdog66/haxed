@@ -206,8 +206,7 @@ Project: ::name::
   formatLicenses(ls:Array<{name:String,url:String}>) {
     var tmpl='Repository accepts these licenses:
 ::foreach licenses::
-::name:: - ::url::
-::end::
+::name:: - ::url:: ::end::
 ';
     return Os.template(tmpl,{licenses:ls});
   }
