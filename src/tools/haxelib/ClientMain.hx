@@ -1,6 +1,7 @@
 package tools.haxelib;
 
 import tools.haxelib.Common;
+import tools.haxelib.ClientCommon;
 import tools.haxelib.ClientRestful;
 import tools.haxelib.ClientCtrl;
 
@@ -20,7 +21,20 @@ class ClientMain {
   static function toJson(obj:Dynamic,url:String) {
     return neko.Lib.println(hxjson2.JSON.encode({repo:url,payload:obj}));
   }
-                         
+
+  static function handleOptions(options:Options,rurl:String,obj:Dynamic,formatter:Dynamic->String) {
+    if (options.flag("-j")) {
+      toJson(obj,rurl);
+    } else {
+      Os.print(formatRepoUrl(rurl));
+      Os.print(formatter(obj));
+    }
+    
+    if (options.flag("-a"))
+      return true;
+    return false;
+  }
+  
   static function
   main() {
 
@@ -58,13 +72,7 @@ class ClientMain {
       client.search(options,query,function(rurl:String,s:Status) {
           return switch(s) {
           case OK_SEARCH(si):
-            if (options.flag("-j")) {
-              toJson(si,rurl);
-            } else {
-              Os.print(formatRepoUrl(rurl));
-              Os.print(formatSearchInfo(si));
-            }
-            false;
+            handleOptions(options,rurl,si,formatSearchInfo);
           default:
             dontHandle("search",s);
             false;
@@ -76,13 +84,7 @@ class ClientMain {
           case ERR_PROJECTNOTFOUND:
             return false;
           case OK_PROJECT(pi):
-            if (options.flag("-j")) {
-              toJson(pi,rurl);
-            } else {
-              Os.print(formatRepoUrl(rurl));
-              Os.print(formatProjectInfo(pi));
-            }            
-            if (options.flag("-all")) false else true;
+            handleOptions(options,rurl,pi,formatProjectInfo);
           default:
             dontHandle("info",s);
             true;
@@ -93,8 +95,7 @@ class ClientMain {
       client.user(options,email,function(rurl:String,s:Status) {
           return switch(s) {
           case OK_USER(ui):
-            Os.print(formatRepoUrl(rurl));
-            Os.print(formatUserInfo(ui));
+            handleOptions(options,rurl,ui,formatUserInfo);
             true;
           case ERR_UNKNOWN:
             false; //not handled check next server if one exists
@@ -107,7 +108,7 @@ class ClientMain {
       client.register(options,email,password,fullName,function(rurl:String,s:Status) {
           return switch(s) {
           case OK:
-            neko.Lib.println("registered with:"+rurl);
+            neko.Lib.println("Registration Successful");
             false;
           case ERR_REGISTERED:
             false;
@@ -120,8 +121,9 @@ class ClientMain {
       client.submit(options,password,packagePath,function(rurl:String,s:Status) {
           switch(s) {
           case OK:
+            Os.print("Submission Successful");
           case ERR_LICENSE(licenses):
-            Os.print(formatLicenses(licenses));
+            handleOptions(options,rurl,licenses,formatLicenses);
           default:
             dontHandle("submit",s);
           }
@@ -136,7 +138,7 @@ class ClientMain {
       client.licenses(options,function(rurl:String,s:Status) {
           switch(s) {
           case OK_LICENSES(licenses):
-            Os.print(formatLicenses(licenses));
+            handleOptions(options,rurl,licenses,formatLicenses);
           default:
             dontHandle("license",s);
           }
@@ -196,10 +198,10 @@ Project: ::name::
   static function
   formatLicenses(ls:Array<{name:String,url:String}>) {
     var tmpl='Repository accepts these licenses:
-::foreach licence::
+::foreach licenses::
 ::name:: - ::url::
 ::end::
 ';
-      return Os.template(tmpl,ls);
+    return Os.template(tmpl,{licenses:ls});
   }
 }
