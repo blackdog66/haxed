@@ -33,28 +33,26 @@ class ServerHxRepo implements Repository {
   
   public function new(dd) {
     dataDir = Os.slash(dd);
-    if (Os.exists(dataDir)) {
-      if (!Os.exists(dataDir + DB))
-        throw DB+" does not exist in data dir";
 
-      repo = dataDir + "repo/";
-      Os.mkdir(repo);
-      
-      if (!Os.exists(dataDir + LICFILE)) {
-        // then generate one
-        Os.fileOut(dataDir + LICFILE,hxjson2.JSON.encode(
-        [
-         { GPL: "http://www.gnu.org/licenses/gpl.html" },
-         { LGPL:"http://www.gnu.org/licenses/lgpl-3.0.html"},
-         { BSD:"http://www.linfo.org/bsdlicense.html"},
-         { PublicDomain:"http://creativecommons.org/licenses/publicdomain/"}
-        ]));
-      }
+    if (!Os.exists(dataDir)) throw "Datadir " + dataDir + " does not exist";
+    if (!Os.exists(dataDir + DB)) throw DB+" does not exist in data dir";
 
-      licenses = hxjson2.JSON.decode(Os.fileIn(dataDir + LICFILE));
+    repo = dataDir + "repo/";
+    Os.mkdir(repo);
       
+    if (!Os.exists(dataDir + LICFILE)) {
+      // then generate one
+      Os.fileOut(dataDir + LICFILE,hxjson2.JSON.encode(
+       [
+        { name:"GPL", url : "http://www.gnu.org/licenses/gpl.html" },
+        { name:"LGPL" , url :"http://www.gnu.org/licenses/lgpl-3.0.html"},
+        { name: "BSD", url : "http://www.linfo.org/bsdlicense.html"},
+        { name: "PublicDomain", url:"http://creativecommons.org/licenses/publicdomain/"}
+       ]));
     }
-    
+
+    licenses = hxjson2.JSON.decode(Os.fileIn(dataDir + LICFILE));
+      
     var db = Sqlite.open(dataDir + DB);
     Manager.cnx = db;
 	Manager.initialize();
@@ -169,7 +167,7 @@ class ServerHxRepo implements Repository {
 
   function checkLicense(lic:String):Status {
     var l = Lambda.filter(licenses,function(el) {
-        return Reflect.field(el,"name").toUpperCase() == lic;
+        return Reflect.field(el,"name").toUpperCase() == lic.toUpperCase();
       });
 
     if (l.first() == null) return ERR_LICENSE(licenses);

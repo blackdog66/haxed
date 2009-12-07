@@ -41,6 +41,8 @@ class ServerMain {
           repo.search(query,options);
         case CMD_ACCOUNT(cemail,cpass,nemail,npass,nname):
           repo.account(cemail,cpass,nemail,npass,nname);
+        case CMD_LICENSE:
+          repo.license();
         default:
           ERR_UNKNOWN;
         }));
