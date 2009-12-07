@@ -15,7 +15,9 @@ class ERR {
     case OK_SEARCH(s):
       JSON.encode({ERR:m,PAYLOAD:s});
     case OK_LICENSES(l):
-      JSON.encode({ERR:m,PAYLOAD:l}); 
+      JSON.encode({ERR:m,PAYLOAD:l});
+    case ERR_LICENSE(l):
+      JSON.encode({ERR:m,PAYLOAD:l});
     case ERR_USER(email):
       JSON.encode({ERR:m,PAYLOAD:email});
      default:

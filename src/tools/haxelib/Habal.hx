@@ -103,7 +103,7 @@ class Habal {
   }
 
   function parseLicense(val:String) {
-    return spaceSeparated(val).map(function(el) { return el.toUpperCase(); });
+    return  StringTools.trim(val).toUpperCase();
   }
   
   function parseProperty(fld:String,val:Dynamic):Dynamic {

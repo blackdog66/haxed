@@ -170,7 +170,7 @@ class ServerHxRepo implements Repository {
         return Reflect.field(el,"name").toUpperCase() == lic.toUpperCase();
       });
 
-    if (l.first() == null) return ERR_LICENSE(licenses);
+    if (l.first() == null) return ERR_LICENSE({licenses:licenses,given:lic});
 
     return OK;
 

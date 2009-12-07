@@ -28,7 +28,7 @@ class ClientCtrl {
     test:"install the specified package locally",
     dev:"set the development directory for a given project",
     path:"give paths to libraries",
-    packit:"package the project specified by the hbl file",
+    pack_age:"package the project specified by the hbl file",
     account: "update your registered email address,password and name",
   };
 
@@ -166,7 +166,7 @@ class ClientCtrl {
     
     if (npass != "") {
       do {
-        confirm = param("Confirm",validPW,true);
+        confirm = param("Confirm",validPW,false);
         trace("npass="+npass+", confirm = "+confirm);
       } while(npass != confirm);
     }

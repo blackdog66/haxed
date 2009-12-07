@@ -28,13 +28,18 @@ typedef SearchInfo = {
   var items : Array<{id:Int,name:String,context:String}>;
 }
 
+  typedef LicenseErr = {
+    var licenses:Array<{name:String,url:String}>;
+    var given:String;
+  }
+
 enum Status {
   OK;
   OK_USER(ui:UserInfo);
   OK_PROJECT(pi:ProjectInfo);
   OK_SEARCH(si:SearchInfo);
   OK_LICENSES(lics:Array<{name:String,url:String}>);
-  ERR_LICENSE(lics:Array<{name:String,url:String}>);
+  ERR_LICENSE(info:LicenseErr);
   ERR_UNKNOWN;
   ERR_PASSWORD;
   ERR_DEVELOPER;

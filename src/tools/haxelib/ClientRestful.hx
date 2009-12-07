@@ -48,7 +48,6 @@ class ClientRestful extends ClientCore {
   static function
   getStatus(d:Dynamic):Status {
     var e;
-    trace(d);
     if (Reflect.field(d,"PAYLOAD") != null)
       e = Type.createEnum(Status,d.ERR,[d.PAYLOAD]);
     else
@@ -111,7 +110,8 @@ class ClientRestful extends ClientCore {
   submit(options:Options,password:String,packagePath:String,fn:String->Status->Bool) {
     var u = url(options.repo,"submit");
     Os.filePost(packagePath,u,true,{password:password},function(d) {
-        var s = getStatus(d);
+        trace(d);
+        var s = getStatus(hxjson2.JSON.decode(d));
         if (fn != null)
           fn(options.repo,s);
       }); 

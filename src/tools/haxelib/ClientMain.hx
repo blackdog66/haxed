@@ -29,10 +29,14 @@ class ClientMain {
       Os.print(formatRepoUrl(rurl));
       Os.print(formatter(obj));
     }
+
+    if (options.flag("-R") != null)
+      return true; // only checking one repo, so handled
     
-    if (options.flag("-a"))
-      return true;
-    return false;
+    if (options.flag("-a") != null)
+      return false; // not handled, check next repo
+
+    return true; // handled
   }
   
   static function
@@ -122,8 +126,11 @@ class ClientMain {
           switch(s) {
           case OK:
             Os.print("Submission Successful");
-          case ERR_LICENSE(licenses):
-            handleOptions(options,rurl,licenses,formatLicenses);
+          case ERR_LICENSE(lics):
+            Os.print("Repository does not accept this license :"+lics.given);
+            handleOptions(options,rurl,lics.licenses,formatLicenses);
+          case ERR_USER(u):
+            Os.print("User not known:"+u);
           default:
             dontHandle("submit",s);
           }
@@ -148,7 +155,7 @@ class ClientMain {
   }
 
   static function formatRepoUrl(repo:String) {
-    return "In Repo: "+repo;
+    return "Repository: "+repo;
   }
 
   static function
