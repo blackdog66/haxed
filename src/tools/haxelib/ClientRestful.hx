@@ -108,12 +108,12 @@ class ClientRestful extends ClientCore {
   }
 
   public function
-  submit(options:Options,password:String,packagePath:String,fn:Dynamic->Void) {
-    Os.filePost(packagePath,url(options.repo,"submit"),true,{password:password},function(d) {
-        var j:Dynamic = hxjson2.JSON.decode(d); 
-        var v = Reflect.field(j,"ERR");
-        if (v != null && v == "ERR_PASSWORD") throw "Bad password";
-        if (fn != null) fn(j);
+  submit(options:Options,password:String,packagePath:String,fn:String->Status->Bool) {
+    var u = url(options.repo,"submit");
+    Os.filePost(packagePath,u,true,{password:password},function(d) {
+        var s = getStatus(d);
+        if (fn != null)
+          fn(options.repo,s);
       }); 
   }
 
@@ -145,7 +145,16 @@ class ClientRestful extends ClientCore {
     requestDispatch(options,"register",prms,fn);
   }
 
-  
+  public function
+  account(options:Options,cemail,cpass,nemail,npass,nname,fn:String->Status->Bool) {
+    var prms = {cemail:cemail,cpass:cpass,nemail:nemail,npass:npass,nname:nname};
+    requestDispatch(options,"account",prms,fn);
+  }
+
+  public function
+  licenses(options:Options,fn:String->Status->Bool) {
+    requestDispatch(options,"license",{},fn);
+  }
 }
 
 

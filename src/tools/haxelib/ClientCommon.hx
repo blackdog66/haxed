@@ -54,7 +54,7 @@ class Options {
   public var repo(getRepo,null):String;
 
   public function addSwitch(k:String,v:String) {
-    //    neko.Lib.println("setting "+k +"="+v);
+    // neko.Lib.println("setting "+k +"="+v);
     switches.set(k,v);
   }
 
@@ -62,8 +62,8 @@ class Options {
     return switches.get("-R");
   }
 
-  public function getSearchWhere():String {
-    return switches.get("-W");
+  public function getSwitch(s:String):String {
+    return switches.get(s);
   }
 
   public function addSwitches(d:Dynamic):Dynamic {
@@ -72,6 +72,9 @@ class Options {
       Reflect.setField(n,s,switches.get(s));
     }
     return n;
+  }
+  public function flag(s:String):Bool {
+    return switches.exists(s);
   }
 }
 
@@ -93,4 +96,6 @@ enum Command {
   SUBMIT(options:Options,password:String,pkgPath:String);
   DEV(options:Options,prj:String,dir:String);
   PACKAGE(options:Options,hblFile:String);
+  ACCOUNT(options:Options,cemail:String,cpass:String,nemail:String,npass:String,nname:String);
+  LICENSE(options:Options);
 }

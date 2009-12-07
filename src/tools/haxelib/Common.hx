@@ -33,6 +33,8 @@ enum Status {
   OK_USER(ui:UserInfo);
   OK_PROJECT(pi:ProjectInfo);
   OK_SEARCH(si:SearchInfo);
+  OK_LICENSES(lics:Array<{name:String,url:String}>);
+  ERR_LICENSE(lics:Array<{name:String,url:String}>);
   ERR_UNKNOWN;
   ERR_PASSWORD;
   ERR_DEVELOPER;
@@ -40,5 +42,6 @@ enum Status {
   ERR_USER(email:String);
   ERR_REGISTERED;
   ERR_PROJECTNOTFOUND;
+  
 }
 

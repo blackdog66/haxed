@@ -23,23 +23,35 @@ import neko.db.Manager;
 import neko.db.Sqlite;
 #end
 
-/*
-  A haxe backend, either neko or php, to haxelib.
-*/
 class ServerHxRepo implements Repository {
   static var DB = "haxelib.db";
+  static var LICFILE = "licenses.json"; 
   
   var dataDir:String;
   var repo:String;
+  var licenses:Array<{name:String,url:String}>;
   
   public function new(dd) {
     dataDir = Os.slash(dd);
     if (Os.exists(dataDir)) {
       if (!Os.exists(dataDir + DB))
-        throw "haxelib.db does not exist in data dir";
+        throw DB+" does not exist in data dir";
 
       repo = dataDir + "repo/";
       Os.mkdir(repo);
+      
+      if (!Os.exists(dataDir + LICFILE)) {
+        // then generate one
+        Os.fileOut(dataDir + LICFILE,hxjson2.JSON.encode(
+        [
+         { GPL: "http://www.gnu.org/licenses/gpl.html" },
+         { LGPL:"http://www.gnu.org/licenses/lgpl-3.0.html"},
+         { BSD:"http://www.linfo.org/bsdlicense.html"},
+         { PublicDomain:"http://creativecommons.org/licenses/publicdomain/"}
+        ]));
+      }
+
+      licenses = hxjson2.JSON.decode(Os.fileIn(dataDir + LICFILE));
       
     }
     
@@ -102,6 +114,10 @@ class ServerHxRepo implements Repository {
 
     if (user.pass != password)
       return ERR_PASSWORD;
+
+    var lc = checkLicense(glbs.license);
+    if (lc != OK)
+      return lc;
     
     var prj = Project.manager.search({ name : glbs.name }).first();
     if (prj == null)
@@ -151,6 +167,17 @@ class ServerHxRepo implements Repository {
     });
   }
 
+  function checkLicense(lic:String):Status {
+    var l = Lambda.filter(licenses,function(el) {
+        return Reflect.field(el,"name").toUpperCase() == lic;
+      });
+
+    if (l.first() == null) return ERR_LICENSE(licenses);
+
+    return OK;
+
+  }
+                                  
   function
   createProject(u:User,g:Global):Project {
     var p = new Project();
@@ -319,6 +346,29 @@ class ServerHxRepo implements Repository {
     return OK;
   }
 
+  public function license():Status {
+    return OK_LICENSES(licenses);
+  }
   
+  public function
+  account(cemail:String,cpass:String,nemail:String,npass:String,
+          nName:String):Status {
+
+    var u = User.manager.search({ email : cemail,pass: cpass }).first();
+
+    if( u == null )
+      return ERR_UNKNOWN;
+
+    if (npass != null)
+      u.pass = npass;
+    if (nemail != null)
+      u.email = nemail;
+    if (nName != null)
+      u.fullname = nName;
+
+    u.update();
+    
+    return OK;
+  }
   
 }

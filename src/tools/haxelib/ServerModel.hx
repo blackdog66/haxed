@@ -29,6 +29,8 @@ enum Command {
   CMD_REGISTER(email:String,password:String,fullName:String);
   CMD_SUBMIT(pkgPath:String);
   CMD_DEV(prj:String,dir:String);
+  CMD_ACCOUNT(cemail:String,cpass:String,nemail:String,npass:String,nname:String);
+  CMD_LICENSE;
 }
 
 interface Repository {
@@ -38,4 +40,6 @@ interface Repository {
   public function user(email:String):Status;
   public function info(pkg:String):Status;
   public function search(query:String,options:Hash<String>):Status;
+  public function account(cemail:String,cpass:String,nemail:String,npass:String,nname:String):Status;
+  public function license():Status;
 }

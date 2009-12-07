@@ -16,12 +16,15 @@ class ClientMain {
   myTrace( v : Dynamic, ?inf : haxe.PosInfos ) {
     Os.log(v);
   }
-  
+
+  static function toJson(obj:Dynamic,url:String) {
+    return neko.Lib.println(hxjson2.JSON.encode({repo:url,payload:obj}));
+  }
+                         
   static function
   main() {
 
     haxe.Log.trace = myTrace;
-
     var
       client = new ClientRestful(),
       command = ClientCtrl.process();
@@ -55,8 +58,12 @@ class ClientMain {
       client.search(options,query,function(rurl:String,s:Status) {
           return switch(s) {
           case OK_SEARCH(si):
-            formatRepoUrl(rurl);
-            formatSearchInfo(si);
+            if (options.flag("-j")) {
+              toJson(si,rurl);
+            } else {
+              Os.print(formatRepoUrl(rurl));
+              Os.print(formatSearchInfo(si));
+            }
             false;
           default:
             dontHandle("search",s);
@@ -69,9 +76,13 @@ class ClientMain {
           case ERR_PROJECTNOTFOUND:
             return false;
           case OK_PROJECT(pi):
-            formatRepoUrl(rurl);
-            formatProjectInfo(pi);
-            true;
+            if (options.flag("-j")) {
+              toJson(pi,rurl);
+            } else {
+              Os.print(formatRepoUrl(rurl));
+              Os.print(formatProjectInfo(pi));
+            }            
+            if (options.flag("-all")) false else true;
           default:
             dontHandle("info",s);
             true;
@@ -82,8 +93,8 @@ class ClientMain {
       client.user(options,email,function(rurl:String,s:Status) {
           return switch(s) {
           case OK_USER(ui):
-            formatRepoUrl(rurl);
-            formatUserInfo(ui);
+            Os.print(formatRepoUrl(rurl));
+            Os.print(formatUserInfo(ui));
             true;
           case ERR_UNKNOWN:
             false; //not handled check next server if one exists
@@ -106,14 +117,36 @@ class ClientMain {
           }
         });
     case SUBMIT(options,password,packagePath):
-      client.submit(options,password,packagePath,function(d) {
-          trace(d);
+      client.submit(options,password,packagePath,function(rurl:String,s:Status) {
+          switch(s) {
+          case OK:
+          case ERR_LICENSE(licenses):
+            Os.print(formatLicenses(licenses));
+          default:
+            dontHandle("submit",s);
+          }
+          return true;
+        });
+    case ACCOUNT(options,cemail,cpass,nemail,npass,nname):
+      client.account(options,cemail,cpass,nemail,npass,nname,function(rurl,s:Status) {
+          trace(s);
+          return true;
+        });
+    case LICENSE(options):
+      client.licenses(options,function(rurl:String,s:Status) {
+          switch(s) {
+          case OK_LICENSES(licenses):
+            Os.print(formatLicenses(licenses));
+          default:
+            dontHandle("license",s);
+          }
+          return true;
         });
     }
   }
 
   static function formatRepoUrl(repo:String) {
-    Os.print("In Repo: "+repo);
+    return "In Repo: "+repo;
   }
 
   static function
@@ -131,7 +164,7 @@ Releases:
 ::end::
 
 ';
-    Os.print(Os.template(tmpl,pi));
+    return Os.template(tmpl,pi);
   }
 
   static function
@@ -144,7 +177,7 @@ Projects:
 ::end::
 
 ';
-    Os.print(Os.template(tmpl,ui));
+    return Os.template(tmpl,ui);
   }
 
 
@@ -156,6 +189,17 @@ Project: ::name::
 ::context::
 ::end::
 ';
-    Os.print(Os.template(tmpl,si));
+    return Os.template(tmpl,si);
+  }
+
+
+  static function
+  formatLicenses(ls:Array<{name:String,url:String}>) {
+    var tmpl='Repository accepts these licenses:
+::foreach licence::
+::name:: - ::url::
+::end::
+';
+      return Os.template(tmpl,ls);
   }
 }

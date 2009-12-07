@@ -14,6 +14,9 @@ class ServerCtrl  {
   static function getParam(params:Hash<String>,p:String) {
     if (params.get(p) == null)
       return null;
+    if (StringTools.trim(params.get(p)) == "")
+      return null;
+    
     return StringTools.urlDecode(params.get(p));
   }
 
@@ -67,6 +70,19 @@ class ServerCtrl  {
         var
           query = getParam(params,"query");
         CMD_SEARCH(query,getOptions(params));
+
+      case "account":
+        var
+          cemail= getParam(params,"cemail"),
+          cpass  = getParam(params,"cpass"),
+          nemail = getParam(params,"nemail"),
+          npass = getParam(params,"npass"),
+          nname = getParam(params,"nname");
+
+        CMD_ACCOUNT(cemail,cpass,nemail,npass,nname);
+
+      case "license":
+        CMD_LICENSE;
       }
   }
   

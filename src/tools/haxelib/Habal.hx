@@ -40,6 +40,7 @@ class Fields {
 
   static public
   function required():List<String> {
+
     return fldMap
       .filter(function(val) { return val.required == true ;})
       .map(function(val) { return val.keyName; });
@@ -100,6 +101,10 @@ class Habal {
   function spaceSeparated(s) {
     return Lambda.map(s.split(" "),function(el) { return StringTools.trim(el); }).array();
   }
+
+  function parseLicense(val:String) {
+    return spaceSeparated(val).map(function(el) { return el.toUpperCase(); });
+  }
   
   function parseProperty(fld:String,val:Dynamic):Dynamic {
     var ret:Dynamic;
@@ -113,6 +118,8 @@ class Habal {
       ret = (val == "true") ? true : false;
     case "depends":
       ret = parseDepends(val);
+    case "license":
+      ret = parseLicense(val);
     default:
       ret = val;
     }

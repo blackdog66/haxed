@@ -26,7 +26,7 @@ class ServerMain {
     else
       repo = new ServerHxRepo("/home/blackdog/haxelib/");
 
-    Lib.print(
+  Lib.print(
       ERR.msg(
         switch(command) {
         case CMD_USER(email):
@@ -39,6 +39,8 @@ class ServerMain {
           repo.info(pkg);
         case CMD_SEARCH(query,options):
           repo.search(query,options);
+        case CMD_ACCOUNT(cemail,cpass,nemail,npass,nname):
+          repo.account(cemail,cpass,nemail,npass,nname);
         default:
           ERR_UNKNOWN;
         }));

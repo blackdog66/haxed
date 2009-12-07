@@ -297,7 +297,9 @@ class Os {
 
   public static function
   log(msg) {
-    Os.fileAppend("haxelib.log",msg);
+    var f = "haxelib.log";
+    if (!Os.exists(f)) Os.fileOut(f,"date:"+Date.now().toString());
+    Os.fileAppend(f,msg+"\n");
   }
 
 }
