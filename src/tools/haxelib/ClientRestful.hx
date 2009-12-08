@@ -42,6 +42,12 @@ class ClientRestful extends ClientCore {
         fn(hxjson2.JSON.decode(d));
       };
     }
+    h.onError = function(e:String) {
+      Os.print("Error requesting "+ r + "&" + parameters);
+      Os.print("Server not available? Checking next repo ...");
+      fn(null);
+    };
+    
     h.request(false);
   }
 
@@ -63,11 +69,15 @@ class ClientRestful extends ClientCore {
     
     if (options.repo != null) {
       request(url(options.repo,cmd),prms,function(d) {
-          fn(options.repo,getStatus(d)) ;
+          if (d != null)
+            fn(options.repo,getStatus(d)) ;
+            
       });
     } else {
       RemoteRepos.each(cmd,prms,function(repo:String,d:Dynamic) {
-          return fn(repo,getStatus(d)) ;
+          if (d != null)
+            return fn(repo,getStatus(d)) ;
+          return false ;// take next repo
         });
     }
   }
@@ -94,8 +104,10 @@ class ClientRestful extends ClientCore {
           } else
             ver = j.curversion;
 
+          trace("license is "+j.license);
+          
           if (found) {
-            me.doInstall(options,repoUrl,prj,ver);
+            me.doInstall(options,repoUrl,prj,ver,j.license);
           }
           
           return found;
