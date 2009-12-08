@@ -6,6 +6,7 @@ import tools.haxelib.ServerData;
 import tools.haxelib.ServerModel;
 import tools.haxelib.ZipReader;
 import tools.haxelib.Config;
+import tools.haxelib.License;
 
 using Lambda;
 
@@ -25,7 +26,6 @@ import neko.db.Sqlite;
 
 class ServerHxRepo implements Repository {
   static var DB = "haxelib.db";
-  static var LICFILE = "licenses.json"; 
   
   var dataDir:String;
   var repo:String;
@@ -40,19 +40,8 @@ class ServerHxRepo implements Repository {
     repo = dataDir + "repo/";
     Os.mkdir(repo);
       
-    if (!Os.exists(dataDir + LICFILE)) {
-      // then generate one
-      Os.fileOut(dataDir + LICFILE,hxjson2.JSON.encode(
-       [
-        { name:"GPL", url : "http://www.gnu.org/licenses/gpl.html" },
-        { name:"LGPL" , url :"http://www.gnu.org/licenses/lgpl-3.0.html"},
-        { name: "BSD", url : "http://www.linfo.org/bsdlicense.html"},
-        { name: "PublicDomain", url:"http://creativecommons.org/licenses/publicdomain/"}
-       ]));
-    }
-
-    licenses = hxjson2.JSON.decode(Os.fileIn(dataDir + LICFILE));
-      
+    licenses = License.getFromFile(dataDir);
+    
     var db = Sqlite.open(dataDir + DB);
     Manager.cnx = db;
 	Manager.initialize();

@@ -5,6 +5,7 @@ import tools.haxelib.Config;
 import tools.haxelib.Habal;
 import tools.haxelib.Package;
 import tools.haxelib.ClientCommon;
+import tools.haxelib.Os;
 
 /*
   Implement all the local functions, remote operations are implemented by
@@ -222,13 +223,23 @@ class ClientCore {
   }
 
   public function
-  doInstall(options:Options,repoUrl,prj,ver) {
+  doInstall(options:Options,repoUrl,prj,ver,license) {
     if (Os.exists(versionDir(prj,ver))) {
       Os.print("You already have "+prj+" version "+ver+" installed");
       setCurrentVersion(prj,ver);
       return true;
     }
-         
+    
+    if(!License.isPublic(license)) {
+      var l = License.getUrl(license);
+      var resp = haxe.Http.requestUrl(l);
+      Os.print(resp) ;
+      if (Os.ask("Do you accept the license?") == No) {
+        Os.print("Discontinuing install");
+        neko.Sys.exit(0);
+      }
+    }
+    
     var
       fileName = Os.pkgName(prj,ver),
       filePath = getRepos() + fileName;
@@ -350,7 +361,7 @@ class ClientCore {
         }
       }
 
-      Os.fileOut(getConfigFile(),path) ;  // original has binary true - check!!
+      Os.fileOut(getConfigFile(),path) ;
   }
 
   public function

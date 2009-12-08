@@ -14,6 +14,13 @@ import neko.Lib;
 import neko.zip.Reader;
 #end
 
+enum Answer {
+  Yes;
+  No;
+  Always;
+}
+
+
 class Os {
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
 
@@ -263,36 +270,58 @@ class Os {
   }
   
   /* http multipart upload */
-  public static
-	function filePost(filePath:String,dstUrl:String,binary:Bool,
+  public static function
+  filePost(filePath:String,dstUrl:String,binary:Bool,
 		params:Dynamic,fn:String->Void) {
 
-		if (!neko.FileSystem.exists(filePath))
-			throw "file not found";
+    if (!neko.FileSystem.exists(filePath))
+      throw "file not found";
+    
+    trace("filePost: "+filePath+" to "+dstUrl);
+    var req = new haxe.Http(dstUrl);
+    
+    var path = new neko.io.Path(filePath);
+    var stat = neko.FileSystem.stat(filePath);
+    req.fileTransfert("file",path.file+"."+path.ext,
+                      neko.io.File.read(filePath,binary),stat.size);
+    
+    if (params != null) {
+      var prms = Reflect.fields(params) ;
+      for (p in prms)
+        req.setParameter(p,Reflect.field(params,p));
+    }
+    
+    req.onData = function(j:String) {
+      if (fn != null)
+        fn(j);
+      else trace(j);
+    }
+    
+    req.request(true);
+  }
 
-		trace("filePost: "+filePath+" to "+dstUrl);
-		var req = new haxe.Http(dstUrl);
+  public static function
+  ask( question,always=false ) {
+    while( true ) {
+      if(always)
+        neko.Lib.print(question+" [y/n/a] ? ");
+      else
+        neko.Lib.print(question+" [y/n] ? ");
 
-		var path = new neko.io.Path(filePath);
-		var stat = neko.FileSystem.stat(filePath);
-		req.fileTransfert("file",path.file+"."+path.ext,
-			neko.io.File.read(filePath,binary),stat.size);
+      var a = switch( neko.io.File.stdin().readLine() ) {
+      case "n":  No;
+      case "y":  Yes;
+      case "a":  Always;
+      }
 
-		if (params != null) {
-			var prms = Reflect.fields(params) ;
-			for (p in prms)
-				req.setParameter(p,Reflect.field(params,p));
-		}
-
-		req.onData = function(j:String) {
-			if (fn != null)
-				fn(j);
-			else trace(j);
-		}
-
-		req.request(true);
-	}
-
+      if (a == Always && !always) continue;
+      if (a == Yes || a == No || a == Always) return a;
+     
+    }
+    return null;
+  }
+  
+  
   #end
 
   public static function

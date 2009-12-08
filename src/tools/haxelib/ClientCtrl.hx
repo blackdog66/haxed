@@ -3,13 +3,6 @@ package tools.haxelib;
 import tools.haxelib.ClientCommon;
 import tools.haxelib.ClientCore;
 
-
-enum Answer {
-  Yes;
-  No;
-  Always;
-}
-
 class ClientCtrl {
   static var commands = {
     install: "install a given project",
@@ -271,19 +264,8 @@ class ClientCtrl {
     }	      	
   }
 
-  static
-  function ask( question ) {
-    while( true ) {
-      neko.Lib.print(question+" [y/n/a] ? ");
-      switch( neko.io.File.stdin().readLine() ) {
-      case "n": return No;
-      case "y": return Yes;
-      case "a": return Always;
-      }
-    }
-    return null;
-  }
-
+  
+ 
   public static
   function usage() {
     Os.print("Haxe Library Manager "+ClientMain.VERSION+" - (c)2009 ");

@@ -36,7 +36,7 @@ class ClientMain {
     if (options.flag("-a") != null)
       return false; // not handled, check next repo
 
-    return true; // handled
+    return false; 
   }
   
   static function
