@@ -97,16 +97,18 @@ class Habal {
     properties.set(name,values);
   }
 
-  public
-  function spaceSeparated(s) {
+  public function
+  spaceSeparated(s) {
     return Lambda.map(s.split(" "),function(el) { return StringTools.trim(el); }).array();
   }
 
-  function parseLicense(val:String) {
-    return  StringTools.trim(val).toUpperCase();
+  function
+  parseLicense(val:String) {
+    return val.toUpperCase();
   }
   
-  function parseProperty(fld:String,val:Dynamic):Dynamic {
+  function
+  parseProperty(fld:String,val:Dynamic):Dynamic {
     var ret:Dynamic;
     
     switch(fld) {
