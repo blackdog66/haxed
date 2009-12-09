@@ -51,15 +51,6 @@ class ClientRestful extends ClientCore {
     h.request(false);
   }
 
-  static function
-  getStatus(d:Dynamic):Status {
-    var e;
-    if (Reflect.field(d,"PAYLOAD") != null)
-      e = Type.createEnum(Status,d.ERR,[d.PAYLOAD]);
-    else
-      e = Type.createEnum(Status,d.ERR);
-    return e;
-  }
 
   /*
     make one request to the given -R repo, or iterate over all repos
@@ -70,13 +61,13 @@ class ClientRestful extends ClientCore {
     if (options.repo != null) {
       request(url(options.repo,cmd),prms,function(d) {
           if (d != null)
-            fn(options.repo,getStatus(d)) ;
+            fn(options.repo,Marshall.getStatus(d)) ;
             
       });
     } else {
       RemoteRepos.each(cmd,prms,function(repo:String,d:Dynamic) {
           if (d != null)
-            return fn(repo,getStatus(d)) ;
+            return fn(repo,Marshall.getStatus(d)) ;
           return false ;// take next repo
         });
     }
@@ -120,7 +111,7 @@ class ClientRestful extends ClientCore {
     var u = url(options.repo,"submit");
     Os.filePost(packagePath,u,true,{password:password},function(d) {
         trace(d);
-        var s = getStatus(hxjson2.JSON.decode(d));
+        var s = Marshall.getStatus(hxjson2.JSON.decode(d));
         if (fn != null)
           fn(options.repo,s);
       }); 

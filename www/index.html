@@ -1,16 +1,47 @@
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
-<title></title>
+<title>haxelib</title>
 </head>
 
 <body>
-<h1>it's all good</h1>
+<h1>Welcome to haxelib</h1>
 
-
+<div id="prj-list"></div>
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Sun Nov 22 22:04:46 CLST 2009 <!-- hhmts end -->
+
+<script type="text/javascript" src="/js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="/js/jquery.form.js"></script>
+<script type="text/javascript" src="/Controller.js"></script>
+
+<textarea id="tmpl-prj-list" style="display:none">
+::foreach projects::
+<a href="/files/$$pkgName(::name::,::curversion::)">Download</a>
+<span class="project">
+::name:: ::license:: <b>::curversion::</b>
+<blockquote>
+<div class="details">
+  Desc:   ::desc::<br>
+  WebSite: ::website::<br>
+  Owner    ::owner::<br>
+  Releases<br>
+  <ol>
+  ::foreach versions::
+  	<li>[::name::] = ::date::<br>
+  		::comments::
+    </li>
+  ::end::
+    </ol>
+</div>
+</blockquote>
+</span>
+::end::
+</textarea>
+
 </body> </html>
+

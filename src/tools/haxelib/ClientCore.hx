@@ -79,12 +79,12 @@ class ClientCore {
   
   static inline function
   projectDir(prj) {
-    return Os.slash(getRepos() + Os.safe(prj));
+    return Common.slash(getRepos() + Common.safe(prj));
   }
 
   static inline function
   versionDir(prj,ver) {
-    return Os.slash(projectDir(prj) + Os.safe(ver));
+    return Common.slash(projectDir(prj) + Common.safe(ver));
   }
 
   static inline function
@@ -121,14 +121,14 @@ class ClientCore {
       for( v in Os.dir(projectDir(p)) ) {
         if( v.charAt(0) == "." )
           continue;
-        v = Os.unsafe(v);
+        v = Common.unsafe(v);
         if( dev == null && v == current )
           v = "["+v+"]";
        versions.push(v);
       }
       if( dev != null )
         versions.push("[dev:"+dev+"]");
-      Os.print(Os.unsafe(p) + ": "+versions.join(" "));
+      Os.print(Common.unsafe(p) + ": "+versions.join(" "));
     }
   }
   
@@ -201,7 +201,7 @@ class ClientCore {
     
     var rep = getRepository();
     for( d in list) {
-      var pdir = Os.safe(d.project)+"/"+Os.safe(d.version)+"/";
+      var pdir = Common.safe(d.project)+"/"+Common.safe(d.version)+"/";
       var dir = rep + pdir;
       try {
         dir = devVersion(d.project);
@@ -241,7 +241,7 @@ class ClientCore {
     }
     
     var
-      fileName = Os.pkgName(prj,ver),
+      fileName = Common.pkgName(prj,ver),
       filePath = getRepos() + fileName;
 
     download(repoUrl,filePath,fileName);
@@ -313,7 +313,7 @@ class ClientCore {
   dev(prj:String,dir:String) {
 	var
       rep = getRepository(),
-      devfile = rep + Os.safe(prj)+"/.dev";
+      devfile = rep + Common.safe(prj)+"/.dev";
     
     if( dir == null ) {
       if(Os.exists(devfile) )

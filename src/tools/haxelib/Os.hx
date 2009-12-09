@@ -22,34 +22,10 @@ enum Answer {
 
 
 class Os {
-  static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
 
   public static
   function print(s:String) {
     Lib.println(s);
-  }
-
-
-  public static inline
-  function slash(d:String) {
-    return StringTools.endsWith(d,"/") ? d : (d + "/") ;
-  }
-
-  public static
-  function safe( name : String ) {
-    if( !alphanum.match(name) )
-      throw "Invalid parameter : "+name;
-    return name.split(".").join(",");
-  }
-
-  public static
-  function unsafe( name : String ) {
-    return name.split(",").join(".");
-  }
-
-  public static
-  function pkgName( lib : String, ver : String ) {
-      return safe(lib)+"-"+safe(ver)+".zip";
   }
 
   public static
@@ -67,7 +43,6 @@ class Os {
     return true;
   }
 
-  
   public static
   function newer(src:String,dst:String) {
     if (!exists(dst)) return true;
@@ -170,17 +145,17 @@ class Os {
   function readTree(dir:String,files:List<String>,?exclude:String->Bool) {
     var dirContent = FileSystem.readDirectory(dir);
     for (f in dirContent) {
-      var d = slash(dir) + f;
+      var d = Common.slash(dir) + f;
       if (exclude != null)
         if (exclude(d)) continue;
       try {
         if (FileSystem.isDirectory(d))
           readTree(d,files);
         else
-          files.push(slash(dir)+f);
+          files.push(Common.slash(dir)+f);
       } catch(e:Dynamic) {
         // it's probably a link, isDirectory throws on a link
-        files.push(slash(dir)+f);
+        files.push(Common.slash(dir)+f);
       }
     }
     return files;

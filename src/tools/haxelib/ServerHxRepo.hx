@@ -32,7 +32,7 @@ class ServerHxRepo implements Repository {
   var licenses:Array<{name:String,url:String}>;
   
   public function new(dd) {
-    dataDir = Os.slash(dd);
+    dataDir = Common.slash(dd);
 
     if (!Os.exists(dataDir)) throw "Datadir " + dataDir + " does not exist";
     if (!Os.exists(dataDir + DB)) throw DB+" does not exist in data dir";
@@ -115,7 +115,7 @@ class ServerHxRepo implements Repository {
 
     version(prj,glbs.version,json);
 
-    Os.mv(tmpFile,repo+Os.pkgName(prj.name,glbs.version));
+    Os.mv(tmpFile,repo+Common.pkgName(prj.name,glbs.version));
     
     return OK;
   }

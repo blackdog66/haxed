@@ -2,10 +2,19 @@
 
 -cp ./src/
 -php ./www
+--php-front repo.php 
 -main tools.haxelib.ServerMain
+
 
 --next
 
 -cp ./src/
 -neko client.n
 -main tools.haxelib.ClientMain
+-resource licenses/gpl-3.0.txt@GPL
+
+--next 
+
+-cp ./src/
+-js ./www/Controller.js
+-main tools.haxelib.JsCntrl

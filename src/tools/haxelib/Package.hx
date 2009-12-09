@@ -55,7 +55,7 @@ class Package {
     Lambda.iter(libs.sourceDirs,function(d) {
         if (!Os.exists(d))
           throw "Source dir "+d+" does not exist";
-        Os.copyTree(Os.slash(d),packDir);
+        Os.copyTree(Common.slash(d),packDir);
       });
   }
 

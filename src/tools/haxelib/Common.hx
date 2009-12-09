@@ -1,5 +1,9 @@
 package tools.haxelib;
 
+/*
+  Used across neko, php and js
+*/
+
 import hxjson2.JSON;
 
 typedef UserInfo = {
@@ -28,10 +32,10 @@ typedef SearchInfo = {
   var items : Array<{id:Int,name:String,context:String}>;
 }
 
-  typedef LicenseErr = {
-    var licenses:Array<{name:String,url:String}>;
-    var given:String;
-  }
+typedef LicenseErr = {
+  var licenses:Array<{name:String,url:String}>;
+  var given:String;
+}
 
 enum Status {
   OK;
@@ -51,3 +55,41 @@ enum Status {
   
 }
 
+class Marshall {
+  public static function
+  getStatus(d:Dynamic):Status {
+    var e;
+    if (Reflect.field(d,"PAYLOAD") != null)
+      e = Type.createEnum(Status,d.ERR,[d.PAYLOAD]);
+    else
+      e = Type.createEnum(Status,d.ERR);
+    return e;
+  }
+}
+
+class Common {
+  static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
+
+  public static inline
+  function slash(d:String) {
+    return StringTools.endsWith(d,"/") ? d : (d + "/") ;
+  }
+
+  public static
+  function safe( name : String ) {
+    if( !alphanum.match(name) )
+      throw "Invalid parameter : "+name;
+    return name.split(".").join(",");
+  }
+
+  public static
+  function unsafe( name : String ) {
+    return name.split(",").join(".");
+  }
+
+  public static
+  function pkgName( lib : String, ver : String ) {
+      return safe(lib)+"-"+safe(ver)+".zip";
+  }
+
+}
