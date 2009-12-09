@@ -43,6 +43,8 @@ class ServerMain {
           repo.account(cemail,cpass,nemail,npass,nname);
         case CMD_LICENSE:
           repo.license();
+        case CMD_PROJECTS:
+          repo.projects();
         default:
           ERR_UNKNOWN;
         }));

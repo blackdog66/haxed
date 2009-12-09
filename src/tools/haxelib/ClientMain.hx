@@ -11,6 +11,7 @@ class ClientMain {
   static function
   dontHandle(cmd:String,s:Status) {
     neko.Lib.println(cmd+" doesn't handle "+s);
+    return true;
   }
 
   private static function
@@ -30,10 +31,10 @@ class ClientMain {
       Os.print(formatter(obj));
     }
 
-    if (options.flag("-R") != null)
+    if (options.flag("-R"))
       return true; // only checking one repo, so handled
     
-    if (options.flag("-a") != null)
+    if (options.flag("-a"))
       return false; // not handled, check next repo
 
     return false; 
@@ -118,23 +119,23 @@ class ClientMain {
             false;
           default:
             dontHandle("register",s);
-            false;
           }
         });
     case SUBMIT(options,password,packagePath):
       client.submit(options,password,packagePath,function(rurl:String,s:Status) {
-          switch(s) {
+          return switch(s) {
           case OK:
             Os.print("Submission Successful");
+            true;
           case ERR_LICENSE(lics):
             Os.print("Repository does not accept this license :"+lics.given);
             handleOptions(options,rurl,lics.licenses,formatLicenses);
           case ERR_USER(u):
             Os.print("User not known:"+u);
+            return true;
           default:
             dontHandle("submit",s);
           }
-          return true;
         });
     case ACCOUNT(options,cemail,cpass,nemail,npass,nname):
       client.account(options,cemail,cpass,nemail,npass,nname,function(rurl,s:Status) {
@@ -143,15 +144,27 @@ class ClientMain {
         });
     case LICENSE(options):
       client.licenses(options,function(rurl:String,s:Status) {
-          switch(s) {
+          return switch(s) {
           case OK_LICENSES(licenses):
             handleOptions(options,rurl,licenses,formatLicenses);
           default:
             dontHandle("license",s);
           }
-          return true;
         });
+    case PROJECTS(options):
+      client.projects(options,function(rurl:String,s:Status) {
+          
+          return switch(s) {
+          case OK_PROJECTS(prj):
+            trace(handleOptions(options,rurl,prj,formatProjects));
+            handleOptions(options,rurl,prj,formatProjects);
+          default:
+            dontHandle("projects",s);
+          }
+      });
+
     }
+  
   }
 
   static function formatRepoUrl(repo:String) {
@@ -189,8 +202,7 @@ Projects:
     return Os.template(tmpl,ui);
   }
 
-
-    static function
+  static function
   formatSearchInfo(si:SearchInfo) {
     var tmpl='::foreach items::
 Project: ::name::
@@ -209,5 +221,13 @@ Project: ::name::
 ::name:: - ::url:: ::end::
 ';
     return Os.template(tmpl,{licenses:ls});
+  }
+
+  static function
+  formatProjects(prj:Array<ProjectInfo>) {
+    return Lambda.fold(prj,function(p,sb:StringBuf) {
+        sb.add(formatProjectInfo(p));
+        return sb;
+      },new StringBuf()).toString();
   }
 }

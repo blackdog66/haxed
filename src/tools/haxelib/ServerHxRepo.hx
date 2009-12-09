@@ -235,22 +235,17 @@ class ServerHxRepo implements Repository {
 	for( v in Version.manager.search({ project : project.id }) )
       fn(v);
   }
-  
-  public function
-  info(prj:String):Status {
-    var p = Project.manager.search({ name : prj }).first();
-    
-    if (p == null)
-      return ERR_PROJECTNOTFOUND;
 
-    var u = p.owner,
+  static
+  function getInfo(p:Project):ProjectInfo {
+   var u = p.owner,
       iv = Version.manager.search({project:p.id})
              .map(function(v) {
                  return { date: v.date, name:v.name, comments:v.comments };
                })
              .array();
     
-    return OK_PROJECT({
+    return {
       name: p.name,
       desc:p.description,
       website:p.website,
@@ -258,7 +253,16 @@ class ServerHxRepo implements Repository {
       license:p.license,
       curversion:p.version.name,
       versions:iv
-      });    
+      };    
+  }
+  
+  public function
+  info(prj:String):Status {
+    var p = Project.manager.search({ name : prj }).first();
+    
+    if (p == null)
+      return ERR_PROJECTNOTFOUND;
+    return OK_PROJECT(getInfo(p));   
   }
 
   static function
@@ -357,5 +361,15 @@ class ServerHxRepo implements Repository {
     
     return OK;
   }
-  
+
+  public function
+  projects() {
+    return OK_PROJECTS(
+              Project.manager
+                 .all()
+                 .map(function(p) {
+                     return getInfo(p);
+                   })
+                 .array());
+  }
 }

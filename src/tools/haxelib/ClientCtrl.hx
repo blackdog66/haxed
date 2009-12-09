@@ -225,6 +225,9 @@ class ClientCtrl {
       var hbl = param("Hbl File",validHbl);
       PACKAGE(options,hbl);
 
+    case "projects":
+      PROJECTS(options);
+      
     case "info":
       var prj = param("Project");
       INFO(options,prj);

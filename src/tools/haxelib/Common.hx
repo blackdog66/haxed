@@ -37,6 +37,7 @@ enum Status {
   OK;
   OK_USER(ui:UserInfo);
   OK_PROJECT(pi:ProjectInfo);
+  OK_PROJECTS(prj:Array<ProjectInfo>);
   OK_SEARCH(si:SearchInfo);
   OK_LICENSES(lics:Array<{name:String,url:String}>);
   ERR_LICENSE(info:LicenseErr);

@@ -13,7 +13,7 @@ class ClientRestful extends ClientCore {
 
   override public function
   url(u:String,c:String) {
-    return "http://"+u+"/index.php?method="+c;
+    return "http://"+u+"/repo.php?method="+c;
   }
   
   override public function
@@ -94,7 +94,6 @@ class ClientRestful extends ClientCore {
           var found = true;
           
           if (ver != null) {
-            trace("given version is "+ver);
             found = false;
             for( v in j.versions )
               if( v.name == ver ) {
@@ -104,8 +103,6 @@ class ClientRestful extends ClientCore {
           } else
             ver = j.curversion;
 
-          trace("license is "+j.license);
-          
           if (found) {
             me.doInstall(options,repoUrl,prj,ver,j.license);
           }
@@ -143,7 +140,6 @@ class ClientRestful extends ClientCore {
   user(options:Options,email:String,fn:String->Status->Bool) {
     requestDispatch(options,"user",{email:email},fn);
   }
-  
 
   public function
   info(options:Options,prj:String,fn:String->Status->Bool) {
@@ -166,6 +162,10 @@ class ClientRestful extends ClientCore {
   public function
   licenses(options:Options,fn:String->Status->Bool) {
     requestDispatch(options,"license",{},fn);
+  }
+  public function
+  projects(options:Options,fn:String->Status->Bool) {
+    requestDispatch(options,"projects",{},fn);
   }
 }
 

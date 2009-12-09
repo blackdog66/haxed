@@ -83,6 +83,10 @@ class ServerCtrl  {
 
       case "license":
         CMD_LICENSE;
+      case "projects":
+        CMD_PROJECTS;
+        
+        
       }
   }
   

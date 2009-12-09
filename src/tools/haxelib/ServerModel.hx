@@ -12,6 +12,8 @@ class ERR {
       JSON.encode({ERR:m,PAYLOAD:ui});
     case OK_PROJECT(info):
       JSON.encode({ERR:m,PAYLOAD:info});
+    case OK_PROJECTS(prjs):
+      JSON.encode({ERR:m,PAYLOAD:prjs});
     case OK_SEARCH(s):
       JSON.encode({ERR:m,PAYLOAD:s});
     case OK_LICENSES(l):
@@ -35,6 +37,7 @@ enum Command {
   CMD_DEV(prj:String,dir:String);
   CMD_ACCOUNT(cemail:String,cpass:String,nemail:String,npass:String,nname:String);
   CMD_LICENSE;
+  CMD_PROJECTS;
 }
 
 interface Repository {
@@ -46,4 +49,5 @@ interface Repository {
   public function search(query:String,options:Hash<String>):Status;
   public function account(cemail:String,cpass:String,nemail:String,npass:String,nname:String):Status;
   public function license():Status;
+  public function projects():Status;
 }

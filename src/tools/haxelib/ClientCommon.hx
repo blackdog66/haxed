@@ -73,6 +73,7 @@ class Options {
     }
     return n;
   }
+  
   public function flag(s:String):Bool {
     return switches.exists(s);
   }
@@ -98,4 +99,5 @@ enum Command {
   PACKAGE(options:Options,hblFile:String);
   ACCOUNT(options:Options,cemail:String,cpass:String,nemail:String,npass:String,nname:String);
   LICENSE(options:Options);
+  PROJECTS(options:Options);
 }
