@@ -1,0 +1,10 @@
+{
+   "serverName":"ipowerhouse haxelib Repo",
+   "dataDir": "/home/blackdog/Projects/haxelib/",
+   "licenses":
+        [{"pub":true,"name":"GPL","url":"http://www.gnu.org/licenses/gpl.html"},
+         {"pub":true,"name":"LGPL","url":"http://www.gnu.org/licenses/lgpl-3.0.html"},
+         {"pub":true,"name":"BSD","url":"http://www.linfo.org/bsdlicense.html"},
+         {"pub":true,"name":"PublicDomain","url":"http://creativecommons.org/licenses/publicdomain/"}
+        ]
+}
