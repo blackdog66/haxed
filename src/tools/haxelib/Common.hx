@@ -49,7 +49,8 @@ enum Status {
   ERR_LICENSE(info:LicenseErr);
   ERR_UNKNOWN;
   ERR_NOTHANDLED;
-  ERR_PASSWORD;
+  ERR_PASSWORD(which:String);
+  ERR_EMAIL(which:String);
   ERR_DEVELOPER;
   ERR_HAXELIBJSON;
   ERR_USER(email:String);
@@ -127,6 +128,7 @@ class Common {
   public static function validUrl(v) {
     var r = ~/^(http:\/\/)?([^:\/]+)(:[0-9]+)?\/?(.*)$/;
     return (r.match(v)) ? null : "invalid http url"; }
+
 }
 
 class Options {

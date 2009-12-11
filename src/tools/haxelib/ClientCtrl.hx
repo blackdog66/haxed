@@ -21,7 +21,7 @@ class ClientCtrl {
     test:"install the specified package locally",
     dev:"set the development directory for a given project",
     path:"give paths to libraries",
-    pack_age:"package the project specified by the hbl file",
+    pack:"package the project specified by the hbl file",
     account: "update your registered email address,password and name",
   };
 
@@ -131,7 +131,7 @@ class ClientCtrl {
   static function validZip(v) {
     return ((StringTools.endsWith(v,".zip") && Os.exists(v)) ? null : "zip doesn't exist"); 
   }
-
+  
   static function getPW(msg="Password",opt=false):String {
     var
       confirm,
@@ -203,7 +203,7 @@ class ClientCtrl {
       var line = param("Path",validPath);
       LOCAL(SETUP(line),options);
 
-    case "package":
+    case "pack":
       var hbl = param("Hbl File",validHbl);
       LOCAL(PACK(hbl),options);
 

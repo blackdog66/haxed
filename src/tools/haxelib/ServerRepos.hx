@@ -99,7 +99,7 @@ class ServerRepos {
       return ERR_USER(email);
 
     if (user.pass != password)
-      return ERR_PASSWORD;
+      return ERR_PASSWORD("");
 
     var lc = checkLicense(glbs.license);
     if (lc != null)

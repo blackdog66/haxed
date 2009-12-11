@@ -41,12 +41,6 @@ class ServerCtrl  {
           password = getParam(params,"password"),
           fullName = getParam(params,"fullname");
 
-        // if( !Datas.alphanum.match(name) )
-    //  throw "Invalid user name, please use alphanumeric characters";
-    //if( name.length < 3 )
-    //  throw "User name must be at least 3 characters";
-
-        
        REMOTE(REGISTER(email,password,fullName),options);
   
       case "info":

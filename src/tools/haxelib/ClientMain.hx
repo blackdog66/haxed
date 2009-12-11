@@ -73,8 +73,11 @@ class ClientMain {
     case ERR_NOTHANDLED:
       Os.print("Server didn't know that option");
       return false;
-    case ERR_PASSWORD:
-      Os.print("Bad password");
+    case ERR_PASSWORD(which):
+      Os.print("Bad password" + ((which != "") ? "for "+which : ""));
+      return false;
+    case ERR_EMAIL(which):
+      Os.print("Bad email" + ((which != "") ? "for "+which : ""));
       return false;
     case ERR_DEVELOPER:
       Os.print("Given author is not a developer");

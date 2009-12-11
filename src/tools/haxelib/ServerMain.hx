@@ -24,34 +24,40 @@ class ServerMain {
     else
       repo = new ServerRepos("/home/blackdog/haxelib/");
 
-  Lib.print(
-      Marshall.toJson(
-        switch(cmdCtx) {
-        case REMOTE(cmd,options):
-          switch(cmd) {
-          case USER(email):
-            repo.user(email);
-          case REGISTER(email,password,fullName):
-            repo.register(email,password,fullName);
-          case SUBMIT(password):
-            repo.submit(password);
-          case INFO(pkg):
-            repo.info(pkg);
-          case SEARCH(query):
-            repo.search(query,options);
-          case ACCOUNT(cemail,cpass,nemail,npass,nname):
-            repo.account(cemail,cpass,nemail,npass,nname);
-          case LICENSE:
-            repo.license();
-          case PROJECTS:
-            repo.projects();
-          }
-        case LOCAL(cmd,options):
-          trace("shouldn't get here");
-          ERR_UNKNOWN;
+    Lib.print(Marshall.toJson(
+      switch(cmdCtx) {
+      case REMOTE(cmd,options):
+        switch(cmd) {
+        case USER(email):
+          repo.user(email);
+        case REGISTER(email,password,fullName):
+          if (Common.validEmail(email) != null) ERR_EMAIL("");
+          if (Common.validPW(password) != null) ERR_PASSWORD("");
+          repo.register(email,password,fullName);
+        case SUBMIT(password):
+          repo.submit(password);
+        case INFO(pkg):
+          repo.info(pkg);
+        case SEARCH(query):
+          repo.search(query,options);
+        case ACCOUNT(cemail,cpass,nemail,npass,nname):
+          if (Common.validEmail(cemail) != null) ERR_EMAIL("current");
+          if (Common.validPW(cpass) != null) ERR_PASSWORD("current");
+          if (Common.validEmail(nemail) != null) ERR_EMAIL("new");
+          if (Common.validPW(npass) != null) ERR_PASSWORD("new");
+          
+          repo.account(cemail,cpass,nemail,npass,nname);
+        case LICENSE:
+          repo.license();
+        case PROJECTS:
+          repo.projects();
         }
+      case LOCAL(cmd,options):
+        trace("shouldn't get here");
+        ERR_UNKNOWN;
+      }
     ));
-
+    
     repo.cleanup();
   }
-} 
+}
