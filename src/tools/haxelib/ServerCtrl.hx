@@ -67,8 +67,10 @@ class ServerCtrl  {
         REMOTE(LICENSE,options);
       case "projects":
         REMOTE(PROJECTS,options);
-        
-        
+      case "serverInfo":
+        REMOTE(SERVERINFO,options);
+      default:
+          throw "don't know this method! "+getParam(params,"method");
       }
   }
   

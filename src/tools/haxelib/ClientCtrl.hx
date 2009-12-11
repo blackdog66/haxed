@@ -244,7 +244,13 @@ class ClientCtrl {
       REMOTE(ACCOUNT(cemail,cpass,nemail,npass,nName),options);
 
     case "license":
-      REMOTE(LICENSE,options);      
+      REMOTE(LICENSE,options);
+
+    case "serverinfo":
+      REMOTE(SERVERINFO,options);
+    default:
+      usage();
+      null;
     }	      	
   }
 

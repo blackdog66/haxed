@@ -28,7 +28,6 @@ class ServerRepos {
   
   var dataDir:String;
   var repo:String;
-  var licenses:Array<{name:String,url:String}>;
   
   public function new(dd) {
     dataDir = Common.slash(dd);
@@ -39,8 +38,6 @@ class ServerRepos {
     repo = dataDir + "repo/";
     Os.mkdir(repo);
       
-    licenses = License.getFromFile(dataDir);
-    
     var db = Sqlite.open(dataDir + DB);
     Manager.cnx = db;
 	Manager.initialize();
@@ -154,7 +151,9 @@ class ServerRepos {
   }
 
   function checkLicense(lic:String):Status {
-    var l = Lambda.filter(licenses,function(el) {
+    var
+      licenses= License.getAll(),
+      l = Lambda.filter(licenses,function(el) {
         return Reflect.field(el,"name").toUpperCase() == lic.toUpperCase();
       });
 
@@ -338,7 +337,7 @@ class ServerRepos {
   }
 
   public function license():Status {
-    return OK_LICENSES(licenses);
+    return OK_LICENSES(License.getAll());
   }
   
   public function

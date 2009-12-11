@@ -7,26 +7,32 @@ import tools.haxelib.Package;
 import tools.haxelib.Common;
 import tools.haxelib.Os;
 
+using Lambda;
+
+private typedef ClientConf = {
+  var repos:Array<String>;
+}
+  
+
 class RemoteRepos {
   // files can be found in repo + "/"+REPO_URI
   public static var REPO_URI = "files"; 
-  static var repos:List<String>;
+  static var repos:Array<String>;
   static var client:ClientCore;
   
   public static
   function init(c:ClientCore) {
     client = c;
-    repos = new List<String>();
-    repos.add("localhost:8200");
-    repos.add("lib.ipowerhouse.com");
-    //repos.add("lib.haxelib.org");
-    //repos.add("www.bazaarware.com");
+    var
+      conf:ClientConf = hxjson2.JSON.decode(haxe.Resource.getString("clientConfig"));
+
+    repos = conf.repos;    
   }
   
   static
-  function doRepo(cmd:String,prms:Dynamic,rps:List<String>,
+  function doRepo(cmd:String,prms:Dynamic,rps:Array<String>,
                   userFn:String->Dynamic->Bool) {
-    var next = rps.pop();
+    var next = rps.shift();
     if (next == null)
       return;
 
@@ -46,7 +52,7 @@ class RemoteRepos {
   function each(cmd:String,prms:Dynamic,fn:String->Dynamic->Bool) {
     if (repos == null) throw "must call RemoteRepos.init() first";
     
-    var tmpRepos = Lambda.list(repos);
+    var tmpRepos = repos.copy();
     doRepo(cmd,prms,tmpRepos,fn);
   }  
 }

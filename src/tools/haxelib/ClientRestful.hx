@@ -157,6 +157,11 @@ class ClientRestful extends ClientCore {
   projects(options:Options,fn:String->Status->Bool) {
     requestDispatch(options,"projects",{},fn);
   }
+
+  public function
+  serverInfo(options,fn:String->Status->Bool) {
+    requestDispatch(options,"serverInfo",{},fn);
+  }
 }
 
 

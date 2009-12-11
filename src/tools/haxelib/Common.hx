@@ -32,20 +32,32 @@ typedef SearchInfo = {
   var items : Array<{id:Int,name:String,context:String}>;
 }
 
+typedef LicenseSpec = {
+  var pub:Bool;
+  var name:String;
+  var url:String;
+}
+
 typedef LicenseErr = {
-  var licenses:Array<{name:String,url:String}>;
+  var licenses:Array<LicenseSpec>;
   var given:String;
 }
 
+typedef ServerInfo = {
+  var name:String;
+  var licenses:Array<LicenseSpec>;
+}
+  
 enum Status {
   OK_USER(ui:UserInfo);
   OK_PROJECT(pi:ProjectInfo);
   OK_PROJECTS(prj:Array<ProjectInfo>);
   OK_SEARCH(si:SearchInfo);
-  OK_LICENSES(lics:Array<{name:String,url:String}>);
+  OK_LICENSES(lics:Array<LicenseSpec>);
   OK_REGISTER;
   OK_SUBMIT;
   OK_ACCOUNT;
+  OK_SERVERINFO(si:ServerInfo);
   ERR_LICENSE(info:LicenseErr);
   ERR_UNKNOWN;
   ERR_NOTHANDLED;
@@ -87,6 +99,8 @@ class Marshall {
       JSON.encode({ERR:m,PAYLOAD:l});
     case ERR_USER(email):
       JSON.encode({ERR:m,PAYLOAD:email});
+    case OK_SERVERINFO(si):
+      JSON.encode({ERR:m,PAYLOAD:si});
     default:
       JSON.encode({ERR:m});
     }
@@ -207,6 +221,7 @@ enum RemoteCommand {
   ACCOUNT(cemail:String,cpass:String,nemail:String,npass:String,nname:String);
   LICENSE;
   PROJECTS;
+  SERVERINFO;
 }
 
 enum CmdContext {

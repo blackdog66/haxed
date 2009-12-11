@@ -843,7 +843,7 @@ tools.haxelib.JsCntrl.template = function(tmpl,data) {
 tools.haxelib.JsCntrl.doService = function(url,cb) {
 	haxe.Log.trace("service: " + url,{ fileName : "JsCntrl.hx", lineNumber : 109, className : "tools.haxelib.JsCntrl", methodName : "doService"});
 	JQuery.getJSON(url,function(data) {
-		cb(tools.haxelib.Marshall.getStatus(data));
+		cb(tools.haxelib.Marshall.fromJson(data));
 	});
 }
 tools.haxelib.JsCntrl.msg = function(m) {
@@ -854,7 +854,7 @@ tools.haxelib.JsCntrl.msg = function(m) {
 tools.haxelib.JsCntrl.statusHandler = function(s) {
 	var $e = (s);
 	switch( $e[1] ) {
-	case 3:
+	case 2:
 	var prjs = $e[2];
 	{
 		haxe.Log.trace(prjs,{ fileName : "JsCntrl.hx", lineNumber : 140, className : "tools.haxelib.JsCntrl", methodName : "statusHandler"});
@@ -864,12 +864,11 @@ tools.haxelib.JsCntrl.statusHandler = function(s) {
        $('.project').toggle(
              function() { $('.details',$(this)).css({display:'none'}) ;},
              function() { $('.details',$(this)).css({display:'inline'}); });
-
 ;
 		new JQuery(".details").css({ display : "none"});
 	}break;
 	default:{
-		haxe.Log.trace("nout",{ fileName : "JsCntrl.hx", lineNumber : 157, className : "tools.haxelib.JsCntrl", methodName : "statusHandler"});
+		haxe.Log.trace("nout",{ fileName : "JsCntrl.hx", lineNumber : 151, className : "tools.haxelib.JsCntrl", methodName : "statusHandler"});
 	}break;
 	}
 }
@@ -1674,42 +1673,104 @@ List.prototype.toString = function() {
 	return s.b.join("");
 }
 List.prototype.__class__ = List;
-tools.haxelib.Status = { __ename__ : ["tools","haxelib","Status"], __constructs__ : ["OK","OK_USER","OK_PROJECT","OK_PROJECTS","OK_SEARCH","OK_LICENSES","ERR_LICENSE","ERR_UNKNOWN","ERR_PASSWORD","ERR_DEVELOPER","ERR_HAXELIBJSON","ERR_USER","ERR_REGISTERED","ERR_PROJECTNOTFOUND"] }
-tools.haxelib.Status.ERR_DEVELOPER = ["ERR_DEVELOPER",9];
+tools.haxelib.Status = { __ename__ : ["tools","haxelib","Status"], __constructs__ : ["OK_USER","OK_PROJECT","OK_PROJECTS","OK_SEARCH","OK_LICENSES","OK_REGISTER","OK_SUBMIT","OK_ACCOUNT","OK_SERVERINFO","ERR_LICENSE","ERR_UNKNOWN","ERR_NOTHANDLED","ERR_PASSWORD","ERR_EMAIL","ERR_DEVELOPER","ERR_HAXELIBJSON","ERR_USER","ERR_REGISTERED","ERR_PROJECTNOTFOUND"] }
+tools.haxelib.Status.ERR_DEVELOPER = ["ERR_DEVELOPER",14];
 tools.haxelib.Status.ERR_DEVELOPER.toString = $estr;
 tools.haxelib.Status.ERR_DEVELOPER.__enum__ = tools.haxelib.Status;
-tools.haxelib.Status.ERR_HAXELIBJSON = ["ERR_HAXELIBJSON",10];
+tools.haxelib.Status.ERR_EMAIL = function(which) { var $x = ["ERR_EMAIL",13,which]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.ERR_HAXELIBJSON = ["ERR_HAXELIBJSON",15];
 tools.haxelib.Status.ERR_HAXELIBJSON.toString = $estr;
 tools.haxelib.Status.ERR_HAXELIBJSON.__enum__ = tools.haxelib.Status;
-tools.haxelib.Status.ERR_LICENSE = function(info) { var $x = ["ERR_LICENSE",6,info]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
-tools.haxelib.Status.ERR_PASSWORD = ["ERR_PASSWORD",8];
-tools.haxelib.Status.ERR_PASSWORD.toString = $estr;
-tools.haxelib.Status.ERR_PASSWORD.__enum__ = tools.haxelib.Status;
-tools.haxelib.Status.ERR_PROJECTNOTFOUND = ["ERR_PROJECTNOTFOUND",13];
+tools.haxelib.Status.ERR_LICENSE = function(info) { var $x = ["ERR_LICENSE",9,info]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.ERR_NOTHANDLED = ["ERR_NOTHANDLED",11];
+tools.haxelib.Status.ERR_NOTHANDLED.toString = $estr;
+tools.haxelib.Status.ERR_NOTHANDLED.__enum__ = tools.haxelib.Status;
+tools.haxelib.Status.ERR_PASSWORD = function(which) { var $x = ["ERR_PASSWORD",12,which]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.ERR_PROJECTNOTFOUND = ["ERR_PROJECTNOTFOUND",18];
 tools.haxelib.Status.ERR_PROJECTNOTFOUND.toString = $estr;
 tools.haxelib.Status.ERR_PROJECTNOTFOUND.__enum__ = tools.haxelib.Status;
-tools.haxelib.Status.ERR_REGISTERED = ["ERR_REGISTERED",12];
+tools.haxelib.Status.ERR_REGISTERED = ["ERR_REGISTERED",17];
 tools.haxelib.Status.ERR_REGISTERED.toString = $estr;
 tools.haxelib.Status.ERR_REGISTERED.__enum__ = tools.haxelib.Status;
-tools.haxelib.Status.ERR_UNKNOWN = ["ERR_UNKNOWN",7];
+tools.haxelib.Status.ERR_UNKNOWN = ["ERR_UNKNOWN",10];
 tools.haxelib.Status.ERR_UNKNOWN.toString = $estr;
 tools.haxelib.Status.ERR_UNKNOWN.__enum__ = tools.haxelib.Status;
-tools.haxelib.Status.ERR_USER = function(email) { var $x = ["ERR_USER",11,email]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
-tools.haxelib.Status.OK = ["OK",0];
-tools.haxelib.Status.OK.toString = $estr;
-tools.haxelib.Status.OK.__enum__ = tools.haxelib.Status;
-tools.haxelib.Status.OK_LICENSES = function(lics) { var $x = ["OK_LICENSES",5,lics]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
-tools.haxelib.Status.OK_PROJECT = function(pi) { var $x = ["OK_PROJECT",2,pi]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
-tools.haxelib.Status.OK_PROJECTS = function(prj) { var $x = ["OK_PROJECTS",3,prj]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
-tools.haxelib.Status.OK_SEARCH = function(si) { var $x = ["OK_SEARCH",4,si]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
-tools.haxelib.Status.OK_USER = function(ui) { var $x = ["OK_USER",1,ui]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.ERR_USER = function(email) { var $x = ["ERR_USER",16,email]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.OK_ACCOUNT = ["OK_ACCOUNT",7];
+tools.haxelib.Status.OK_ACCOUNT.toString = $estr;
+tools.haxelib.Status.OK_ACCOUNT.__enum__ = tools.haxelib.Status;
+tools.haxelib.Status.OK_LICENSES = function(lics) { var $x = ["OK_LICENSES",4,lics]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.OK_PROJECT = function(pi) { var $x = ["OK_PROJECT",1,pi]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.OK_PROJECTS = function(prj) { var $x = ["OK_PROJECTS",2,prj]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.OK_REGISTER = ["OK_REGISTER",5];
+tools.haxelib.Status.OK_REGISTER.toString = $estr;
+tools.haxelib.Status.OK_REGISTER.__enum__ = tools.haxelib.Status;
+tools.haxelib.Status.OK_SEARCH = function(si) { var $x = ["OK_SEARCH",3,si]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.OK_SERVERINFO = function(si) { var $x = ["OK_SERVERINFO",8,si]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
+tools.haxelib.Status.OK_SUBMIT = ["OK_SUBMIT",6];
+tools.haxelib.Status.OK_SUBMIT.toString = $estr;
+tools.haxelib.Status.OK_SUBMIT.__enum__ = tools.haxelib.Status;
+tools.haxelib.Status.OK_USER = function(ui) { var $x = ["OK_USER",0,ui]; $x.__enum__ = tools.haxelib.Status; $x.toString = $estr; return $x; }
 tools.haxelib.Marshall = function() { }
 tools.haxelib.Marshall.__name__ = ["tools","haxelib","Marshall"];
-tools.haxelib.Marshall.getStatus = function(d) {
+tools.haxelib.Marshall.fromJson = function(d) {
 	var e;
 	if(Reflect.field(d,"PAYLOAD") != null) e = Type.createEnum(tools.haxelib.Status,d.ERR,[d.PAYLOAD]);
 	else e = Type.createEnum(tools.haxelib.Status,d.ERR);
 	return e;
+}
+tools.haxelib.Marshall.toJson = function(s) {
+	var m = Type.enumConstructor(s);
+	return (function($this) {
+		var $r;
+		var $e = (s);
+		switch( $e[1] ) {
+		case 0:
+		var ui = $e[2];
+		{
+			$r = hxjson2.JSON.encode({ ERR : m, PAYLOAD : ui});
+		}break;
+		case 1:
+		var info = $e[2];
+		{
+			$r = hxjson2.JSON.encode({ ERR : m, PAYLOAD : info});
+		}break;
+		case 2:
+		var prjs = $e[2];
+		{
+			$r = hxjson2.JSON.encode({ ERR : m, PAYLOAD : prjs});
+		}break;
+		case 3:
+		var s1 = $e[2];
+		{
+			$r = hxjson2.JSON.encode({ ERR : m, PAYLOAD : s1});
+		}break;
+		case 4:
+		var l = $e[2];
+		{
+			$r = hxjson2.JSON.encode({ ERR : m, PAYLOAD : l});
+		}break;
+		case 9:
+		var l = $e[2];
+		{
+			$r = hxjson2.JSON.encode({ ERR : m, PAYLOAD : l});
+		}break;
+		case 16:
+		var email = $e[2];
+		{
+			$r = hxjson2.JSON.encode({ ERR : m, PAYLOAD : email});
+		}break;
+		case 8:
+		var si = $e[2];
+		{
+			$r = hxjson2.JSON.encode({ ERR : m, PAYLOAD : si});
+		}break;
+		default:{
+			$r = hxjson2.JSON.encode({ ERR : m});
+		}break;
+		}
+		return $r;
+	}(this));
 }
 tools.haxelib.Marshall.prototype.__class__ = tools.haxelib.Marshall;
 tools.haxelib.Common = function() { }
@@ -1727,7 +1788,100 @@ tools.haxelib.Common.unsafe = function(name) {
 tools.haxelib.Common.pkgName = function(lib,ver) {
 	return tools.haxelib.Common.safe(lib) + "-" + tools.haxelib.Common.safe(ver) + ".zip";
 }
+tools.haxelib.Common.validEmail = function(v) {
+	return ((tools.haxelib.Common.emailRe.match(v))?null:"must be a valid email address");
+}
+tools.haxelib.Common.optionalEmail = function(v) {
+	if(v.length > 0) return tools.haxelib.Common.validEmail(v);
+	return null;
+}
+tools.haxelib.Common.validPW = function(v) {
+	return ((v.length >= 5)?null:"must be >= 5 characters");
+}
+tools.haxelib.Common.optionalPW = function(v) {
+	if(v.length > 0) return tools.haxelib.Common.validPW(v);
+	return null;
+}
+tools.haxelib.Common.validUrl = function(v) {
+	var r = new EReg("^(http://)?([^:/]+)(:[0-9]+)?/?(.*)$","");
+	return ((r.match(v))?null:"invalid http url");
+}
 tools.haxelib.Common.prototype.__class__ = tools.haxelib.Common;
+tools.haxelib.Options = function(p) { if( p === $_ ) return; {
+	this.switches = new Hash();
+}}
+tools.haxelib.Options.__name__ = ["tools","haxelib","Options"];
+tools.haxelib.Options.prototype.addSwitch = function(k,v) {
+	this.switches.set(k,v);
+}
+tools.haxelib.Options.prototype.addSwitches = function(d) {
+	var n = Reflect.copy(d);
+	{ var $it26 = this.switches.keys();
+	while( $it26.hasNext() ) { var s = $it26.next();
+	{
+		n[s] = this.switches.get(s);
+	}
+	}}
+	return n;
+}
+tools.haxelib.Options.prototype.flag = function(s) {
+	return this.switches.exists(s);
+}
+tools.haxelib.Options.prototype.getRepo = function() {
+	return this.switches.get("-R");
+}
+tools.haxelib.Options.prototype.getSwitch = function(s) {
+	return this.switches.get(s);
+}
+tools.haxelib.Options.prototype.gotSome = function() {
+	return Lambda.array(this.switches).length > 0;
+}
+tools.haxelib.Options.prototype.parseSwitches = function(params) {
+	{ var $it27 = params.keys();
+	while( $it27.hasNext() ) { var o = $it27.next();
+	{
+		if(StringTools.startsWith(o,"-")) this.switches.set(o,params.get(o));
+	}
+	}}
+}
+tools.haxelib.Options.prototype.repo = null;
+tools.haxelib.Options.prototype.switches = null;
+tools.haxelib.Options.prototype.__class__ = tools.haxelib.Options;
+tools.haxelib.LocalCommand = { __ename__ : ["tools","haxelib","LocalCommand"], __constructs__ : ["LIST","REMOVE","SET","SETUP","CONFIG","PACK","DEV","PATH","RUN","TEST","INSTALL"] }
+tools.haxelib.LocalCommand.CONFIG = ["CONFIG",4];
+tools.haxelib.LocalCommand.CONFIG.toString = $estr;
+tools.haxelib.LocalCommand.CONFIG.__enum__ = tools.haxelib.LocalCommand;
+tools.haxelib.LocalCommand.DEV = function(prj,dir) { var $x = ["DEV",6,prj,dir]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
+tools.haxelib.LocalCommand.INSTALL = function(prj,ver) { var $x = ["INSTALL",10,prj,ver]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
+tools.haxelib.LocalCommand.LIST = ["LIST",0];
+tools.haxelib.LocalCommand.LIST.toString = $estr;
+tools.haxelib.LocalCommand.LIST.__enum__ = tools.haxelib.LocalCommand;
+tools.haxelib.LocalCommand.PACK = function(path) { var $x = ["PACK",5,path]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
+tools.haxelib.LocalCommand.PATH = function(paths) { var $x = ["PATH",7,paths]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
+tools.haxelib.LocalCommand.REMOVE = function(pkg,ver) { var $x = ["REMOVE",1,pkg,ver]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
+tools.haxelib.LocalCommand.RUN = function(param) { var $x = ["RUN",8,param]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
+tools.haxelib.LocalCommand.SET = function(prj,ver) { var $x = ["SET",2,prj,ver]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
+tools.haxelib.LocalCommand.SETUP = function(path) { var $x = ["SETUP",3,path]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
+tools.haxelib.LocalCommand.TEST = function(pkg) { var $x = ["TEST",9,pkg]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
+tools.haxelib.RemoteCommand = { __ename__ : ["tools","haxelib","RemoteCommand"], __constructs__ : ["SEARCH","INFO","USER","REGISTER","SUBMIT","ACCOUNT","LICENSE","PROJECTS","SERVERINFO"] }
+tools.haxelib.RemoteCommand.ACCOUNT = function(cemail,cpass,nemail,npass,nname) { var $x = ["ACCOUNT",5,cemail,cpass,nemail,npass,nname]; $x.__enum__ = tools.haxelib.RemoteCommand; $x.toString = $estr; return $x; }
+tools.haxelib.RemoteCommand.INFO = function(project) { var $x = ["INFO",1,project]; $x.__enum__ = tools.haxelib.RemoteCommand; $x.toString = $estr; return $x; }
+tools.haxelib.RemoteCommand.LICENSE = ["LICENSE",6];
+tools.haxelib.RemoteCommand.LICENSE.toString = $estr;
+tools.haxelib.RemoteCommand.LICENSE.__enum__ = tools.haxelib.RemoteCommand;
+tools.haxelib.RemoteCommand.PROJECTS = ["PROJECTS",7];
+tools.haxelib.RemoteCommand.PROJECTS.toString = $estr;
+tools.haxelib.RemoteCommand.PROJECTS.__enum__ = tools.haxelib.RemoteCommand;
+tools.haxelib.RemoteCommand.REGISTER = function(email,password,fullName) { var $x = ["REGISTER",3,email,password,fullName]; $x.__enum__ = tools.haxelib.RemoteCommand; $x.toString = $estr; return $x; }
+tools.haxelib.RemoteCommand.SEARCH = function(query) { var $x = ["SEARCH",0,query]; $x.__enum__ = tools.haxelib.RemoteCommand; $x.toString = $estr; return $x; }
+tools.haxelib.RemoteCommand.SERVERINFO = ["SERVERINFO",8];
+tools.haxelib.RemoteCommand.SERVERINFO.toString = $estr;
+tools.haxelib.RemoteCommand.SERVERINFO.__enum__ = tools.haxelib.RemoteCommand;
+tools.haxelib.RemoteCommand.SUBMIT = function(pkgPath) { var $x = ["SUBMIT",4,pkgPath]; $x.__enum__ = tools.haxelib.RemoteCommand; $x.toString = $estr; return $x; }
+tools.haxelib.RemoteCommand.USER = function(email) { var $x = ["USER",2,email]; $x.__enum__ = tools.haxelib.RemoteCommand; $x.toString = $estr; return $x; }
+tools.haxelib.CmdContext = { __ename__ : ["tools","haxelib","CmdContext"], __constructs__ : ["LOCAL","REMOTE"] }
+tools.haxelib.CmdContext.LOCAL = function(l,options) { var $x = ["LOCAL",0,l,options]; $x.__enum__ = tools.haxelib.CmdContext; $x.toString = $estr; return $x; }
+tools.haxelib.CmdContext.REMOTE = function(r,options) { var $x = ["REMOTE",1,r,options]; $x.__enum__ = tools.haxelib.CmdContext; $x.toString = $estr; return $x; }
 ValueType = { __ename__ : ["ValueType"], __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] }
 ValueType.TBool = ["TBool",3];
 ValueType.TBool.toString = $estr;
@@ -1780,9 +1934,9 @@ Type.resolveClass = function(name) {
 	try {
 		cl = eval(name);
 	}
-	catch( $e26 ) {
+	catch( $e28 ) {
 		{
-			var e = $e26;
+			var e = $e28;
 			{
 				cl = null;
 			}
@@ -1796,9 +1950,9 @@ Type.resolveEnum = function(name) {
 	try {
 		e = eval(name);
 	}
-	catch( $e27 ) {
+	catch( $e29 ) {
 		{
-			var err = $e27;
+			var err = $e29;
 			{
 				e = null;
 			}
@@ -1892,9 +2046,9 @@ Type.enumEq = function(a,b) {
 		var e = a.__enum__;
 		if(e != b.__enum__ || e == null) return false;
 	}
-	catch( $e28 ) {
+	catch( $e30 ) {
 		{
-			var e = $e28;
+			var e = $e30;
 			{
 				return false;
 			}
@@ -1996,9 +2150,9 @@ js.Boot.__string_rec = function(o,s) {
 		try {
 			tostr = o.toString;
 		}
-		catch( $e29 ) {
+		catch( $e31 ) {
 			{
-				var e = $e29;
+				var e = $e31;
 				{
 					return "???";
 				}
@@ -2055,9 +2209,9 @@ js.Boot.__instanceof = function(o,cl) {
 		}
 		if(js.Boot.__interfLoop(o.__class__,cl)) return true;
 	}
-	catch( $e30 ) {
+	catch( $e32 ) {
 		{
-			var e = $e30;
+			var e = $e32;
 			{
 				if(cl == null) return false;
 			}
@@ -2183,8 +2337,8 @@ IntHash.prototype.toString = function() {
 	var s = new StringBuf();
 	s.b[s.b.length] = "{";
 	var it = this.keys();
-	{ var $it31 = it;
-	while( $it31.hasNext() ) { var i = $it31.next();
+	{ var $it33 = it;
+	while( $it33.hasNext() ) { var i = $it33.next();
 	{
 		s.b[s.b.length] = i;
 		s.b[s.b.length] = " => ";
@@ -2400,9 +2554,9 @@ Hash.prototype.exists = function(key) {
 		key = "$" + key;
 		return this.hasOwnProperty.call(this.h,key);
 	}
-	catch( $e32 ) {
+	catch( $e34 ) {
 		{
-			var e = $e32;
+			var e = $e34;
 			{
 				
 				for(var i in this.h)
@@ -2445,8 +2599,8 @@ Hash.prototype.toString = function() {
 	var s = new StringBuf();
 	s.b[s.b.length] = "{";
 	var it = this.keys();
-	{ var $it33 = it;
-	while( $it33.hasNext() ) { var i = $it33.next();
+	{ var $it35 = it;
+	while( $it35.hasNext() ) { var i = $it35.next();
 	{
 		s.b[s.b.length] = i;
 		s.b[s.b.length] = " => ";
@@ -2520,5 +2674,6 @@ haxe.Template.expr_int = new EReg("^[0-9]+$","");
 haxe.Template.expr_float = new EReg("^([+-]?)(?=\\d|,\\d)\\d*(,\\d*)?([Ee]([+-]?\\d+))?$","");
 haxe.Template.globals = { }
 tools.haxelib.Common.alphanum = new EReg("^[A-Za-z0-9_.-]+$","");
+tools.haxelib.Common.emailRe = new EReg("[A-Z0-9._%-]+@[A-Z0-9.-]+\\.[A-Z][A-Z][A-Z]?","i");
 js.Lib.onerror = null;
 $Main.init = tools.haxelib.JsCntrl.main();

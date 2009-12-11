@@ -55,8 +55,9 @@ class ClientMain {
       Os.print("Account updated successfully");
       return false;
     case OK_PROJECTS(prj):
-      trace(handleOptions(options,rurl,prj,formatProjects));
       handleOptions(options,rurl,prj,formatProjects);
+    case OK_SERVERINFO(si):
+       handleOptions(options,rurl,si,formatServerInfo);
     case ERR_PROJECTNOTFOUND:
       return false;
     case ERR_UNKNOWN:
@@ -96,8 +97,10 @@ class ClientMain {
       client = new ClientRestful(),
       commandCtx = ClientCtrl.process();
 
+    if (commandCtx == null) neko.Sys.exit(1);
+    
     switch(commandCtx) {
-
+    
     case LOCAL(cmd,options):
       switch(cmd) {
       case LIST:
@@ -160,6 +163,10 @@ class ClientMain {
         client.projects(options,function(rurl:String,s:Status) {
             return handleServerResponse(options,rurl,s);          
           });
+      case SERVERINFO:
+        client.serverInfo(options,function(rurl:String,s:Status) {
+            return handleServerResponse(options,rurl,s);          
+          });
       }
     }
   }
@@ -206,6 +213,17 @@ Project: ::name::
   in context:
 ::context::
 ::end::
+';
+    return Os.template(tmpl,si);
+  }
+
+    static function
+  formatServerInfo(si:ServerInfo) {
+    var tmpl='
+ServerName: ::name::
+Accepts these licenses:
+::foreach licenses::
+::name::,  ::url:: ::end::
 ';
     return Os.template(tmpl,si);
   }
