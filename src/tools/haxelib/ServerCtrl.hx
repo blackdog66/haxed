@@ -1,7 +1,7 @@
 
 package tools.haxelib;
 
-import tools.haxelib.ServerModel;
+import tools.haxelib.Common;
 
 #if php
 import php.Web;
@@ -19,28 +19,22 @@ class ServerCtrl  {
     
     return StringTools.urlDecode(params.get(p));
   }
-
-  static function getOptions(params:Hash<String>) {
-    var options = new Hash<String>();
-    for (o in params.keys()) {
-      if (StringTools.startsWith(o,"-"))
-        options.set(o,params.get(o));
-    }
-    return options;
-  }
   
   public static
-  function dispatch():Command {
-    var params = Web.getParams();
-    
+  function dispatch():CmdContext {
+    var params = Web.getParams(),
+      options = new Options();
+
     if (!params.exists("method"))
       throw "need a method!";
+
+    options.parseSwitches(params);
     
     return
       switch(getParam(params,"method")) {
       case "submit":
         var password = getParam(params,"password");
-        CMD_SUBMIT(password);
+        REMOTE(SUBMIT(password),options);
       case "register":
         var
           email = getParam(params,"email"),
@@ -53,24 +47,18 @@ class ServerCtrl  {
     //  throw "User name must be at least 3 characters";
 
         
-        CMD_REGISTER(email,password,fullName);
+       REMOTE(REGISTER(email,password,fullName),options);
   
       case "info":
         var prj = getParam(params,"prj");
-        CMD_INFO(prj);
+        REMOTE(INFO(prj),options);
       case "user":
         var email = getParam(params,"email");
-        CMD_USER(email);
-      case "dev":
-        var
-        prj = getParam(params,"prj"),
-        dir = getParam(params,"dir");
-        CMD_DEV(prj,dir);     
-      case "search":
+        REMOTE(USER(email),options);
+       case "search":
         var
           query = getParam(params,"query");
-        CMD_SEARCH(query,getOptions(params));
-
+        REMOTE(SEARCH(query),options);
       case "account":
         var
           cemail= getParam(params,"cemail"),
@@ -79,12 +67,12 @@ class ServerCtrl  {
           npass = getParam(params,"npass"),
           nname = getParam(params,"nname");
 
-        CMD_ACCOUNT(cemail,cpass,nemail,npass,nname);
+        REMOTE(ACCOUNT(cemail,cpass,nemail,npass,nname),options);
 
       case "license":
-        CMD_LICENSE;
+        REMOTE(LICENSE,options);
       case "projects":
-        CMD_PROJECTS;
+        REMOTE(PROJECTS,options);
         
         
       }

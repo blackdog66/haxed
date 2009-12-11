@@ -1,7 +1,6 @@
 
 package tools.haxelib;
 import tools.haxelib.Common;
-import tools.haxelib.ClientCommon;
 import tools.haxelib.ClientCore;
 
 class ClientRestful extends ClientCore {
@@ -61,13 +60,13 @@ class ClientRestful extends ClientCore {
     if (options.repo != null) {
       request(url(options.repo,cmd),prms,function(d) {
           if (d != null)
-            fn(options.repo,Marshall.getStatus(d)) ;
+            fn(options.repo,Marshall.fromJson(d)) ;
             
       });
     } else {
       RemoteRepos.each(cmd,prms,function(repo:String,d:Dynamic) {
           if (d != null)
-            return fn(repo,Marshall.getStatus(d)) ;
+            return fn(repo,Marshall.fromJson(d)) ;
           return false ;// take next repo
         });
     }
@@ -111,7 +110,7 @@ class ClientRestful extends ClientCore {
     var u = url(options.repo,"submit");
     Os.filePost(packagePath,u,true,{password:password},function(d) {
         trace(d);
-        var s = Marshall.getStatus(hxjson2.JSON.decode(d));
+        var s = Marshall.fromJson(hxjson2.JSON.decode(d));
         if (fn != null)
           fn(options.repo,s);
       }); 

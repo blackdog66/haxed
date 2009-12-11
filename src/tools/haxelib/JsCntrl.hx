@@ -108,7 +108,7 @@ class JsCntrl {
   function doService(url:String,cb:Status->Void) {
     trace("service: "+url);
     JQuery.getJSON(url,function(data) {
-        cb(Marshall.getStatus(data));
+        cb(Marshall.fromJson(data));
       });
 	}
 

@@ -3,7 +3,6 @@ package tools.haxelib;
 
 import tools.haxelib.Common;
 import tools.haxelib.ServerData;
-import tools.haxelib.ServerModel;
 import tools.haxelib.ZipReader;
 import tools.haxelib.Config;
 import tools.haxelib.License;
@@ -24,7 +23,7 @@ import neko.db.Manager;
 import neko.db.Sqlite;
 #end
 
-class ServerHxRepo implements Repository {
+class ServerRepos {
   static var DB = "haxelib.db";
   
   var dataDir:String;
@@ -103,7 +102,7 @@ class ServerHxRepo implements Repository {
       return ERR_PASSWORD;
 
     var lc = checkLicense(glbs.license);
-    if (lc != OK)
+    if (lc != null)
       return lc;
     
     var prj = Project.manager.search({ name : glbs.name }).first();
@@ -117,7 +116,7 @@ class ServerHxRepo implements Repository {
 
     Os.mv(tmpFile,repo+Common.pkgName(prj.name,glbs.version));
     
-    return OK;
+    return OK_SUBMIT;
   }
   
   public function
@@ -130,7 +129,7 @@ class ServerHxRepo implements Repository {
     u.email = email;
     u.fullname = fullName;
     u.insert();
-    return OK;
+    return OK_REGISTER;
   }
 
   public function
@@ -161,7 +160,7 @@ class ServerHxRepo implements Repository {
 
     if (l.first() == null) return ERR_LICENSE({licenses:licenses,given:lic});
 
-    return OK;
+    return null;
 
   }
                                   
@@ -236,8 +235,8 @@ class ServerHxRepo implements Repository {
       fn(v);
   }
 
-  static
-  function getInfo(p:Project):ProjectInfo {
+  static function
+  getInfo(p:Project):ProjectInfo {
    var u = p.owner,
       iv = Version.manager.search({project:p.id})
              .map(function(v) {
@@ -281,8 +280,9 @@ class ServerHxRepo implements Repository {
   }
   
   public function
-  search(query:String,options:Hash<String>):Status {
-    if (Lambda.array(options).length == 0) {
+  search(query:String,opts:Options):Status {
+ 
+    if (!opts.gotSome()) {
     return OK_SEARCH({
         items:Project.manager.containing(query)
             .map(function(p) {
@@ -292,7 +292,7 @@ class ServerHxRepo implements Repository {
         });
     }
 
-    if (options.get("-Sv") != null)
+    if (opts.getSwitch("-Sv") != null)
       return OK_SEARCH({ items:
       Project.manager.all()
         .map(function(p) {
@@ -307,7 +307,7 @@ class ServerHxRepo implements Repository {
         .array()
         });
 
-    var path = options.get("-Sm");
+    var path = opts.getSwitch("-Sm");
     if (path != null) {
       return OK_SEARCH( { items:
           Project.manager.all()
@@ -334,7 +334,7 @@ class ServerHxRepo implements Repository {
 
     }
     
-    return OK;
+    return ERR_NOTHANDLED;
   }
 
   public function license():Status {
@@ -359,7 +359,7 @@ class ServerHxRepo implements Repository {
 
     u.update();
     
-    return OK;
+    return OK_ACCOUNT;
   }
 
   public function

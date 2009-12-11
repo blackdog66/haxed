@@ -87,13 +87,13 @@ class Os {
     FileSystem.deleteDirectory(dir);
   }
 
-  public static
-  function mv(file:String,dst:String) {
+  public static function
+  mv(file:String,dst:String) {
     FileSystem.rename(file,dst);
   }
   
-  public static
-  function fileOut(file:String,s:String,?ctx:Dynamic) {
+  public static function
+  fileOut(file:String,s:String,?ctx:Dynamic) {
     var f = File.write(file,false) ;
     try {
       f.writeString((ctx != null) ? template(s,ctx) : s);
@@ -104,8 +104,8 @@ class Os {
     }
   }
 
-  public static
-  function fileAppend(file:String,s:String,?ctx:Dynamic) {
+  public static function
+  fileAppend(file:String,s:String,?ctx:Dynamic) {
     var f = File.append(file,false) ;
     try {
       f.writeString((ctx != null) ? template(s,ctx) : s);
@@ -116,8 +116,8 @@ class Os {
     }
   }
 
-  public static
-  function fileIn(file:String,?ctx:Dynamic) {
+  public static function
+  fileIn(file:String,?ctx:Dynamic) {
     var contents ;
     contents = File.getContent(file);
     return (ctx != null)
@@ -125,24 +125,24 @@ class Os {
       : contents;
   }
   
-  public static
-  function template(s:String,ctx:Dynamic) {
+  public static function
+  template(s:String,ctx:Dynamic) {
     var tmpl = new haxe.Template(s) ;
     return tmpl.execute(ctx);
   }
 
-  public static
-  function exists(f:String) {
+  public static function
+  exists(f:String) {
     return FileSystem.exists(f);
   }
 
-  public static
-  function dir(d:String) {
+  public static function
+  dir(d:String) {
     return FileSystem.readDirectory(d);
   }
   
-  private static
-  function readTree(dir:String,files:List<String>,?exclude:String->Bool) {
+  private static function
+  readTree(dir:String,files:List<String>,?exclude:String->Bool) {
     var dirContent = FileSystem.readDirectory(dir);
     for (f in dirContent) {
       var d = Common.slash(dir) + f;
@@ -161,13 +161,13 @@ class Os {
     return files;
   }
 
-  public static
-  function files(dir:String,?exclude:String->Bool) {
+  public static function
+  files(dir:String,?exclude:String->Bool) {
     return readTree(dir,new List<String>(),exclude);
   }
   
-  public static
-  function copyTree(src:String,dst:String):Void {    
+  public static function
+  copyTree(src:String,dst:String):Void {    
     var stemLen = StringTools.endsWith(src,"/") ? src.length 
       :Path.directory(src).length,
                         
@@ -182,8 +182,8 @@ class Os {
   }
 
   #if neko
-  public static
-  function zip(fn:String,files:List<String>,root:String) {
+  public static function
+  zip(fn:String,files:List<String>,root:String) {
     var
       zf = neko.io.File.write(fn,true),
       rootLen = root.length;

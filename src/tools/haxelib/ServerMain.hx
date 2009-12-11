@@ -1,8 +1,7 @@
 package tools.haxelib;
 
 import tools.haxelib.Common;
-import tools.haxelib.ServerModel;
-import tools.haxelib.ServerHxRepo;
+import tools.haxelib.ServerRepos;
 
 #if php
 import php.Lib;
@@ -14,40 +13,44 @@ class ServerMain {
 
   public static
   function main() {
-
     var
-      repo:Repository,
-      command = ServerCtrl.dispatch();
+      repo,
+      cmdCtx = ServerCtrl.dispatch(),
+      p = new php.io.Process("/bin/hostname",[]),
+      host = StringTools.trim(p.stdout.readAll().toString());
 
-    var p = new php.io.Process("/bin/hostname",[]);
-    var host = StringTools.trim(p.stdout.readAll().toString());
     if(host == "blackdog")
-      repo = new ServerHxRepo("/home/blackdog/Projects/haxelib/");
+      repo = new ServerRepos("/home/blackdog/Projects/haxelib/");
     else
-      repo = new ServerHxRepo("/home/blackdog/haxelib/");
+      repo = new ServerRepos("/home/blackdog/haxelib/");
 
   Lib.print(
-      ERR.msg(
-        switch(command) {
-        case CMD_USER(email):
-          repo.user(email);
-        case CMD_REGISTER(email,password,fullName):
-          repo.register(email,password,fullName);
-        case CMD_SUBMIT(password):
-          repo.submit(password);
-        case CMD_INFO(pkg):
-          repo.info(pkg);
-        case CMD_SEARCH(query,options):
-          repo.search(query,options);
-        case CMD_ACCOUNT(cemail,cpass,nemail,npass,nname):
-          repo.account(cemail,cpass,nemail,npass,nname);
-        case CMD_LICENSE:
-          repo.license();
-        case CMD_PROJECTS:
-          repo.projects();
-        default:
+      Marshall.toJson(
+        switch(cmdCtx) {
+        case REMOTE(cmd,options):
+          switch(cmd) {
+          case USER(email):
+            repo.user(email);
+          case REGISTER(email,password,fullName):
+            repo.register(email,password,fullName);
+          case SUBMIT(password):
+            repo.submit(password);
+          case INFO(pkg):
+            repo.info(pkg);
+          case SEARCH(query):
+            repo.search(query,options);
+          case ACCOUNT(cemail,cpass,nemail,npass,nname):
+            repo.account(cemail,cpass,nemail,npass,nname);
+          case LICENSE:
+            repo.license();
+          case PROJECTS:
+            repo.projects();
+          }
+        case LOCAL(cmd,options):
+          trace("shouldn't get here");
           ERR_UNKNOWN;
-        }));
+        }
+    ));
 
     repo.cleanup();
   }

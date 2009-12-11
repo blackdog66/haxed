@@ -4,8 +4,53 @@ package tools.haxelib;
 import tools.haxelib.Config;
 import tools.haxelib.Habal;
 import tools.haxelib.Package;
-import tools.haxelib.ClientCommon;
+import tools.haxelib.Common;
 import tools.haxelib.Os;
+
+class RemoteRepos {
+  // files can be found in repo + "/"+REPO_URI
+  public static var REPO_URI = "files"; 
+  static var repos:List<String>;
+  static var client:ClientCore;
+  
+  public static
+  function init(c:ClientCore) {
+    client = c;
+    repos = new List<String>();
+    repos.add("localhost:8200");
+    repos.add("lib.ipowerhouse.com");
+    //repos.add("lib.haxelib.org");
+    //repos.add("www.bazaarware.com");
+  }
+  
+  static
+  function doRepo(cmd:String,prms:Dynamic,rps:List<String>,
+                  userFn:String->Dynamic->Bool) {
+    var next = rps.pop();
+    if (next == null)
+      return;
+
+    var u = client.url(next,cmd),
+      wrapper = function(d) {
+      if (!userFn(next,d)) {
+          // userFn did not handle repo, pass to next
+          doRepo(cmd,prms,rps,userFn);
+        }
+      }
+
+    // start off the server chain ...
+    client.request(u,prms,wrapper);
+  }
+  
+  public static
+  function each(cmd:String,prms:Dynamic,fn:String->Dynamic->Bool) {
+    if (repos == null) throw "must call RemoteRepos.init() first";
+    
+    var tmpRepos = Lambda.list(repos);
+    doRepo(cmd,prms,tmpRepos,fn);
+  }  
+}
+
 
 /*
   Implement all the local functions, remote operations are implemented by

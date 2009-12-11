@@ -1,6 +1,6 @@
 package tools.haxelib;
 
-import tools.haxelib.ClientCommon;
+import tools.haxelib.Common;
 import tools.haxelib.ClientCore;
 
 class ClientCtrl {
@@ -27,7 +27,6 @@ class ClientCtrl {
 
   static var curArg = 0;
   static var args = neko.Sys.args();
-  static var emailRe = ~/[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z][A-Z][A-Z]?/i;
 
   public
   static function print(str) {
@@ -122,19 +121,6 @@ class ClientCtrl {
     return StringTools.trim(readLine(hidden));
   }
 
-  static function validEmail(v:String) {
-    return (emailRe.match(v)) ? null : "must be a valid email address"; }
-
-  static function optionalEmail(v:String) {
-    if (v.length > 0) return validEmail(v);
-    return null; }
-  
-  static function validPW(v) {
-    return (v.length >= 5) ? null : "must be >= 5 characters"; }
-
-  static function optionalPW(v) {
-    if (v.length > 0) return validPW(v);
-    return null; }
 
   static function validPath(v) {
     return (Os.exists(v)) ? null : "directory does not exist"; }
@@ -146,20 +132,15 @@ class ClientCtrl {
     return ((StringTools.endsWith(v,".zip") && Os.exists(v)) ? null : "zip doesn't exist"); 
   }
 
-  static function validUrl(v) {
-    var r = ~/^(http:\/\/)?([^:\/]+)(:[0-9]+)?\/?(.*)$/;
-    return (r.match(v)) ? null : "invalid http url";
-  }
-
   static function getPW(msg="Password",opt=false):String {
     var
       confirm,
       npass = param(msg +((opt) ? " (optional)":""),
-                    (opt) ? optionalPW : validPW);
+                    (opt) ? Common.optionalPW : Common.validPW);
     
     if (npass != "") {
       do {
-        confirm = param("Confirm",validPW,false);
+        confirm = param("Confirm",Common.validPW,false);
         trace("npass="+npass+", confirm = "+confirm);
       } while(npass != confirm);
     }
@@ -167,7 +148,7 @@ class ClientCtrl {
   }
   
   public static
-  function process():Command {
+  function process():CmdContext {
     var
       command = getCommand(),
       options = getOptions();
@@ -176,17 +157,17 @@ class ClientCtrl {
 
     case "register":
       var
-        email = param("Email",validEmail),
+        email = param("Email",Common.validEmail),
         password = getPW(),
         fullName = param("Full Name");
 
-      REGISTER(options,email,password,fullName);
+      REMOTE(REGISTER(email,password,fullName),options);
 
     case "list":
-      LIST(options);
+      LOCAL(LIST,options);
 
     case "user":
-      USER(options,param("Email",validEmail));
+      REMOTE(USER(param("Email",Common.validEmail)),options);
 
     case "path":
       var projects = new Array<{project:String,version:String}>();
@@ -196,79 +177,77 @@ class ClientCtrl {
             version = (pv.length == 1) ? null : pv[1];
           projects.push({project:pv[0],version:version});
         });
-      PATH(options,projects);
+      LOCAL(PATH(projects),options);
 
     case "remove":
-      var prj = param("Project");
-      var ver = paramOpt();
-      REMOVE(options,prj,ver);
+      var
+        prj = param("Project"),
+        ver = paramOpt();
+      LOCAL(REMOVE(prj,ver),options);
 
     case "set":
       var
         prj = param("Project"),
         version = param("Version");
-      SET(options,prj,version);
+      LOCAL(SET(prj,version),options);
 
     case "dev":
       var
         prj = param("Project"),
         dir = paramOpt();
-      DEV(options,prj,dir);
+      LOCAL(DEV(prj,dir),options);
 
     case "setup":
       print("Please enter haxelib repository path with write access");
       //      print("Hit enter for default ("+ClientCore.getRepos()+")");
       var line = param("Path",validPath);
-      SETUP(options,line);
+      LOCAL(SETUP(line),options);
 
     case "package":
       var hbl = param("Hbl File",validHbl);
-      PACKAGE(options,hbl);
+      LOCAL(PACK(hbl),options);
 
     case "projects":
-      PROJECTS(options);
+      REMOTE(PROJECTS,options);
       
     case "info":
       var prj = param("Project");
-      INFO(options,prj);
+      REMOTE(INFO(prj),options);
 
     case "submit":
       var
         path = param("Zip file",validZip),
         password = param("Password");
-      SUBMIT(options,password,path);
+      
+      options.addSwitch("-P",password);
+      REMOTE(SUBMIT(path),options);
 
     case "install":
       var
         prj = param("Project name"),
         ver = paramOpt();
-      INSTALL(options,prj,ver);
+      LOCAL(INSTALL(prj,ver),options);
 
     case "search":
       var
         word = param("Word");
-      SEARCH(options,word);
+      REMOTE(SEARCH(word),options);
 
     case "account":
       var
-        cemail = param("Current email",validEmail),
+        cemail = param("Current email",Common.validEmail),
         cpass = getPW("Current password"),
-        nemail = param("New email (optional)",optionalEmail),      
+        nemail = param("New email (optional)",Common.optionalEmail),      
         nName = param("New name (optional)"),
         npass = getPW("New password",true);
       
-      ACCOUNT(options,cemail,cpass,nemail,npass,nName);
+      REMOTE(ACCOUNT(cemail,cpass,nemail,npass,nName),options);
 
     case "license":
-      LICENSE(options);
-      
-    default:
-      NOOP;
+      REMOTE(LICENSE,options);      
     }	      	
   }
 
-  
- 
   public static
   function usage() {
     Os.print("Haxe Library Manager "+ClientMain.VERSION+" - (c)2009 ");
