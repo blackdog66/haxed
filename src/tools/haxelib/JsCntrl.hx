@@ -37,6 +37,11 @@ class RepoService {
   projects(cb:Status->Void) {
     JsCntrl.doService(url("projects",{}),cb);
   }
+
+  public function
+  serverInfo(cb:Status->Void) {
+    JsCntrl.doService(url("serverInfo",{}),cb);
+  }
 }
 
 class JsCntrl {
@@ -142,14 +147,25 @@ class JsCntrl {
       untyped __js__("
 
        $('.project').toggle(
-             function() { $('.details',$(this)).css({display:'none'}) ;},
-             function() { $('.details',$(this)).css({display:'inline'}); });
+             function() { $('.details',$(this)).css({display:'inline'}) ;},
+             function() { $('.details',$(this)).css({display:'none'}); });
 ");
                                     
       new JQuery(".details").css({display:"none"});
     default:
       trace("nout");
     }
+  }
+
+  static function
+  serverInfoHandler(s:Status) {
+    switch(s) {
+    case OK_SERVERINFO(si):
+      new JQuery('#server-info').html(template('#tmpl-server-info',si));
+    default:
+      trace("nout");
+    }
+     
   }
   
   public
@@ -158,6 +174,7 @@ class JsCntrl {
       rs = new RepoService("/repo.php");
         
     new JQuery('').ready(function() {
+        rs.serverInfo(serverInfoHandler);
         rs.projects(statusHandler);
       });
       

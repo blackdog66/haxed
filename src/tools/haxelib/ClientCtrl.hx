@@ -191,6 +191,12 @@ class ClientCtrl {
         version = param("Version");
       LOCAL(SET(prj,version),options);
 
+    case "upgrade":
+      LOCAL(UPGRADE,options);
+
+    case "config":
+      LOCAL(CONFIG,options);
+      
     case "dev":
       var
         prj = param("Project"),
@@ -203,10 +209,25 @@ class ClientCtrl {
       var line = param("Path",validPath);
       LOCAL(SETUP(line),options);
 
+    case "test":
+      var
+        path = param("Zip file",validZip);
+      LOCAL(TEST(path),options);
+      
     case "pack":
       var hbl = param("Hbl File",validHbl);
       LOCAL(PACK(hbl),options);
+      
+    case "run":
+      var
+        prj = param("Project"),
+        args = new Array<String>();
+      
+      eachParam(function(p) {
+          args.push(p);
+        });
 
+      LOCAL(RUN(prj,args),options);
     case "projects":
       REMOTE(PROJECTS,options);
       
@@ -248,6 +269,7 @@ class ClientCtrl {
 
     case "serverinfo":
       REMOTE(SERVERINFO,options);
+      
     default:
       usage();
       null;

@@ -140,6 +140,11 @@ class Os {
   dir(d:String) {
     return FileSystem.readDirectory(d);
   }
+
+  public static inline function
+  isDir(d:String) {
+    return FileSystem.isDirectory(d);
+  }
   
   private static function
   readTree(dir:String,files:List<String>,?exclude:String->Bool) {

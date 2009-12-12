@@ -115,16 +115,18 @@ class ClientMain {
         client.config(options);
       case PATH(pkgs):
         client.path(pkgs);
-      case RUN(params):
-        client.run();
+      case RUN(prj,args):
+        client.run(prj,args);
       case DEV(prj,dir):
         client.dev(prj,dir);
       case TEST(path):
+        client.test(path);
       case PACK(hblFile):
         client.packit(hblFile);
       case INSTALL(projectName,version):
         client.install(options,projectName,version);
-   
+      case UPGRADE:
+        client.upgrade();
       }
     
     case REMOTE(cmd,options):

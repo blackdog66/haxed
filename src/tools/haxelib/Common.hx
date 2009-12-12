@@ -207,9 +207,10 @@ enum LocalCommand {
   PACK(path:String);
   DEV(prj:String,dir:String);
   PATH(paths:Array<{project:String,version:String}>);
-  RUN(param:String);
+  RUN(param:String,args:Array<String>);
   TEST(pkg:String);
   INSTALL(prj:String,ver:String);
+  UPGRADE;
 }
 
 enum RemoteCommand {

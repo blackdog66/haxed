@@ -123,10 +123,6 @@ class ClientRestful extends ClientCore {
   }
   
   public function
-  upgrade(options:Options) {
-  }
-  
-  public function
   user(options:Options,email:String,fn:String->Status->Bool) {
     requestDispatch(options,"user",{email:email},fn);
   }

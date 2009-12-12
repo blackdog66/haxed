@@ -127,6 +127,8 @@ class ClientCore {
   getRepository() {
     return getRepos();
   }
+
+  public function getInfo(prj:String,inf:ProjectInfo->Void) {}
   
   static inline function
   projectDir(prj) {
@@ -140,12 +142,20 @@ class ClientCore {
 
   static inline function
   currentVersion(prj) {
+    try {
     return Os.fileIn(projectDir(prj) + "/.current");
+    } catch(exc:Dynamic) {
+      return null;
+    }
   }
 
   static inline function
   devVersion(prj) {
+    try {
     return Os.fileIn(projectDir(prj) + "/.dev");
+    } catch (exc:Dynamic) {
+      return null;
+    }
   }
 
   static function
@@ -240,7 +250,6 @@ class ClientCore {
         checkRec(d.prj,if( d.ver == "" ) null else d.ver,l);
     }
   }
-
   
   public function
   path(projects:Array<{project:String,version:String}>) {
@@ -252,8 +261,9 @@ class ClientCore {
     
     var rep = getRepository();
     for( d in list) {
-      var pdir = Common.safe(d.project)+"/"+Common.safe(d.version)+"/";
-      var dir = rep + pdir;
+      var
+        pdir = Common.safe(d.project)+"/"+Common.safe(d.version)+"/",
+        dir = rep + pdir;
       try {
         dir = devVersion(d.project);
         if( dir.length == 0 || (dir.charAt(dir.length-1) != '/' && dir.charAt(dir.length-1) != '\\') )
@@ -416,13 +426,79 @@ class ClientCore {
   }
 
   public function
-  run() {
+  upgrade() {
+    var
+      me = this,
+      rep = getRepos(),
+      prompt = true,
+      update = false;
+    
+    for(prj in Os.dir(rep) ) {
+      if( prj.charAt(0) == "." || !Os.isDir(rep+"/"+prj) )
+        continue;
 
+      var p = Common.unsafe(prj);
+      Os.print("Checking "+p);
+
+      getInfo(p,function(inf) {
+          if(!Os.exists(versionDir(p,inf.curversion))) {
+            /*
+          if( prompt )
+            switch ask("Upgrade "+p+" to "+inf.curversion) {
+              case Yes:
+              case Always: prompt = false;
+              case No: continue;
+              }
+          */
+            me.install(new Options(),p,inf.curversion);
+            update = true;
+          } else {
+            setCurrentVersion(p,inf.curversion);
+          }
+        });
+    }
+    
+    if( update )
+      Os.print("Done");
+    else
+      Os.print("All projects are up-to-date");
   }
 
   public function
-  test() {
+  run(prj:String,args:Array<String>) {
+    
+    if( !Os.exists(projectDir(prj)))
+      throw "Project "+prj+" is not installed";
 
+    var
+      ver = currentVersion(prj),
+      devVer = devVersion(prj),
+      vdir = (devVer != null) ? versionDir(prj,devVer) : versionDir(prj,ver),
+      runcmd = vdir + "/run.n";
+
+    if(!Os.exists(runcmd) )
+      throw "Project " + prj + " version " + ver + " does not have a run script";
+    
+    neko.Sys.setCwd(vdir);
+    var cmd = "neko run.n";
+    for( a in args )
+      cmd += " " + escapeArg(a);
+
+    neko.Sys.exit(neko.Sys.command(cmd));
+	
+  }
+
+  function escapeArg( a : String ) {
+    if( a.indexOf(" ") == -1 )
+      return a;
+    return '"'+a+'"';
+  }
+
+  public function
+  test(filePath:String) {
+    var
+      file = neko.io.Path.withoutDirectory(filePath);
+    unpack(filePath,file);
   }
 
   public function
@@ -430,11 +506,9 @@ class ClientCore {
     var
       hbl = HblTools.process(hblFile),
       conf = HblTools.getConfig(hbl);
-    
-    Package.createFrom(conf);
-  }
 
-  
+    Package.createFrom(conf);
+  }  
 }
 
 class Progress extends haxe.io.Output {
