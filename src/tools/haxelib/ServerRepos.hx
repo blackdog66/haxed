@@ -23,6 +23,20 @@ import neko.db.Manager;
 import neko.db.Sqlite;
 #end
 
+class Mail {
+  public static function
+  reminder(email:String) {
+    var u = User.manager.search({ email : email }).first();
+    if (u == null) return ERR_REMINDER;
+    var password = u.pass;
+#if php
+    untyped __php__("mail(email, 'Haxelib Password Reminder', password, null,
+   'blackdog@ipowerhouse.com');");
+#end
+    return OK_REMINDER;
+  }
+}
+
 class ServerRepos {
   static var DB = "haxelib.db";
   
@@ -370,5 +384,10 @@ class ServerRepos {
                      return getInfo(p);
                    })
                  .array());
+  }
+
+  public function
+  reminder(email:String) {
+    return Mail.reminder(email);
   }
 }

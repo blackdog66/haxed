@@ -35,6 +35,7 @@ class ServerCtrl  {
       case "submit":
         var password = getParam(params,"password");
         REMOTE(SUBMIT(password),options);
+
       case "register":
         var
           email = getParam(params,"email"),
@@ -46,13 +47,16 @@ class ServerCtrl  {
       case "info":
         var prj = getParam(params,"prj");
         REMOTE(INFO(prj),options);
+
       case "user":
         var email = getParam(params,"email");
         REMOTE(USER(email),options);
-       case "search":
+
+      case "search":
         var
           query = getParam(params,"query");
         REMOTE(SEARCH(query),options);
+
       case "account":
         var
           cemail= getParam(params,"cemail"),
@@ -69,6 +73,10 @@ class ServerCtrl  {
         REMOTE(PROJECTS,options);
       case "serverInfo":
         REMOTE(SERVERINFO,options);
+      case "reminder":
+        var email = getParam(params,"email");
+        REMOTE(REMINDER(email),options);
+        
       default:
           throw "don't know this method! "+getParam(params,"method");
       }

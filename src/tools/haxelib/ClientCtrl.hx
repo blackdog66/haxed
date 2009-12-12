@@ -23,6 +23,7 @@ class ClientCtrl {
     path:"give paths to libraries",
     pack:"package the project specified by the hbl file",
     account: "update your registered email address,password and name",
+    reminder:"send password to your registered email address"
   };
 
   static var curArg = 0;
@@ -269,6 +270,10 @@ class ClientCtrl {
 
     case "serverinfo":
       REMOTE(SERVERINFO,options);
+
+    case "reminder":
+      var email = param("Email",Common.validEmail);
+      REMOTE(REMINDER(email),options);
       
     default:
       usage();

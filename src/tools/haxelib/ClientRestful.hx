@@ -158,6 +158,11 @@ class ClientRestful extends ClientCore {
   serverInfo(options,fn:String->Status->Bool) {
     requestDispatch(options,"serverInfo",{},fn);
   }
+
+  public function
+  reminder(email:String,options:Options,fn:String->Status->Bool) {
+    requestDispatch(options,"reminder",{email:email},fn);
+  }
 }
 
 

@@ -59,6 +59,8 @@ class ServerMain {
           repo.projects();
         case SERVERINFO:
           OK_SERVERINFO({name:config.serverName,licenses:config.licenses});
+        case REMINDER(email):
+          repo.reminder(email);
         }
       case LOCAL(cmd,options):
         trace("shouldn't get here");

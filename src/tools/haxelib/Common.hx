@@ -58,6 +58,8 @@ enum Status {
   OK_SUBMIT;
   OK_ACCOUNT;
   OK_SERVERINFO(si:ServerInfo);
+  OK_REMINDER;
+  ERR_REMINDER;
   ERR_LICENSE(info:LicenseErr);
   ERR_UNKNOWN;
   ERR_NOTHANDLED;
@@ -223,6 +225,7 @@ enum RemoteCommand {
   LICENSE;
   PROJECTS;
   SERVERINFO;
+  REMINDER(email:String);
 }
 
 enum CmdContext {

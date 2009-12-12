@@ -58,6 +58,12 @@ class ClientMain {
       handleOptions(options,rurl,prj,formatProjects);
     case OK_SERVERINFO(si):
        handleOptions(options,rurl,si,formatServerInfo);
+    case OK_REMINDER:
+      Os.print("Email sent");
+      return false;
+    case ERR_REMINDER:
+      Os.print("Email not sent");
+      return false;
     case ERR_PROJECTNOTFOUND:
       return false;
     case ERR_UNKNOWN:
@@ -168,6 +174,10 @@ class ClientMain {
       case SERVERINFO:
         client.serverInfo(options,function(rurl:String,s:Status) {
             return handleServerResponse(options,rurl,s);          
+          });
+      case REMINDER(email):
+        client.reminder(email,options,function(rurl:String,s:Status) {
+            return handleServerResponse(options,rurl,s);
           });
       }
     }
