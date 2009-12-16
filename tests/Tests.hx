@@ -8,9 +8,9 @@ import utest.Runner;
 import utest.ui.text.TraceReport;
 
 import tests.TestParse;
-import tests.TestConfigs;
-import tests.TestCli;
-import tests.TestSubmit;
+//import tests.TestConfigs;
+//import tests.TestCli;
+//import tests.TestSubmit;
 
 class Tests {
     
@@ -19,14 +19,15 @@ class Tests {
     
     r.addCase(new TestParse());
 
-    r.addCase(new TestConfigs());
-    r.addCase(new TestPackage());
-    r.addCase(new TestCli());
+    //    r.addCase(new TestConfigs());
+    //r.addCase(new TestPackage());
+    //r.addCase(new TestCli());
     
     var report = new TraceReport(r);
     r.run();
     neko.Sys.sleep(5);
 
+    /*
     var r3 = new Runner() ;
     r3.addCase(new TestZip());
     report = new TraceReport(r3);
@@ -43,7 +44,7 @@ class Tests {
     r4.addCase(new TestPostSubmit());
     report = new TraceReport(r4);
     r4.run();
-    
+    */
 
   }
 }

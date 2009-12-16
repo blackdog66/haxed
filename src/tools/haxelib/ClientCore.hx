@@ -2,7 +2,7 @@
 package tools.haxelib;
 
 import tools.haxelib.Config;
-import tools.haxelib.Habal;
+import tools.haxelib.Hxp;
 import tools.haxelib.Package;
 import tools.haxelib.Common;
 import tools.haxelib.Os;
@@ -243,10 +243,10 @@ class ClientCore {
 
     var
       conf = configuration(prj),
-      deps = conf.library().depends;
+      deps = conf.build().depends;
 
     if (deps != null) {
-      for( d in conf.library().depends )
+      for( d in conf.build().depends )
         checkRec(d.prj,if( d.ver == "" ) null else d.ver,l);
     }
   }
@@ -346,7 +346,7 @@ class ClientCore {
     var
       conf = new ConfigJson(json),
       glbs = conf.globals(),    
-      prj = glbs.name,
+      prj = glbs.project,
       ver = glbs.version,
       pdir = projectDir(prj);
     
@@ -357,10 +357,10 @@ class ClientCore {
     setCurrentVersion(prj,ver);
     Os.rm(filePath);
 
-    var deps = conf.library().depends;
+    var deps = conf.build().depends;
 
     if (deps != null) {
-      for(d in conf.library().depends)
+      for(d in conf.build().depends)
         install(new Options(),d.prj,d.ver);
     }
   }
@@ -502,10 +502,10 @@ class ClientCore {
   }
 
   public function
-  packit(hblFile:String) {
+  packit(hxpFile:String) {
     var
-      hbl = HblTools.process(hblFile),
-      conf = HblTools.getConfig(hbl);
+      hxp = HxpTools.process(hxpFile),
+      conf = HxpTools.getConfig(hxp);
 
     Package.createFrom(conf);
   }  

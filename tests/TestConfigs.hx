@@ -1,7 +1,7 @@
 
 package tests;
 
-import tools.haxelib.Habal;
+import tools.haxelib.Hxp;
 import tools.haxelib.Package;
 import tools.haxelib.Config;
 
@@ -13,7 +13,7 @@ import hxjson2.JSON;
 
 class TestConfigs  {
   static var testFile = "./test.hbl";
-  var hbl:Habal;
+  var hbl:Hxp;
   var hblConf:Config;
   var jsonConf:Config;
 

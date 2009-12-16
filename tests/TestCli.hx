@@ -3,7 +3,6 @@ package tests;
 
 import tools.haxelib.Common;
 import tools.haxelib.ClientRestful;
-import tools.haxelib.ClientCommon;
 
 import utest.Assert;
 import utest.Runner;

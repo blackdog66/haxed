@@ -15,27 +15,25 @@ typedef PrjVer = {
 }
 
 typedef Global = {
-  var name:String;
+  var project:String;
+  var authorName:String;
   var authorEmail:String;
   var version:String;
   var synopsis:String;
   var description:String;
-  var category:String;
   var tags:Array<String>;
-  var projectUrl:String;
+  var website:String;
   var license:String;
 }
   
-typedef Library = {
+typedef Build = {
   var attrs:Array<String>;
   var depends:Array<PrjVer>;
-  var sourceDirs:Array<String>;
-  var buildable:Bool;
+  var classPaths:Array<String>;
+  var target:String;
+  var targetFile:String;
+  var mainClass:String;
   var options: Array<String>;
-}
-
-typedef Executable = {  > Library,
-  var mainIs:String;
 }
 
 typedef Repo = {
@@ -58,18 +56,8 @@ class Config {
   }
   
   public
-  function library():Library {
-    return Reflect.field(data,"library");
-  }
-  
-  public 
-  function executable(?id:String):Executable {
-    return Reflect.field(data,"executable");
-  }
-  
-  public 
-  function repo(?id:String):Repo {
-    return Reflect.field(data,"sourceRepo");
+  function build():Build {
+    return Reflect.field(data,"build");
   }
   
   public 

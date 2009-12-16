@@ -116,7 +116,7 @@ class ServerRepos {
     if (lc != null)
       return lc;
     
-    var prj = Project.manager.search({ name : glbs.name }).first();
+    var prj = Project.manager.search({ name : glbs.project }).first();
     if (prj == null)
       prj = createProject(user,glbs) ;
 
@@ -181,9 +181,9 @@ class ServerRepos {
   createProject(u:User,g:Global):Project {
     var p = new Project();
 
-    p.name = g.name;
+    p.name = g.project;
     p.description = g.description;
-    p.website = g.projectUrl;
+    p.website = g.website;
     p.license = g.license;
     p.owner = u;
     p.downloads = 0;

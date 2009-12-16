@@ -51,12 +51,13 @@ class Package {
   
   public
   static function sources(conf:Config) {
-    var libs = conf.library();
-    Lambda.iter(libs.sourceDirs,function(d) {
-        if (!Os.exists(d))
-          throw "Source dir "+d+" does not exist";
-        Os.copyTree(Common.slash(d),packDir);
-      });
+    var libs = conf.build();
+    if (libs.classPaths != null)
+      Lambda.iter(libs.classPaths,function(d) {
+          if (!Os.exists(d))
+            throw "Source dir "+d+" does not exist";
+          Os.copyTree(Common.slash(d),packDir);
+        });
   }
 
   public static
@@ -72,20 +73,20 @@ class Package {
 
   public static
   function zip(conf:Config) {
-    var name = conf.globals().name+".zip";
+    var name = conf.globals().project+".zip";
     trace("Zipping");
     trace(Os.files(packDir));
-    Os.zip(outFile(name,conf.file()),Os.files(packDir),packDir);
+    var outf = outFile(name,conf.file());
+    Os.zip(outf,Os.files(packDir),packDir);
+    return outf;
   }
   
   public static
   function createFrom(config:Config) {
       initPackDir();
       sources(config);
-      xml(config);
+      //   xml(config);
       json(config);
-      zip(config);
-  }
-
-  
+      return zip(config);
+  }  
 }

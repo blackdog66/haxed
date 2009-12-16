@@ -1,0 +1,22 @@
+
+project:           	myproject
+website:         	http://www.woot.com
+version:            1.2.3
+synopsis:           freeform
+description:        freeform
+                    so this is anoyther free fom descrip sfsflj
+                    can be multiple lines but you want to
+                    keep the indent corret
+author:             Ritchie Turner
+author-email:       woot@woot.com
+tags:               tag1 tag2
+license:            GPL
+
+build 
+      depends:          hxJson2 > 1
+      classpaths:       /home/blackdog/Projects/hxV8/v8
+                        /home/blackdog/Projects/hxV8/v8 
+      target:           js 
+      target-file:      main.js
+      main-class:       Main
+

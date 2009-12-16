@@ -1,7 +1,7 @@
 package tests;
 
 import tools.haxelib.Os;
-import tools.haxelib.Habal;
+import tools.haxelib.Hxp;
 import tools.haxelib.Package;
 import tools.haxelib.Config;
 
@@ -9,60 +9,48 @@ import utest.Assert;
 
 class TestParse {
 
-  public static var testFile = "./test.hbl";
+  public static var testFile = "./myproject.hxp";
 
-  var hbl:Habal;
+  var hbl:Hxp;
   var conf:Config;
 
   public function new() {}
   
   public
   function setup() {
-    hbl = HblTools.process(testFile);
-    conf = HblTools.getConfig(hbl);
+    hbl = HxpTools.process(testFile);
+    conf = HxpTools.getConfig(hbl);
   }
 
   public function
   testAGlobals() {
     var globals = conf.globals();
     Assert.notNull(globals);
-    Assert.equals(globals.synopsis,"freeform");
-    Assert.equals(globals.name,"project-name");
+    Assert.equals("freeform",globals.synopsis);
+    Assert.equals("myproject",globals.project);
+  
     Assert.isTrue(Std.is(globals.tags,Array));
 
   }
  
   public function
   testBLibrary() {
-    var library = conf.library();
+    var library = conf.build();
     Assert.notNull(library);
-    Assert.isTrue(Std.is(library.sourceDirs,Array));
-    Assert.equals("/home/blackdog/Projects/hxV8/v8",library.sourceDirs[0]);
+    Assert.isTrue(Std.is(library.classPaths,Array));
+    Assert.equals("/home/blackdog/Projects/hxV8/v8",library.classPaths[0]);
+
+    Assert.isTrue(Std.is(library.depends,Array));
+    var deps1 = library.depends[0];
+    Assert.equals(deps1.prj,"hxJson2");
+    Assert.equals(deps1.ver,"1");
+    Assert.equals(deps1.op,">");
+    Assert.equals(library.target,"js");
   }
-
-
-  public
-  function testCExecutable() {
-    var exe = conf.executable();
-    Assert.notNull(exe);
-    Assert.equals("filename (required)",exe.mainIs);
-    Assert.equals("foo",exe.attrs[0]);
-  }
-
-  public
-  function testDRepo() {
-    var repo = conf.repo();
-    Assert.notNull(repo);
-    Assert.equals("this",repo.attrs[0]);
-    Assert.equals("darcs",repo.type);
-
-    //    trace(JSON.encode(conf));
-  }
- 
 }
 
 class TestPackage  {
-  var hbl:Habal;
+  var hbl:Hxp;
   var conf:Config;
 
   public function new() {
@@ -72,8 +60,8 @@ class TestPackage  {
   public
   function setup() {
     // initialises package dir, process habal
-    hbl = HblTools.process(TestParse.testFile);
-    conf = HblTools.getConfig(hbl);
+    hbl = HxpTools.process(TestParse.testFile);
+    conf = HxpTools.getConfig(hbl);
   }
  
   function testAXml() {
@@ -84,8 +72,8 @@ class TestPackage  {
   function testBPackageSources() {
     Package.sources(conf) ;
     var
-      libs = conf.library();
-    for (d in libs.sourceDirs) {
+      libs = conf.build();
+    for (d in libs.classPaths) {
         var top = neko.FileSystem.readDirectory(d);
         for (t in top) {
           //if (!StringTools.startsWith(t,"."))
@@ -105,7 +93,7 @@ class TestPackage  {
 
 
 class TestZip  {
-  var hbl:Habal;
+  var hbl:Hxp;
   var conf:Config;
 
   public function new() { }
@@ -113,14 +101,14 @@ class TestZip  {
   public
   function setup() {
     // initialises package dir, process habal
-    hbl = HblTools.process(TestParse.testFile);
-    conf = HblTools.getConfig(hbl);
+    hbl = HxpTools.process(TestParse.testFile);
+    conf = HxpTools.getConfig(hbl);
   }
  
   function testDZip() {
     Package.zip(conf);
     var g = conf.globals();
-    Assert.isTrue(Os.exists(neko.io.Path.directory(conf.file()) + "/"+g.name+".zip"));
+    Assert.isTrue(Os.exists(neko.io.Path.directory(conf.file()) + "/"+g.project+".zip"));
   }
  
 
