@@ -10,7 +10,6 @@ enum Token {
   SECTION(name:String,attrs:String);
 }
 
-
 private
 class Fields {
   static var fldMap:Hash<{keyName:String,required:Bool}>;
@@ -214,6 +213,9 @@ class HxpTools {
         lineStart = curChar ;
         lineNo++;
       }
+
+      if (c == "#")
+        skipWithNL(hf);
       
       switch(state) {
       case START:
