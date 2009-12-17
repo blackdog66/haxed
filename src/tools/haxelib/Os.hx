@@ -75,6 +75,11 @@ class Os {
     FileSystem.deleteFile(f);
   } 
 
+  public static
+  function cp(src,dst) {
+    File.copy(src,dst) ;
+  }
+  
   public static function
   rmdir(dir) {
     for( p in FileSystem.readDirectory(dir) ) {
