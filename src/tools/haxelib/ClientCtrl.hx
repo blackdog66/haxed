@@ -1,30 +1,36 @@
 package tools.haxelib;
 
+import tools.haxelib.Os;
 import tools.haxelib.Common;
 import tools.haxelib.ClientCore;
 
 class ClientCtrl {
-  static var commands = {
-    install: "install a given project",
-    list: "list all installed projects",
-    upgrade : "upgrade all installed projects",
-    remove : "remove a given project/version",
-    set : "set the current version for a project",
-    search : "list projects matching a word" ,
-    info : "list informations on a given project",
-    user : "list informations on a given user",
-    register :"register yourself with a haxe repository",
-    submit : "submit or update a project package",
-    setup : "set the haxelib repository path",
-    config:"print the repository path",
-    run:"run the specified project with parameters",
-    test:"install the specified package locally",
-    dev:"set the development directory for a given project",
-    path:"give paths to libraries",
-    pack:"package the project specified by the hbl file",
-    account: "update your registered email address,password and name",
-    reminder:"send password to your registered email address"
-  };
+  
+  static var commands = new Hash<String>();
+
+  static function commandHelp() {
+    commands.set("install", "install a given project");
+    commands.set("list","list all installed projects");
+    commands.set("upgrade","upgrade all installed projects");
+    commands.set("remove","remove a given project/version");
+    commands.set("set","set the current version for a project");
+    commands.set("search","list projects matching a word");
+    commands.set("info","list informations on a given project");
+    commands.set("user","list informations on a given user");
+    commands.set("register","register yourself with a haxe repository");
+    commands.set("submit","submit or update a project package");
+    commands.set("setup","set the haxelib repository path");
+    commands.set("config","print the repository path");
+    commands.set("run","run the specified project with parameters");
+    commands.set("test","install the specified package locally");
+    commands.set("dev","set the development directory for a given project");
+    commands.set("path","give paths to libraries");
+    commands.set("pack","package the project specified by the hbl file");
+    commands.set("account","update your registered email address,password and name");
+    commands.set("reminder","send password to your registered email address");
+    commands.set("new","create a new Hxpfile in the current directory");
+    commands.set("build","build your project");
+  }
 
   static var curArg = 0;
   static var args = neko.Sys.args();
@@ -216,7 +222,7 @@ class ClientCtrl {
       LOCAL(TEST(path),options);
       
     case "pack":
-      var hbl = param("Hbl File",validHbl);
+      var hbl = param("Hxp File",validHbl);
       LOCAL(PACK(hbl),options);
       
     case "run":
@@ -229,6 +235,16 @@ class ClientCtrl {
         });
 
       LOCAL(RUN(prj,args),options);
+
+    case "new":
+      if (Os.exists("Hxpfile"))
+        if (Os.ask("Hxpfile exists, overwrite?") == No)
+          neko.Sys.exit(0);
+      
+      LOCAL(NEW,options);
+
+    case "build":
+      LOCAL(BUILD("Hxpfile"),options);
     case "projects":
       REMOTE(PROJECTS,options);
       
@@ -283,11 +299,12 @@ class ClientCtrl {
 
   public static
   function usage() {
+    commandHelp();
     Os.print("Haxe Library Manager "+ClientMain.VERSION+" - (c)2009 ");
     Os.print(" Usage : haxelib [command] [options]");
     Os.print(" Commands :");
-    for( c in Reflect.fields(commands))
-      Os.print("  "+c+" : "+Reflect.field(commands,c));
+    for(c in commands.keys())
+      Os.print("  "+c+" : "+commands.get(c));
     neko.Sys.exit(1);
   }
 }

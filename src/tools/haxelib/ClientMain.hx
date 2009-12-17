@@ -98,7 +98,7 @@ class ClientMain {
   static function
   main() {
 
-    haxe.Log.trace = myTrace;
+    //haxe.Log.trace = myTrace;
     var
       client = new ClientRestful(),
       commandCtx = ClientCtrl.process();
@@ -127,12 +127,16 @@ class ClientMain {
         client.dev(prj,dir);
       case TEST(path):
         client.test(path);
-      case PACK(hblFile):
-        client.packit(hblFile);
+      case PACK(hxpFile):
+        client.packit(hxpFile);
       case INSTALL(projectName,version):
         client.install(options,projectName,version);
       case UPGRADE:
         client.upgrade();
+      case NEW:
+        client.newHxp();
+      case BUILD(hxpFile):
+        client.build(hxpFile);
       }
     
     case REMOTE(cmd,options):

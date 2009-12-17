@@ -29,7 +29,7 @@ typedef Global = {
 typedef Build = {
   var attrs:Array<String>;
   var depends:Array<PrjVer>;
-  var classPaths:Array<String>;
+  var classPath:Array<String>;
   var target:String;
   var targetFile:String;
   var mainClass:String;

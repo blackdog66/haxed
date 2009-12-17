@@ -305,8 +305,26 @@ class Os {
     }
     return null;
   }
-  
-  
+
+
+   public static
+  function shell(command:String,throwOnError=true,?ctx:Dynamic):String {
+    var a = getShellParameters(command,ctx);
+    trace("Executign "+a);
+    
+    var p = new neko.io.Process(a.shift(),a);
+    if( p.exitCode() != 0) {
+      if (throwOnError)
+        throw p.stderr.readAll().toString();
+      else
+        return p.stderr.readAll().toString();
+    }
+    
+    return StringTools.trim(p.stdout.readAll().toString());
+    
+    return "";
+  }
+ 
   #end
 
   public static function
@@ -316,4 +334,40 @@ class Os {
     Os.fileAppend(f,msg+"\n");
   }
 
+
+  static
+  function replaceQuotedSpace(s:String) {
+    var sb = new StringBuf(),
+      inString = false;
+    for (i in 0...s.length) {
+      var ch = s.charAt(i);
+      if (ch == '"') inString = ! inString;
+      if (inString && ch == ' ')
+        sb.add('^^^');
+      else
+        sb.add(ch);
+    }
+    if (inString) throw "convertQuote: irregular number of quotes";
+    return sb.toString();
+  }
+
+  static
+  function getShellParameters(command:String,?ctx:Dynamic) {
+    command = (ctx != null) ? template(command,ctx) : command;
+    command = replaceQuotedSpace(command);
+    // make sure there's only one space between all items
+    var r = ~/\s+/g;
+    command = r.replace(command," ") ;
+    
+    var a = new Array<String>();
+    for (i in command.split(" ")) {
+      var s = StringTools.trim(i);
+      if (s.charAt(0) == '"' && s.charAt(s.length-1) == '"')
+        s = StringTools.replace(s,'^^^',' ');
+      a.push(s);
+    }
+        
+    return a;
+  }
+   
 }

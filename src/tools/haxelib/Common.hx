@@ -213,6 +213,8 @@ enum LocalCommand {
   TEST(pkg:String);
   INSTALL(prj:String,ver:String);
   UPGRADE;
+  NEW;
+  BUILD(prj:String);
 }
 
 enum RemoteCommand {

@@ -12,6 +12,7 @@
 -neko client.n
 -main tools.haxelib.ClientMain
 -resource client.json@clientConfig
+-resource HxpTemplate@HxpTemplate
 
 --next 
 

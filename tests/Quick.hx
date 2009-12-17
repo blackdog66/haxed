@@ -1,5 +1,5 @@
 
-import tools.haxelib.Hxp;
+import tools.haxelib.Parser;
 import tools.haxelib.Os;
 
 class Quick {
@@ -7,7 +7,7 @@ class Quick {
  public static function main() {
 
     var s = Os.fileIn("myproject.hxp");
-    trace(HxpTools.tokens(s));
+    trace(Parser.tokens(s));
   }
  
 

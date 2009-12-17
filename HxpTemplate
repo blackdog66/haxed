@@ -1,3 +1,7 @@
+# You can save this to your haxelib repo dir (hxp config) to customise for
+# future projects.
+
+# This file doesn't like tabs, spaces only pls.
 
 project:           	myproject
 website:         	http://myproject.com
@@ -13,8 +17,8 @@ license:            GPL
 
 build 
       depends:          hxJson2 > 1
-      classpath:        /home/blackdog/Projects/hxV8/v8
-                        /home/blackdog/Projects/hxV8/v8 
+      classpath:        classpath1
+                        classpath2 etc
       target:           js 
       target-file:      main.js
       main-class:       Main

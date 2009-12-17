@@ -2,10 +2,11 @@
 package tools.haxelib;
 
 import tools.haxelib.Config;
-import tools.haxelib.Hxp;
+import tools.haxelib.Parser;
 import tools.haxelib.Package;
 import tools.haxelib.Common;
 import tools.haxelib.Os;
+import tools.haxelib.Builder;
 
 using Lambda;
 
@@ -504,11 +505,25 @@ class ClientCore {
   public function
   packit(hxpFile:String) {
     var
-      hxp = HxpTools.process(hxpFile),
-      conf = HxpTools.getConfig(hxp);
+      hxp = Parser.process(hxpFile),
+      conf = Parser.getConfig(hxp);
 
     Package.createFrom(conf);
-  }  
+  }
+  
+  public function newHxp() {
+    var nf = getRepos() + "Hxpfile";
+    if (!Os.exists(nf)) {
+      Os.fileOut(nf,haxe.Resource.getString("HxpTemplate"));
+    }
+
+    Os.cp(nf,"Hxpfile");
+  }
+
+  public function build(hxpFile:String) {
+    var hxp = Parser.process(hxpFile);
+    Builder.compile(Parser.getConfig(hxp));
+  }
 }
 
 class Progress extends haxe.io.Output {

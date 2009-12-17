@@ -52,8 +52,8 @@ class Package {
   public
   static function sources(conf:Config) {
     var libs = conf.build();
-    if (libs.classPaths != null)
-      Lambda.iter(libs.classPaths,function(d) {
+    if (libs.classPath != null)
+      Lambda.iter(libs.classPath,function(d) {
           if (!Os.exists(d))
             throw "Source dir "+d+" does not exist";
           Os.copyTree(Common.slash(d),packDir);
@@ -75,7 +75,7 @@ class Package {
   function zip(conf:Config) {
     var name = conf.globals().project+".zip";
     trace("Zipping");
-    trace(Os.files(packDir));
+    //    trace(Os.files(packDir));
     var outf = outFile(name,conf.file());
     Os.zip(outf,Os.files(packDir),packDir);
     return outf;
