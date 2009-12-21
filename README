@@ -1,0 +1,114 @@
+haxelib
+-------
+
+NOTE: This is _not_ for general usage, just for feedback. Still in
+development and changing rapidly. It's now in the tightening up stage
+where it's feature complete, but rough around the edges,e.g i haven't
+tested client on windows yet.
+
+There's a feature list below but to give you the flavor ...
+
+hxp new
+
+creates an hxp file (by default Hxpfile) which looks like this
+
+project:            myproject
+website:            http://myproject.com
+version:            1.2.3
+synopsis:           freeform
+description:        freeform
+                    can be multi line, 
+                    but indent is significant
+author:             My Name
+author-email:       woot@woot.com
+tags:               tag1 tag2
+license:            GPL
+
+build 
+      depends:          hxJson2 > 1, templo
+      classpath:        ./
+                        /another/class/path
+      target:           neko
+      target-file:      main.n
+      main-class:       test.Test
+
+
+you tweak (and can save as a template for later), and can then do
+
+hxp build (hxp is an alternative to hxml)
+hxp pack (creates a zip file called myproject.zip)
+hxp submit -R lib.ipowerhouse.com myproject.zip 
+
+hxp install myproject (searches all repos compiled into the client for
+dependencies)
+
+New features are:
+
+1. Server can be deployed to php and neko (haven't actually tested
+neko but should work :P)
+
+2. Is based on urls rather than haxe remoting, all server interaction
+is via JSON. (Opens possibility of non haxe repos, e.g. couchdb)
+
+3. Is command line compatible with haxelib but adds new commands and
+switches, importantly for the haxe compiler "haxelib path" is
+intact. The core of haxelib is retained, although it's been split into
+functionally related files. The sql schema remains almost exactly the
+same.
+
+4. Uses a configuration format .hxp modeled after Cabal of
+Haskell. The hxp format is more like a makefile which you include in
+your project directory, and can build the package.
+
+5. There is a default list of repositories, which clients can be
+compiled to search with, -R on command line searches arbitrary
+repository.
+
+6. All commands search multiple repositories, e.g. project
+dependencies are searched in each repository until the dependency is
+met.
+
+7. Can search all meta data contained in the original hxp data
+
+hxp search -Sm build.depend hxJson2 (all servers searched)
+
+note that you can add any meta data to the hpx file, it's saved in
+it's entirety (as json) in the db - obviously there can be security
+implications with this, so a place where input from you is desirable.
+
+8. Servers can specify at compilation which licenses they accept, and
+the client will be presented with the downloaded license to
+accept/reject if not a public license. Servers are configured during
+compilation with a server.json file ( similarly for clients)
+
+9. haxe/Ajax based web page, using the JSON returning URLs.
+
+10. Based on email/pw rather than username/pw
+
+11. Conversion utility of packages from current haxelib.xml format to
+new format where an email should be supplied.
+
+Basically it's feature complete, but certain aspects are loose,
+e.g. the exact hxp specification and this is where community input is
+required. I still need to add various features from Nicolas's new
+haxelib back, for example, the documentation stuff.
+
+Given the url based nature, a full web client can/will be created for
+uploading and management in addition to the command line. I have setup
+a PHP repo at lib.ipowerhouse.com, which contains a number of
+converted libs from lib.haxe.org with dummy author emails to give you
+a flavor. Note: this repo is just for testing, I have no intention of
+subverting lib.haxe.org :)
+
+I think the new format offers some exciting possibilities for the
+future, e.g. addition of plugins to parse new hpx sections for
+example,
+
+source-repository this
+      type:     git
+      location: http://github.com/blackdog66/hxGtk
+      tag:      1.5
+
+this is on my list.
+
+
