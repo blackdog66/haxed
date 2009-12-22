@@ -19,12 +19,12 @@ class Fields {
     if (fldMap != null) return;
     fldMap = new Hash();
     fldMap.set("project",{keyName:"project",required:true});
-    fldMap.set("author-name",{keyName:"authorName",required:true});
+    fldMap.set("author",{keyName:"author",required:true});
     fldMap.set("author-email",{keyName:"authorEmail",required:true});
     fldMap.set("version",{keyName:"version",required:true});
     fldMap.set("website",{keyName:"website",required:true});
     fldMap.set("description",{keyName:"description",required:true});
-    fldMap.set("synopsis",{keyName:"synopsis",required:true});
+    fldMap.set("comments",{keyName:"comments",required:true});
     fldMap.set("tags",{keyName:"tags",required:true});
     fldMap.set("license",{keyName:"license",required:true});
     
@@ -40,7 +40,6 @@ class Fields {
 
   static public
   function required():List<String> {
-
     return fldMap
       .filter(function(val) { return val.required == true ;})
       .map(function(val) { return val.keyName; });
@@ -50,6 +49,7 @@ class Fields {
 typedef Property = String;
 
 class Hxp {
+  public static var GLOBAL = "global";
   static var reSplit = ~/\s/;
 
   public var file:String;
@@ -63,18 +63,21 @@ class Hxp {
     file = f;
     hbl = {};
     properties = new Hash();
-    curSection = "global";
+    curSection = GLOBAL;
     Reflect.setField(hbl,curSection,{});    
   }
 
   public
   function setSection(name,attrs) {
+    var curSec = Reflect.field(hbl,curSection);
     for (f in properties.keys()) {
       var fld = Fields.key(f);
       var val = parseProperty(fld,properties.get(f));
-      Reflect.setField(Reflect.field(hbl,curSection),fld,val);
+      Reflect.setField(curSec,fld,val);
       // trace("setting field "+fld+" in "+curSection+" to "+val);
     }
+
+    validate(curSection,curSec);
       
     properties = new Hash();
     var newSection = {};
@@ -83,7 +86,19 @@ class Hxp {
     //    trace("processing section "+curSection);
     Reflect.setField(hbl,curSection,newSection);
   }
-  
+
+  static function
+  validate(sectionName:String,section:Dynamic) {
+    if (sectionName == GLOBAL) {
+      Fields.required().iter(function(f) {
+          if (Reflect.field(section,f) == null) {
+            trace(section);
+            throw "Key "+f+ " is required in the global section";
+          }
+      });
+    }
+  }
+
   public
   function setProperty(name,values) {
     properties.set(name,values);
@@ -151,36 +166,25 @@ private enum State {
   KEY;
   VAL;
   SECT;
+  SKIP;
+  SKIPPASTNL;
 }
 
 class Parser {
 
   static var curChar = 0;
+  static var lineNo = 1;
+  static var state = START;
+  static var retState = START;
   
   static inline function isWhite(c:String) {
-    return c == " " || c == "\t"  || c == "\r";
+    return c == " " || c == "\t"  || c == "\r" || c == "\n";
   }
 
   static inline function isNL(c:String) {
     return c == "\n";
   }
-
-  static function skipWithNL(s:String) {
-    var start = curChar;
-    while(isWhite(s.charAt(curChar)) || isNL(s.charAt(curChar)))
-      curChar++;
-    curChar--;
-    return curChar - start;
-  }
-
-  static function skip(s:String) {
-    var start = curChar;
-    while(isWhite(s.charAt(curChar)))
-      curChar++;
-    curChar--;
-    return curChar - start;
-  }
-
+  
   static inline function peek(s:String) {
     return s.charAt(curChar+1);
   }
@@ -189,11 +193,20 @@ class Parser {
     return sb.toString().trim();
   }
 
+  static function nextState(newState:State,?rs:State) {
+    if (rs != null) {
+      if (newState != SKIP && newState != SKIPTONL) throw "retState only with skips";
+      retState = rs;
+    }
+    
+    state = newState;
+    //    curChar--;
+  }
+
   public static function tokens(hf:String) {
     curChar = 0;
     
     var
-      state = START,
       len = hf.length,
       toks = new List<Token>(),
       curKey = null,
@@ -201,49 +214,52 @@ class Parser {
       c = "",
       lineStart = 0,
       keyIndent=0,
-      valIndent=0,
-      lineNo=1;
-    
+      valIndent=0;    
+
     do {
       c = hf.charAt(curChar);
+
       if (c == "\t")
         throw "I don't like tabs! line:"+ lineNo + ",col:"+(curChar-lineStart); 
-
+      
+      if (c == "#") {
+        trace("skipped comment at "+lineNo);
+        nextState(SKIPPASTNL,START);
+      }
+      
       if (isNL(c)) {
-        lineStart = curChar ;
+        trace("at line "+lineNo+", "+hf.substr(lineStart,(curChar-lineStart)));
+        lineStart = curChar + 1 ;
         lineNo++;
       }
-
-      if (c == "#")
-        skipWithNL(hf);
       
       switch(state) {
       case START:
-        if  (!isWhite(c) && !isNL(c)) {
-          state = KEY;
-          curChar--;
+        if  (!isWhite(c)) {
           curKey = new StringBuf();
+          curKey.add(c);
+          
           keyIndent = curChar - lineStart;
+          nextState(KEY);
+        } else {
+          nextState(SKIP,START);
         }
       case KEY:
-        if (!isWhite(c) && !isNL(c))
+        if (!isWhite(c))
           curKey.add(c);
         else {
           var k = tidy(curKey);
           if (k.endsWith(":")) {
-            skip(hf);
-            if (isNL(peek(hf))) throw "Empty value for key: "+k.substr(0,-1);
-            valIndent = curChar - lineStart;
-            state = VAL;
             curVal = new StringBuf();
+            nextState(SKIP,VAL);
           } else {
             if (isNL(c)) {
               var ss = SECTION(tidy(curKey).substr(0,-1),"");
               toks.add(ss);
               //        trace(ss);
-              state = START;
+              nextState(START);
             } else {
-              state = SECT;
+              nextState(SECT);
               curVal = new StringBuf();
             }
           }
@@ -252,12 +268,9 @@ class Parser {
         if (!isNL(c))
           curVal.add(c); 
         else {
-          var t = skipWithNL(hf);
-          if (t != valIndent) {
-            var ps = PROPERTY(tidy(curKey).substr(0,-1),tidy(curVal));
-              toks.add(ps);
-              state = START;
-          } else curVal.add('\n');
+          var ps = PROPERTY(tidy(curKey).substr(0,-1),tidy(curVal));
+          toks.add(ps);
+          nextState(START);
         }
       case SECT:
         if (!isNL(c))
@@ -265,15 +278,26 @@ class Parser {
         else {
           var ss = SECTION(tidy(curKey),tidy(curVal));
           toks.add(ss);
-          state = START;
+          nextState(START);
+        }
+      case SKIP:
+        if(!isWhite(c)) {
+          nextState(retState);
+          curChar--;
+        }
+      case SKIPPASTNL:
+        if (isNL(c)) {
+          nextState(retState);
         }
       }
       
       curChar++;      
-      
+
+      if (lineNo > 30) break;
     } while (curChar < len);       
 
     toks.add(SECTION("end","")); // force processing of final user section
+    trace(toks);
     return toks;
   }
 
@@ -288,8 +312,7 @@ class Parser {
           hbl.setSection(name,attrs);
         }
         return hbl;
-      },new Hxp(file));
-    
+      },new Hxp(file));    
   }
   
   
@@ -302,7 +325,8 @@ class Parser {
   public static
   function getConfig(hbl:Hxp):Config {
     return new ConfigHxp(hbl);
-  } 
+  }
+
 }
 
 
