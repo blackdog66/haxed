@@ -123,7 +123,7 @@ class ServerRepos {
     if(!developer(user,prj))
       return ERR_DEVELOPER;
 
-    version(prj,glbs.version,json);
+    version(prj,glbs,json);
 
     Os.mv(tmpFile,repo+Common.pkgName(prj.name,glbs.version));
     
@@ -227,11 +227,11 @@ class ServerRepos {
   }
 
   function
-  version(p:Project,version:String,json:String) {
+  version(p:Project,glbs:Global,json:String) {
     var v = new Version();
     v.project = p;
-    v.name =  Std.string(version);
-    v.comments = "comments";
+    v.name =  Std.string(glbs.version);
+    v.comments = glbs.synopsis;
     v.downloads = 0;
     v.date = Date.now().toString();
     v.documentation = "docs";

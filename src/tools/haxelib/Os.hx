@@ -146,8 +146,9 @@ class Os {
     return FileSystem.readDirectory(d);
   }
 
-  public static inline function
+  public static function
   isDir(d:String) {
+    if (!exists(d)) return false;
     return FileSystem.isDirectory(d);
   }
   

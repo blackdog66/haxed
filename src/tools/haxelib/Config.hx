@@ -1,7 +1,7 @@
 package tools.haxelib;
 
 /*
-  Application interface to config no matter how it's constructed, from hbl or
+  Application interface to config no matter how it's constructed, from hxp or
   json, or xml
 
   Note, using Array instead of list for json compatibility.
@@ -45,6 +45,10 @@ typedef Repo = {
 
   
 class Config {
+  public static var GLOBAL = "global";
+  public static var BUILD = "build";
+  public static var FILE = "file";
+
   public var data:Dynamic;
 
   public function new() {
@@ -52,17 +56,17 @@ class Config {
   
   public 
   function globals():Global {
-    return Reflect.field(data,"global");
+    return Reflect.field(data,GLOBAL);
   }
   
   public
   function build():Build {
-    return Reflect.field(data,"build");
+    return Reflect.field(data,BUILD);
   }
   
   public 
   function file():String {
-    return Reflect.field(data,"file");
+    return Reflect.field(data,FILE);
   }
   
 }  
