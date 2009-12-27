@@ -4,6 +4,7 @@ package tools.haxelib;
   Used across neko, php and js
 */
 
+
 import hxjson2.JSON;
 
 typedef UserInfo = {
@@ -110,6 +111,10 @@ class Marshall {
 }
 
 class Common {
+  public static var CONFIG_FILE = "haxelib.json";
+  public static var HXP_FILE = "Hxpfile";
+  public static var HXP_TEMPLATE = "HxpfileTemplate";
+
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
   static var emailRe = ~/[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z][A-Z][A-Z]?/i;
 
@@ -142,9 +147,25 @@ class Common {
     return null; }
 
   public static function validUrl(v) {
-    var r = ~/^(http:\/\/)?([^:\/]+)(:[0-9]+)?\/?(.*)$/;
+    var r = ~/^(http:\/\/)([^:\/]+)(:[0-9]+)?\/?(.*)$/;
     return (r.match(v)) ? null : "invalid http url"; }
 
+  public static function camelCase(s:String) {
+    if (s.indexOf("-") != -1) { 
+      var
+        spl = s.split("-"),
+        cc = new StringBuf();
+
+      cc.add(spl[0].toLowerCase());
+      for (i in 1 ... spl.length) {
+        cc.add(spl[i].charAt(0).toUpperCase() + spl[i].substr(1));
+      }
+
+      return cc.toString();
+    }
+    return s;      
+  }
+  
 }
 
 class Options {

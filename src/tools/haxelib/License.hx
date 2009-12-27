@@ -7,7 +7,7 @@ using Lambda;
 class License {
 
   static var licenses:Array<LicenseSpec>;
-  
+  static var pubLic = ["GPL","LGPL","BSD","PublicDomain","Apache"];
   public static function
   set(l:Array<LicenseSpec>) {
     licenses = l;
@@ -27,9 +27,14 @@ class License {
 
   public static function
   isPublic(license:String):Bool {
+    /*
     var l = find(license) ;
     if (l != null)
       return l.pub == true;
+    */
+    for (l in pubLic)
+      if (license == l)
+        return true;
     return false;
   }
   

@@ -163,9 +163,9 @@ class ClientCore {
   configuration(prj:String,?ver:String):Config {
     var
       v = (ver == null) ? currentVersion(prj) : ver,
-      f = versionDir(prj,v) + "haxelib.json";
+      f = versionDir(prj,v) + Common.CONFIG_FILE;
     
-    if (!Os.exists(f)) throw "haxelib.json does not exist!";
+    if (!Os.exists(f)) throw f+" does not exist!";
     return new ConfigJson(Os.fileIn(f));
   }
   
@@ -173,8 +173,12 @@ class ClientCore {
   list(options:Options) {
     var rep = getRepository();
     for( p in Os.dir(rep) ) {
+      
       if( p.charAt(0) == "." )
         continue;
+      if (!Os.isDir(rep+p))
+        continue;
+      
       var
         versions = new Array(),
         current = currentVersion(p),
@@ -183,6 +187,7 @@ class ClientCore {
       for( v in Os.dir(projectDir(p)) ) {
         if( v.charAt(0) == "." )
           continue;
+        
         v = Common.unsafe(v);
         if( dev == null && v == current )
           v = "["+v+"]";
@@ -209,6 +214,7 @@ class ClientCore {
 
     var vdir = versionDir(prj,version);
     
+
     if( !Os.exists(vdir) )
       throw "Project "+prj+" does not have version "+version+" installed";
 
@@ -323,8 +329,10 @@ class ClientCore {
       progress = new Progress(dlFinished,out);
 
 	h.onError = function(e) {
-      progress.close();
-      neko.FileSystem.deleteFile(filePath);
+      try {
+        neko.FileSystem.deleteFile(filePath);
+        progress.close();
+      } catch (exc:Dynamic) {}
       throw e;
     };
 
@@ -337,12 +345,12 @@ class ClientCore {
     var
       f = neko.io.File.read(filePath,true),
       zip = neko.zip.Reader.readZip(f),
-      json = Os.readFromZip(zip,"haxelib.json");
+      json = Os.readFromZip(zip,Common.CONFIG_FILE);
 
     f.close();
     
     if (json == null) 
-      throw "Package doesn't have haxelib.json";
+      throw "Package doesn't have "+Common.CONFIG_FILE;
     
     var
       conf = new ConfigJson(json),
@@ -437,6 +445,8 @@ class ClientCore {
     for(prj in Os.dir(rep) ) {
       if( prj.charAt(0) == "." || !Os.isDir(rep+"/"+prj) )
         continue;
+      if (prj == Common.HXP_TEMPLATE)
+        continue;
 
       var p = Common.unsafe(prj);
       Os.print("Checking "+p);
@@ -512,12 +522,12 @@ class ClientCore {
   }
   
   public function newHxp() {
-    var nf = getRepos() + "Hxpfile";
+    var nf = getRepos() + Common.HXP_FILE;
     if (!Os.exists(nf)) {
       Os.fileOut(nf,haxe.Resource.getString("HxpTemplate"));
     }
 
-    Os.cp(nf,"Hxpfile");
+    Os.cp(nf,Common.HXP_FILE);
   }
 
   public function build(hxpFile:String) {

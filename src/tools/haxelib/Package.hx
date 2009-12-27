@@ -75,9 +75,9 @@ class Package {
   function zip(conf:Config) {
     var name = conf.globals().project+".zip";
     trace("Zipping");
-    //    trace(Os.files(packDir));
     var outf = outFile(name,conf.file());
     Os.zip(outf,Os.files(packDir),packDir);
+    trace("Created "+outf);
     return outf;
   }
   
