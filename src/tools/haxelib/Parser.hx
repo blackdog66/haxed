@@ -150,10 +150,7 @@ class Parser {
           }
         }
       case START_VAL:
-        if (c == "\n") {
-          syntax(tidy(curKey) +" is empty");
-        }     
-
+        if (c == "\n") syntax(tidy(curKey) +" is empty");
         valIndent = column();
         curVal = new StringBuf();
         curVal.add(c);
@@ -181,7 +178,8 @@ class Parser {
             toks.add(ps);
             nextState(START_KEY);
           } else {
-            syntax("expecting indent of 0 or "+valIndent+", got "+col);
+              syntax("expecting a new key at column " + keyIndent +
+                     " or a multi-line value at column "+valIndent+", but got "+col);
           }
         }
         curChar--;
@@ -255,7 +253,7 @@ class Parser {
       .add("target",true,Validate.target)
       .add("target-file",true);
 
-    Validate.applyToAll(h);
+    Validate.applyAllTo(h);
 
     trace(h.hbl);
     return h;
