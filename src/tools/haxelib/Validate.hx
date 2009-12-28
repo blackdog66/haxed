@@ -89,7 +89,7 @@ class Validate {
   }
  
   public static function
-  applyToAll(hxp:Hxp) {
+  applyAllTo(hxp:Hxp) {
     for (section in sections.keys()) {
       var
         vds = sections.get(section),
