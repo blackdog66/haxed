@@ -15,7 +15,7 @@ private typedef Valid = {
 
 class Validate {
   static var sections = new Hash<Hash<Valid>>();
-  static var reSplit = ~/\s/;
+  static var reSplit = ~/\s/g;
 
   public static function
   forSection(s:String):Hash<Valid> {
@@ -46,9 +46,8 @@ class Validate {
   }
 
   public static function
-  spaceSeparated(s) {
-    return Lambda.map(reSplit.split(s),function(el)
-                      { return StringTools.trim(el); }).array();
+  toArray(s) {
+    return Lambda.map(reSplit.split(s),StringTools.trim).array();
   }
 
   public static function
