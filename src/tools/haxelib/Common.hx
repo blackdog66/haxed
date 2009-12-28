@@ -115,7 +115,6 @@ class Common {
   public static var HXP_FILE = "Hxpfile";
 
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
-  //static var emailRe = ~/[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z][A-Z][A-Z]?/i;
 
   public static inline function
   slash(d:String) {
