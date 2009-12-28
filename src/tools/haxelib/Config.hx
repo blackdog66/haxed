@@ -36,6 +36,10 @@ typedef Build = {
   var options: Array<String>;
 }
 
+typedef Pack = {
+  var include:Array<String>;
+}
+  
 typedef Repo = {
   var attrs:Array<String>;
   var type:String;
@@ -48,24 +52,29 @@ class Config {
   public static var GLOBAL = "global";
   public static var BUILD = "build";
   public static var FILE = "file";
+  public static var PACK = "pack";
 
   public var data:Dynamic;
 
-  public function new() {
-  }
+  public function new() {}
   
-  public 
-  function globals():Global {
+  public function
+  globals():Global {
     return Reflect.field(data,GLOBAL);
   }
   
-  public
-  function build():Build {
+  public function
+  build():Build {
     return Reflect.field(data,BUILD);
   }
+
+  public function
+  pack():Pack {
+    return Reflect.field(data,PACK);
+  }
   
-  public 
-  function file():String {
+  public function
+  file():String {
     return Reflect.field(data,FILE);
   }
   
