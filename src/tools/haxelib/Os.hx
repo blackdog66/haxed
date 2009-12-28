@@ -157,7 +157,10 @@ class Os {
     for (f in dirContent) {
       var d = Common.slash(dir) + f;
       if (exclude != null)
-        if (exclude(d)) continue;
+        if (exclude(d)) {
+          trace("excluding "+d);
+          continue;
+        }
       try {
         if (FileSystem.isDirectory(d))
           readTree(d,files);
@@ -177,11 +180,11 @@ class Os {
   }
   
   public static function
-  copyTree(src:String,dst:String):Void {    
+  copyTree(src:String,dst:String,?exclude:String->Bool):Void {    
     var stemLen = StringTools.endsWith(src,"/") ? src.length 
-      :Path.directory(src).length,
-                        
-    files = Os.files(src);
+      :Path.directory(src).length,                    
+      files = Os.files(src,exclude);
+    
     Lambda.iter(files,function(f) {
         var
           dFile = Path.withoutDirectory(f),

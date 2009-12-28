@@ -243,16 +243,19 @@ class Parser {
       .add("website",true,Validate.url)
       .add("description",true)
       .add("comments",true)
-      .add("tags",true,Validate.spaceSeparated)
+      .add("tags",true,Validate.toArray)
       .add("license",true,function(v) { return v.toUpperCase() ;} );
     
     Validate.forSection(Config.BUILD)
       .add("depends",false,Validate.depends)
-      .add("class-path",true,Validate.spaceSeparated)
+      .add("class-path",true,Validate.toArray)
       .add("main-class",true)
       .add("target",true,Validate.target)
       .add("target-file",true);
 
+    Validate.forSection(Config.PACK)
+      .add("include",false,Validate.toArray);
+    
     Validate.applyAllTo(h);
 
     trace(h.hbl);
