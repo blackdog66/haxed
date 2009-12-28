@@ -36,8 +36,8 @@ class ClientCtrl {
   static var args = neko.Sys.args();
 
   public
-  static function print(str) {
-    neko.Lib.print(str+"\n");
+  static function println(str:String) {
+    neko.Lib.println(str);
   }
   
   static
@@ -61,45 +61,47 @@ class ClientCtrl {
     return o;
   }
 
-  static inline
-  function getCommand() {
+  static inline function
+  getCommand() {
     return args[curArg++];
   }
 
-  static
-  function eachParam(fn:String->Void) {
+  static function
+  eachParam(fn:String->Void) {
     while (curArg < args.length) {
        fn(args[curArg]);
        curArg++;
     }
   }
 
-  static
-  function paramOpt() {
+  static function
+  paramOpt() {
     if( args.length > curArg )
       return args[curArg++];
     return null;
   }
 
-  static function err(fld,msg) {
-    neko.Lib.println("! " + ((msg == null) ? " ! bad value for "+ fld : msg));
+  static function
+  err(fld,msg) {
+    neko.Lib.println(((msg == null) ? " ! bad value for "+ fld : msg));
   }
 
-  static function readLine(hidden:Bool):String {
+  static function
+  readLine(hidden:Bool):String {
     if(hidden) {
-      var s = new StringBuf();
-      var c;
-      trace("getting hidffen");
+      var
+        s = new StringBuf(),
+        c;
       while( (c = neko.io.File.getChar(false)) != 13 )
         s.addChar(c);
-      print("");
+      println("");
       return s.toString();
     }
     return neko.io.File.stdin().readLine();
   }
   
-  static
-  function param(name:String,?validate:String->String,hidden=false) {
+  static function
+  param(name:String,?validate:String->String,?errMsg:String,?hidden:Bool) {
     var
       val = null,
       msg = null;
@@ -107,8 +109,11 @@ class ClientCtrl {
     if( args.length > curArg  ) {
       val = args[curArg++];
       if (validate != null) {
-        msg = validate(val);
-        if (msg != null) throw err(name,msg);
+        if (validate(val) == null) {
+          err(name,errMsg);
+          neko.Sys.exit(1);
+        }
+        
       }
       return val;
     }
@@ -116,38 +121,28 @@ class ClientCtrl {
     if (validate != null) {      
       do {
         neko.Lib.print(name+" : ");
-        val = StringTools.trim(readLine(hidden));
-        msg = validate(val);
-        if (msg != null) err(name,msg);
-      } while (msg != null);
+        val = validate(StringTools.trim(readLine(hidden))) ;
+        if (val == null) {
+          err(name,errMsg);
+        }
+      } while (val == null);
       return val;
     }
        
-      
     neko.Lib.print(name+" : ");  
     return StringTools.trim(readLine(hidden));
   }
 
-
-  static function validPath(v) {
-    return (Os.exists(v)) ? null : "directory does not exist"; }
-
-  static function validHbl(v) {
-    return (Os.exists(v)) ? null: "hbl file does not exist"; }
-
-  static function validZip(v) {
-    return ((StringTools.endsWith(v,".zip") && Os.exists(v)) ? null : "zip doesn't exist"); 
-  }
-  
-  static function getPW(msg="Password",opt=false):String {
+  static function getPW(prompt="Password",opt=false):String {
     var
       confirm,
-      npass = param(msg +((opt) ? " (optional)":""),
-                    (opt) ? Common.optionalPW : Common.validPW);
+      optionalValidation = (opt) ? Validate.optPassword : Validate.password, 
+      prmpt = prompt +((opt) ? " (optional)":""),
+      npass = param(prmpt,optionalValidation,null,true);
     
     if (npass != "") {
       do {
-        confirm = param("Confirm",Common.validPW,false);
+        confirm = param("Confirm",Validate.password,true);
         trace("npass="+npass+", confirm = "+confirm);
       } while(npass != confirm);
     }
@@ -164,7 +159,7 @@ class ClientCtrl {
 
     case "register":
       var
-        email = param("Email",Common.validEmail),
+        email = param("Email",Validate.email),
         password = getPW(),
         fullName = param("Full Name");
 
@@ -174,7 +169,7 @@ class ClientCtrl {
       LOCAL(LIST,options);
 
     case "user":
-      REMOTE(USER(param("Email",Common.validEmail)),options);
+      REMOTE(USER(param("Email",Validate.email)),options);
 
     case "path":
       var projects = new Array<{project:String,version:String}>();
@@ -211,19 +206,19 @@ class ClientCtrl {
       LOCAL(DEV(prj,dir),options);
 
     case "setup":
-      print("Please enter haxelib repository path with write access");
+      println("Please enter haxelib repository path with write access");
       //      print("Hit enter for default ("+ClientCore.getRepos()+")");
-      var line = param("Path",validPath);
+      var line = param("Path",Validate.path);
       LOCAL(SETUP(line),options);
 
     case "test":
       var
-        path = param("Zip file",validZip);
+        path = param("Zip file",Validate.zip);
       LOCAL(TEST(path),options);
       
     case "pack":
-      var hbl = param("Hxp File",validHbl);
-      LOCAL(PACK(hbl),options);
+      var hxp = param("Hxp File",Validate.path);
+      LOCAL(PACK(hxp),options);
       
     case "run":
       var
@@ -254,7 +249,7 @@ class ClientCtrl {
 
     case "submit":
       var
-        path = param("Zip file",validZip),
+        path = param("Zip file",Validate.zip),
         password = param("Password");
       
       options.addSwitch("-P",password);
@@ -273,9 +268,9 @@ class ClientCtrl {
 
     case "account":
       var
-        cemail = param("Current email",Common.validEmail),
-        cpass = getPW("Current password"),
-        nemail = param("New email (optional)",Common.optionalEmail),      
+        cemail = param("Current email",Validate.email),
+        cpass = getPW("Current password",false),
+        nemail = param("New email (optional)",Validate.optionalEmail),      
         nName = param("New name (optional)"),
         npass = getPW("New password",true);
       
@@ -288,7 +283,7 @@ class ClientCtrl {
       REMOTE(SERVERINFO,options);
 
     case "reminder":
-      var email = param("Email",Common.validEmail);
+      var email = param("Email",Validate.email);
       REMOTE(REMINDER(email),options);
       
     default:

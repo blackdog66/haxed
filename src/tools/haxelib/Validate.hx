@@ -87,7 +87,34 @@ class Validate {
     neko.Lib.println("Failed validation for "+section+":"+fld+" "+msg);
     neko.Sys.exit(1);
   }
- 
+
+  public static function
+  optionalEmail(v:String):String {
+    if (v.length > 0) return email(v);
+    return v;
+  }
+  
+  public static function
+  password(v:String):String {
+    return (v.length >= 5) ? v : null;
+  }
+
+  public static function
+  optPassword(v:String):String {
+    if (v.length > 0) return password(v);
+    return null;
+  }
+
+  public static function
+  path(v) {
+    return (Os.exists(v)) ? v : null;
+  }
+
+  public static function
+  zip(v) {
+    return (StringTools.endsWith(v,".zip") && Os.exists(v)) ? v : null; 
+  }
+  
   public static function
   applyAllTo(hxp:Hxp) {
     for (section in sections.keys()) {

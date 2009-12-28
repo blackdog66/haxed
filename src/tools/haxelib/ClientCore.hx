@@ -445,7 +445,7 @@ class ClientCore {
     for(prj in Os.dir(rep) ) {
       if( prj.charAt(0) == "." || !Os.isDir(rep+"/"+prj) )
         continue;
-      if (prj == Common.HXP_TEMPLATE)
+      if (prj == Common.HXP_FILE)
         continue;
 
       var p = Common.unsafe(prj);

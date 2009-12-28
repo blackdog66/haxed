@@ -113,44 +113,33 @@ class Marshall {
 class Common {
   public static var CONFIG_FILE = "haxelib.json";
   public static var HXP_FILE = "Hxpfile";
-  public static var HXP_TEMPLATE = "HxpfileTemplate";
 
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
-  static var emailRe = ~/[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z][A-Z][A-Z]?/i;
+  //static var emailRe = ~/[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z][A-Z][A-Z]?/i;
 
-  public static inline function slash(d:String) {
+  public static inline function
+  slash(d:String) {
     return StringTools.endsWith(d,"/") ? d : (d + "/") ; }
 
-  public static function safe( name : String ) {
+  
+  public static function
+  safe( name : String ) {
     if( !alphanum.match(name) )
       throw "Invalid parameter : "+name;
     return name.split(".").join(","); }
 
-  public static function unsafe( name : String ) {
+  public static function
+  unsafe( name : String ) {
     return name.split(",").join(".");}
 
-  public static function pkgName( lib : String, ver : String ) {
-      return safe(lib)+"-"+safe(ver)+".zip"; }
-
-  public static function validEmail(v:String) {
-    return (emailRe.match(v)) ? null : "must be a valid email address"; }
-
-  public static function optionalEmail(v:String) {
-    if (v.length > 0) return validEmail(v);
-    return null; }
+  public static function
+  pkgName( lib : String, ver : String ) {
+      return safe(lib)+"-"+safe(ver)+".zip";
+  }
   
-  public static function validPW(v) {
-    return (v.length >= 5) ? null : "must be >= 5 characters"; }
 
-  public static function optionalPW(v) {
-    if (v.length > 0) return validPW(v);
-    return null; }
-
-  public static function validUrl(v) {
-    var r = ~/^(http:\/\/)([^:\/]+)(:[0-9]+)?\/?(.*)$/;
-    return (r.match(v)) ? null : "invalid http url"; }
-
-  public static function camelCase(s:String) {
+  public static function
+  camelCase(s:String) {
     if (s.indexOf("-") != -1) { 
       var
         spl = s.split("-"),

@@ -20,16 +20,15 @@ enum Answer {
   Always;
 }
 
-
 class Os {
 
-  public static
-  function print(s:String) {
+  public static function
+  print(s:String) {
     Lib.println(s);
   }
 
-  public static
-  function safeDir( dir ) {
+  public static function
+  safeDir( dir ) {
     if( FileSystem.exists(dir) ) {
      if( !FileSystem.isDirectory(dir) )
         throw ("A file is preventing "+dir+" to be created");
@@ -43,16 +42,16 @@ class Os {
     return true;
   }
 
-  public static
-  function newer(src:String,dst:String) {
+  public static function
+  newer(src:String,dst:String) {
     if (!exists(dst)) return true;
     var s = FileSystem.stat(src),
       d = FileSystem.stat(dst);
     return (s.mtime.getTime() > d.mtime.getTime()) ;
   }
 
-  public static
-  function mkdir(path:String) {
+  public static function
+  mkdir(path:String) {
     if (FileSystem.exists(path)) return;
     
     var p = path.split("/");
@@ -70,13 +69,13 @@ class Os {
     }
   }
 
-  public static
-  function rm(f:String) {
+  public static function
+  rm(f:String) {
     FileSystem.deleteFile(f);
   } 
 
-  public static
-  function cp(src,dst) {
+  public static function
+  cp(src,dst) {
     File.copy(src,dst) ;
   }
   
@@ -307,9 +306,8 @@ class Os {
     return null;
   }
 
-
-   public static
-  function shell(command:String,throwOnError=true,?ctx:Dynamic):String {
+  public static function
+  shell(command:String,throwOnError=true,?ctx:Dynamic):String {
     var a = getShellParameters(command,ctx);
     trace("Executign "+a);
     
@@ -322,10 +320,8 @@ class Os {
     }
     
     return StringTools.trim(p.stdout.readAll().toString());
-    
-    return "";
   }
- 
+  
   #end
 
   public static function
@@ -335,9 +331,8 @@ class Os {
     Os.fileAppend(f,msg+"\n");
   }
 
-
-  static
-  function replaceQuotedSpace(s:String) {
+  static function
+  replaceQuotedSpace(s:String) {
     var sb = new StringBuf(),
       inString = false;
     for (i in 0...s.length) {
@@ -352,8 +347,8 @@ class Os {
     return sb.toString();
   }
 
-  static
-  function getShellParameters(command:String,?ctx:Dynamic) {
+  static function
+  getShellParameters(command:String,?ctx:Dynamic) {
     command = (ctx != null) ? template(command,ctx) : command;
     command = replaceQuotedSpace(command);
     // make sure there's only one space between all items

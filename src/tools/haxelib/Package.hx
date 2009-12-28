@@ -70,7 +70,7 @@ class Package {
 
   public static function
   json(conf:Config) {
-    Os.fileOut(toPackDir("haxelib.json"),packageJson(conf));
+    Os.fileOut(toPackDir(Common.HXP_FILE),packageJson(conf));
   } 
 
   public static function
