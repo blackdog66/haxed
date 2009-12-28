@@ -137,7 +137,6 @@ class Common {
       return safe(lib)+"-"+safe(ver)+".zip";
   }
   
-
   public static function
   camelCase(s:String) {
     if (s.indexOf("-") != -1) { 
