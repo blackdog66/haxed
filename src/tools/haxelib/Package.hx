@@ -5,28 +5,30 @@ import tools.haxelib.Config;
 
 class Package {
 
-  public static var packDir = "/tmp/haxelib-pgk/";
+  public static var packDir = "/tmp/haxelib-pkg/";
   
-  public static
-  function outFile(name:String,hblFile:String) {
+  public static function
+  outFile(name:String,hblFile:String) {
     var p  = neko.io.Path.directory(hblFile);
-    return p + "/" + name;
+    if (p != "")
+      return p + "/"+ name;
+    return name;
   }
 
-  public static inline
-  function toPackDir(fn) {
+  public static inline function
+  toPackDir(fn) {
     return packDir + fn;
   }
 
-  public static
-  function initPackDir() {
-    // TODO
-    neko.Sys.command("rm -rf "+packDir);
+  public static function
+  initPackDir() {
+    if (Os.exists(packDir))
+      Os.rmdir(packDir);
     Os.mkdir(packDir);
   }
 
-  static
-  function packageXml(conf:Config) {
+  static function
+  packageXml(conf:Config) {
     var
       glbs = conf.globals(),
       tags = Lambda.map(glbs.tags,function(el) { return { tag : el };}),
@@ -44,13 +46,13 @@ class Package {
     
   }
 
-  public static
-  function packageJson(conf:Config) {
+  public static function
+  packageJson(conf:Config) {
     return hxjson2.JSON.encode(conf.data) ;
   }
   
-  public
-  static function sources(conf:Config) {
+  public static function
+  sources(conf:Config) {
     var libs = conf.build();
     if (libs.classPath != null)
       Lambda.iter(libs.classPath,function(d) {
@@ -60,29 +62,29 @@ class Package {
         });
   }
 
-  public static
-  function xml(conf:Config) {
+  public static function
+  xml(conf:Config) {
     var glbs = conf.globals();
     Os.fileOut(toPackDir("haxelib.xml"),packageXml(conf));
   }
 
-  public static
-  function json(conf:Config) {
+  public static function
+  json(conf:Config) {
     Os.fileOut(toPackDir("haxelib.json"),packageJson(conf));
   } 
 
-  public static
-  function zip(conf:Config) {
+  public static function
+  zip(conf:Config) {
     var name = conf.globals().project+".zip";
-    trace("Zipping");
     var outf = outFile(name,conf.file());
+    trace("Zipping:"+outf);
     Os.zip(outf,Os.files(packDir),packDir);
     trace("Created "+outf);
     return outf;
   }
   
-  public static
-  function createFrom(config:Config) {
+  public static function
+  createFrom(config:Config) {
       initPackDir();
       sources(config);
       //   xml(config);
