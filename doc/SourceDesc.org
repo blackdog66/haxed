@@ -1,0 +1,94 @@
+
+This file contains an overview of how the code is layed out and where to find things.
+
+
+| File             | Description                                                |
+|------------------+------------------------------------------------------------|
+| Client           | <65>                                                       |
+|------------------+------------------------------------------------------------|
+| ClientCtrl.hx    | Command line parser, constructs enums found in Common.hx   |
+| ClientMain.hx    | This is the client entry point, gets a command from the    |
+|                  | ClientCtrl and dispatches it to the client backend. This   |
+| ClientRestful.hx | is a client backend which talks to a restful server, i.e.  |
+|                  | url based, rather than a haxe remoting server. This file   |
+|                  | implements all the JSON based services for the client.     |
+| ClientCore.hx    | This is the core client functionality, and is basically a  |
+|                  | large tweak of the original haxelib code. ClientRestful.hx |
+|                  | extends client core, to add the remote functionality.      |
+|------------------+------------------------------------------------------------|
+| Server           |                                                            |
+|------------------+------------------------------------------------------------|
+| ServerCtrl.hx    | Performs the same function as ClientCtrl.hx,               |
+|                  | except parses URLs and constructs RemoteCommand            |
+| ServerMain.hx    | enums from it. This is the server entry point,             |
+|                  | calls ServerCtrl to perform the same function as           |
+|                  | ClientMain.hx, decodes the RemoteCommand enum and          |
+| ServerCore.hx    | calls the main function The server core functions.         |
+|------------------+------------------------------------------------------------|
+| Generic          |                                                            |
+|------------------+------------------------------------------------------------|
+| Common.hx        | Common.hx can be used by all targets in haxelib, neko, js, |
+|                  | and php; so it's where you'll find the most generic stuff. |
+
+
+* Common.hx
+
+
+
+** Commands
+
+In Common.hx you'll find these ...
+
+enum LocalCommand {
+  LIST;
+  REMOVE(pkg:String,ver:String);
+  SET(prj:String,ver:String);
+  SETUP(path:String);
+  CONFIG;
+  PACK(path:String);
+  DEV(prj:String,dir:String);
+  PATH(paths:Array<{project:String,version:String}>);
+  RUN(param:String,args:Array<String>);
+  TEST(pkg:String);
+  INSTALL(prj:String,ver:String);
+  UPGRADE;
+  NEW;
+  BUILD(prj:String);
+}
+
+enum RemoteCommand {
+  SEARCH(query:String);
+  INFO(project:String);
+  USER(email:String);
+  REGISTER(email:String,password:String,fullName:String);
+  SUBMIT(pkgPath:String);  
+  ACCOUNT(cemail:String,cpass:String,nemail:String,npass:String,nname:String);
+  LICENSE;
+  PROJECTS;
+  SERVERINFO;
+  REMINDER(email:String);
+}
+
+enum CmdContext {
+  LOCAL(l:LocalCommand,options:Options);
+  REMOTE(r:RemoteCommand,options:Options) ;
+}
+
+This is how commands are passed around internally. LocalCommands are
+used only on the client, but RemoteCommands are used both on client
+and server, as the server, needs the same parameters as passed by the client.
+
+ClientCtrl.hx parses the command line and constructs the enums as
+required. On the server ServerCtrl.hx performs the same function, but
+the command line is the parsing of the URL.
+
+* Client
+
+
+It works like this, 
+
+ClientCtrl is where command line parsing is. ClientCtrl creates a
+LocalCommand or RemoteCommand enum by 
+
+
+* Server
