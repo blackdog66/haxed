@@ -11,7 +11,7 @@ enum TargetType {
 	SWF;
 }
 
-class Builder {
+class ClientBuilder {
 
   static var libs:String;
   
