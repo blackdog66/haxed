@@ -37,7 +37,7 @@ class Mail {
   }
 }
 
-class ServerRepos {
+class ServerCore {
   static var DB = "haxelib.db";
   
   var dataDir:String;

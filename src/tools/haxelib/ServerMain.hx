@@ -1,7 +1,7 @@
 package tools.haxelib;
 
 import tools.haxelib.Common;
-import tools.haxelib.ServerRepos;
+import tools.haxelib.ServerCore;
 import tools.haxelib.License;
 
 #if php
@@ -28,7 +28,7 @@ class ServerMain {
       config:ServerConf = hxjson2.JSON.decode(haxe.Resource.getString("serverConfig"));
 
     License.set(config.licenses);
-    repo = new ServerRepos(config.dataDir);
+    repo = new ServerCore(config.dataDir);
 
     Lib.print(Marshall.toJson(
       switch(cmdCtx) {
