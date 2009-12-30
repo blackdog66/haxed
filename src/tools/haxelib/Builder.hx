@@ -1,6 +1,6 @@
 package tools.haxelib;
 
-import tools.haxelib.Config;
+import tools.haxelib.Common;
 import tools.haxelib.Os;
 using Lambda;
 using StringTools;
@@ -11,7 +11,7 @@ enum TargetType {
 	SWF;
 }
 
-class ClientBuilder {
+class Builder {
 
   static var libs:String;
   

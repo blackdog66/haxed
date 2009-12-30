@@ -1,6 +1,6 @@
 
 package tools.haxelib;
-import tools.haxelib.Config;
+
 import tools.haxelib.Parser;
 import tools.haxelib.Common;
 
@@ -88,6 +88,11 @@ class Validate {
   }
 
   public static function
+  warn(msg:String,section:String,?fld:String) {
+    neko.Lib.println("Warning: "+section + ((fld != null) ? ":"+ fld : "") +" "+msg);
+  }
+
+  public static function
   optionalEmail(v:String):String {
     if (v.length > 0) return email(v);
     return v;
@@ -116,26 +121,49 @@ class Validate {
   
   public static function
   applyAllTo(hxp:Hxp) {
+    var sectionCopy = Reflect.copy(hxp.hbl);
     for (section in sections.keys()) {
       var
         vds = sections.get(section),
-        s = Reflect.field(hxp.hbl,section);
+        s = Reflect.field(hxp.hbl,section),
+        fldCopy = Reflect.copy(s);
+      
       for (fld in vds.keys()){
         var
           constraint = vds.get(fld),
           givenVal = Reflect.field(s,fld);
-        
+
         if (constraint.required && givenVal == null)
           err(" is required",section,fld);
-        
+
+        if (givenVal == null)
+          continue;
+
         if (constraint.valid != null) {
           givenVal = constraint.valid(givenVal);
           if (givenVal == null) err("",section,fld);
         }
         
+        // remove validated field from all fields 
+        Reflect.deleteField(fldCopy,fld);
+
+        // update field with the validated value
         Reflect.setField(s,fld,givenVal);            
       }
+
+      // find which fields are left which have not been validated
+      for (w in Reflect.fields(fldCopy)) {
+        warn("is not a validated key",section,w); 
+      }
+      // remove validated section from all sections
+      Reflect.deleteField(sectionCopy,section);
     }
+
+    // find which sections are left which have not been validated
+    for (sw in Reflect.fields(sectionCopy)) {
+      warn("is not a validated section",sw); 
+    }
+    
   }
   
 }

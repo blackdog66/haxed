@@ -157,7 +157,10 @@ class ClientMain {
         client.register(options,email,password,fullName,function(rurl:String,s:Status) {
             return handleServerResponse(options,rurl,s);
           });
-      case SUBMIT(packagePath):
+      case SUBMIT(hxpFile):
+        Os.print("packing ...");
+        var packagePath = client.packit(hxpFile);
+        Os.print("submitting ...");
         var password = options.getSwitch("-P");
         client.submit(options,password,packagePath,function(rurl:String,s:Status) {
             return handleServerResponse(options,rurl,s);

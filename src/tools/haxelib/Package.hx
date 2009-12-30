@@ -1,7 +1,7 @@
 package tools.haxelib;
 
 import tools.haxelib.Os;
-import tools.haxelib.Config;
+import tools.haxelib.Common;
 
 class Package {
 
@@ -58,11 +58,12 @@ class Package {
   sources(conf:Config) {
     var
       libs = conf.build(),
-      include = conf.pack().include,
-      exclude = function(s:String) {
-      	return !Lambda.exists(include,function(el)
-        { return StringTools.startsWith(s,el); });
-      };
+      include = Reflect.field(conf.pack(),"include"),
+      exclude = if (include != null) 
+      	function(s:String) {
+          return !Lambda.exists(include,function(el)
+        	{ return StringTools.startsWith(s,el); });
+      	} else null;
 
     trace("include is "+include);
     if (libs.classPath != null){

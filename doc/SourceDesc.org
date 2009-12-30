@@ -2,33 +2,49 @@
 This file contains an overview of how the code is layed out and where to find things.
 
 
-| File             | Description                                                |
-|------------------+------------------------------------------------------------|
-| Client           | <65>                                                       |
-|------------------+------------------------------------------------------------|
-| ClientCtrl.hx    | Command line parser, constructs enums found in Common.hx   |
-| ClientMain.hx    | This is the client entry point, gets a command from the    |
-|                  | ClientCtrl and dispatches it to the client backend. This   |
-| ClientRestful.hx | is a client backend which talks to a restful server, i.e.  |
-|                  | url based, rather than a haxe remoting server. This file   |
-|                  | implements all the JSON based services for the client.     |
-| ClientCore.hx    | This is the core client functionality, and is basically a  |
-|                  | large tweak of the original haxelib code. ClientRestful.hx |
-|                  | extends client core, to add the remote functionality.      |
-|------------------+------------------------------------------------------------|
-| Server           |                                                            |
-|------------------+------------------------------------------------------------|
-| ServerCtrl.hx    | Performs the same function as ClientCtrl.hx,               |
-|                  | except parses URLs and constructs RemoteCommand            |
-| ServerMain.hx    | enums from it. This is the server entry point,             |
-|                  | calls ServerCtrl to perform the same function as           |
-|                  | ClientMain.hx, decodes the RemoteCommand enum and          |
-| ServerCore.hx    | calls the main function The server core functions.         |
-|------------------+------------------------------------------------------------|
-| Generic          |                                                            |
-|------------------+------------------------------------------------------------|
-| Common.hx        | Common.hx can be used by all targets in haxelib, neko, js, |
-|                  | and php; so it's where you'll find the most generic stuff. |
+|------------------+----------------------------------------------------------------|
+| File             | Description                                                    |
+|------------------+----------------------------------------------------------------|
+| Client           | <65>                                                           |
+|------------------+----------------------------------------------------------------|
+| ClientCtrl.hx    | Command line parser, constructs enums found in Common.hx       |
+|                  |                                                                |
+| ClientMain.hx    | This is the client entry point, gets a command from the        |
+|                  | ClientCtrl and dispatches it to the client backend. This       |
+|                  |                                                                |
+| ClientRestful.hx | is a client backend which talks to a restful server, i.e.      |
+|                  | url based, rather than a haxe remoting server. This file       |
+|                  | implements all the JSON based services for the client.         |
+|                  |                                                                |
+| ClientCore.hx    | This is the core client functionality, and is basically a      |
+|                  | large tweak of the original haxelib code. ClientRestful.hx     |
+|                  | extends client core, to add the remote functionality.          |
+|                  |                                                                |
+| Builder.hx       | This is the build functionality which                          |
+|                  | calls haxe with the build parameters                           |
+|------------------+----------------------------------------------------------------|
+| Server           |                                                                |
+|------------------+----------------------------------------------------------------|
+| ServerCtrl.hx    | Performs the same function as ClientCtrl.hx,                   |
+|                  | except parses URLs and constructs RemoteCommand enums from it. |
+|                  |                                                                |
+| ServerMain.hx    | This is the server entry point, calls ServerCtrl to perform    |
+|                  | the same function as ClientMain.hx, decodes the RemoteCommand  |
+|                  | enum and calls the main function The server core functions.    |
+|                  |                                                                |
+| ServerCore.hx    | Contains the server implementation.                            |
+| ServerData.hx    | Contains the SPOD database schema.                             |
+|------------------+----------------------------------------------------------------|
+| Generic          |                                                                |
+|------------------+----------------------------------------------------------------|
+| Common.hx        | Common.hx can be used by all targets in haxelib,               |
+|                  | neko, js, and php; so it's where you'll find the               |
+|                  | most generic stuff. Of particular note, you'll                 |
+|                  | find LocalCommand and RemoteCommand enums here. If you can't   |
+|                  | find a particular definition or class it's likely to be here   |
+|                  |                                                                |
+|                  |                                                                |
+|------------------+----------------------------------------------------------------|
 
 
 * Common.hx

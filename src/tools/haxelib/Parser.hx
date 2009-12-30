@@ -1,7 +1,7 @@
 package tools.haxelib;
 
-import tools.haxelib.Config;
 
+import tools.haxelib.Common;
 using tools.haxelib.Validate;
 using Lambda;
 using StringTools;
@@ -71,7 +71,8 @@ class Parser {
     return {line:lineNo,col:column()};
   }
   
-  static function syntax(msg:String) {
+  static function
+  syntax(msg:String) {
     if (column() > -1)
       neko.Lib.println("At line "+lineNo+" col "+column()+": "+msg);
     else 
@@ -79,7 +80,8 @@ class Parser {
     neko.Sys.exit(1);
   }
 
-  public static function tokens(hf:String) {
+  public static function
+  tokens(hf:String) {
     var
       len = hf.length,
       toks = new List<Token>(),
@@ -217,7 +219,7 @@ class Parser {
   function parse(file:String):Hxp {
     var contents = neko.io.File.getContent(file);
     return tokens(contents).fold(function(token,hbl:Hxp) {
-        trace(token);
+        //        trace(token);
         switch(token) {
         case PROPERTY(name,val,info):
           hbl.setProperty(name,val,info);
@@ -258,7 +260,7 @@ class Parser {
     
     Validate.applyAllTo(h);
 
-    trace(h.hbl);
+    //    trace(h.hbl);
     return h;
   }
   
@@ -274,16 +276,15 @@ class Hxp {
   public var hbl:Dynamic;
   var curSection:String;
   
-  public
-  function new(f:String) {
+  public function new(f:String) {
     file = f;
     hbl = {};
     curSection = Config.GLOBAL;
     Reflect.setField(hbl,curSection,{});    
   }
 
-  public
-  function setSection(name,attrs,info:Info) {
+  public function
+  setSection(name,attrs,info:Info) {
     var
       curSec = Reflect.field(hbl,curSection),
       newSection = {};
@@ -298,8 +299,8 @@ class Hxp {
     curSection = Config.GLOBAL;
   }
   
-  public
-  function setProperty(name,values,info:Info) {
+  public function
+  setProperty(name,values,info:Info) {
     var
       curSec = Reflect.field(hbl,curSection),
       fld = Common.camelCase(name);

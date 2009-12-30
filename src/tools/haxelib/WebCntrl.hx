@@ -35,30 +35,30 @@ class RepoService {
   
   public function
   projects(cb:Status->Void) {
-    JsCntrl.doService(url("projects",{}),cb);
+    WebCntrl.doService(url("projects",{}),cb);
   }
 
   public function
   serverInfo(cb:Status->Void) {
-    JsCntrl.doService(url("serverInfo",{}),cb);
+    WebCntrl.doService(url("serverInfo",{}),cb);
   }
 }
 
-class JsCntrl {
+class WebCntrl {
   public static var ctrl;
   
   static var htmlMacros:Dynamic;
 
   public static function
   main() {
-    ctrl = new JsCntrl();
+    ctrl = new WebCntrl();
   }
   
   public function new() {
     if(haxe.Firebug.detect())
       haxe.Firebug.redirectTraces();
     else
-      haxe.Log.trace = JsCntrl.nullTrace;
+      haxe.Log.trace = WebCntrl.nullTrace;
     
     setupMacros();
     ready();

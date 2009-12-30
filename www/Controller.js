@@ -781,143 +781,6 @@ hxjson2.JSONToken.__name__ = ["hxjson2","JSONToken"];
 hxjson2.JSONToken.prototype.type = null;
 hxjson2.JSONToken.prototype.value = null;
 hxjson2.JSONToken.prototype.__class__ = hxjson2.JSONToken;
-tools = {}
-tools.haxelib = {}
-tools.haxelib.HtmlMacros = function() { }
-tools.haxelib.HtmlMacros.__name__ = ["tools","haxelib","HtmlMacros"];
-tools.haxelib.HtmlMacros.pkgName = function(resolve,pkg,ver) {
-	return tools.haxelib.Common.pkgName(pkg,ver);
-}
-tools.haxelib.HtmlMacros.prototype.__class__ = tools.haxelib.HtmlMacros;
-tools.haxelib.RepoService = function(r) { if( r === $_ ) return; {
-	this.repo = r;
-}}
-tools.haxelib.RepoService.__name__ = ["tools","haxelib","RepoService"];
-tools.haxelib.RepoService.prototype.projects = function(cb) {
-	tools.haxelib.JsCntrl.doService(this.url("projects",{ }),cb);
-}
-tools.haxelib.RepoService.prototype.repo = null;
-tools.haxelib.RepoService.prototype.serverInfo = function(cb) {
-	tools.haxelib.JsCntrl.doService(this.url("serverInfo",{ }),cb);
-}
-tools.haxelib.RepoService.prototype.url = function(cmd,params) {
-	var p, u = this.repo + "?method=" + cmd;
-	if(Std["is"](params,String)) {
-		p = params;
-	}
-	else p = JQuery.param(params);
-	return ((p.length == 0)?u:u + "&" + p);
-}
-tools.haxelib.RepoService.prototype.__class__ = tools.haxelib.RepoService;
-tools.haxelib.JsCntrl = function(p) { if( p === $_ ) return; {
-	if(haxe.Firebug.detect()) haxe.Firebug.redirectTraces();
-	else haxe.Log.trace = $closure(tools.haxelib.JsCntrl,"nullTrace");
-	tools.haxelib.JsCntrl.setupMacros();
-	this.ready();
-}}
-tools.haxelib.JsCntrl.__name__ = ["tools","haxelib","JsCntrl"];
-tools.haxelib.JsCntrl.ctrl = null;
-tools.haxelib.JsCntrl.htmlMacros = null;
-tools.haxelib.JsCntrl.main = function() {
-	tools.haxelib.JsCntrl.ctrl = new tools.haxelib.JsCntrl();
-}
-tools.haxelib.JsCntrl.status = function(m) {
-	new JQuery("#help").html("<div style=\"color:#ff0000\">" + m + "</div>").fadeIn();
-}
-tools.haxelib.JsCntrl.nullTrace = function(v,inf) {
-	null;
-}
-tools.haxelib.JsCntrl.setupMacros = function() {
-	tools.haxelib.JsCntrl.htmlMacros = { }
-	{
-		var _g = 0, _g1 = Type.getClassFields(tools.haxelib.HtmlMacros);
-		while(_g < _g1.length) {
-			var f = _g1[_g];
-			++_g;
-			var fld = Reflect.field(tools.haxelib.HtmlMacros,f);
-			if(Reflect.isFunction(fld)) tools.haxelib.JsCntrl.htmlMacros[f] = fld;
-		}
-	}
-}
-tools.haxelib.JsCntrl.template = function(tmpl,data) {
-	var tmpl1 = StringTools.htmlUnescape(new JQuery(tmpl).get(0).innerHTML), t = new haxe.Template(tmpl1);
-	return t.execute(data,tools.haxelib.JsCntrl.htmlMacros);
-}
-tools.haxelib.JsCntrl.doService = function(url,cb) {
-	haxe.Log.trace("service: " + url,{ fileName : "JsCntrl.hx", lineNumber : 114, className : "tools.haxelib.JsCntrl", methodName : "doService"});
-	JQuery.getJSON(url,function(data) {
-		cb(tools.haxelib.Marshall.fromJson(data));
-	});
-}
-tools.haxelib.JsCntrl.msg = function(m) {
-	var d = new JQuery("#dialog");
-	d.html(m);
-	d.dialog("open");
-}
-tools.haxelib.JsCntrl.statusHandler = function(s) {
-	var $e = (s);
-	switch( $e[1] ) {
-	case 2:
-	var prjs = $e[2];
-	{
-		haxe.Log.trace(prjs,{ fileName : "JsCntrl.hx", lineNumber : 145, className : "tools.haxelib.JsCntrl", methodName : "statusHandler"});
-		new JQuery("#prj-list").html(tools.haxelib.JsCntrl.template("#tmpl-prj-list",{ projects : prjs}));
-		
-
-       $('.project').toggle(
-             function() { $('.details',$(this)).css({display:'inline'}) ;},
-             function() { $('.details',$(this)).css({display:'none'}); });
-;
-		new JQuery(".details").css({ display : "none"});
-	}break;
-	default:{
-		haxe.Log.trace("nout",{ fileName : "JsCntrl.hx", lineNumber : 156, className : "tools.haxelib.JsCntrl", methodName : "statusHandler"});
-	}break;
-	}
-}
-tools.haxelib.JsCntrl.serverInfoHandler = function(s) {
-	var $e = (s);
-	switch( $e[1] ) {
-	case 8:
-	var si = $e[2];
-	{
-		new JQuery("#server-info").html(tools.haxelib.JsCntrl.template("#tmpl-server-info",si));
-	}break;
-	default:{
-		haxe.Log.trace("nout",{ fileName : "JsCntrl.hx", lineNumber : 166, className : "tools.haxelib.JsCntrl", methodName : "serverInfoHandler"});
-	}break;
-	}
-}
-tools.haxelib.JsCntrl.prototype.initDialog = function() {
-	var d = new JQuery("#dialog");
-	d.dialog({ bgiframe : true, autoOpen : false, modal : true, buttons : { Ok : function() {
-		d.dialog("close");
-	}}});
-}
-tools.haxelib.JsCntrl.prototype.loadCss = function(path) {
-	var jq = new JQuery("link[href*=\"" + path + "\"]");
-	if(jq.length == 0) {
-		var l = new JQuery("<link/>");
-		l.attr({ rel : "stylesheet"});
-		l.attr({ type : "text/css"});
-		l.attr({ href : path});
-		l.appendTo("head");
-	}
-}
-tools.haxelib.JsCntrl.prototype.ready = function() {
-	var me = this, rs = new tools.haxelib.RepoService("/repo.php");
-	new JQuery("").ready(function() {
-		rs.serverInfo($closure(tools.haxelib.JsCntrl,"serverInfoHandler"));
-		rs.projects($closure(tools.haxelib.JsCntrl,"statusHandler"));
-	});
-}
-tools.haxelib.JsCntrl.prototype.trace = function(s) {
-	if(window.console) {
-		window.console.log(s);
-	}
-	else null;
-}
-tools.haxelib.JsCntrl.prototype.__class__ = tools.haxelib.JsCntrl;
 haxe._Template = {}
 haxe._Template.TemplateExpr = { __ename__ : ["haxe","_Template","TemplateExpr"], __constructs__ : ["OpVar","OpExpr","OpIf","OpStr","OpBlock","OpForeach","OpMacro"] }
 haxe._Template.TemplateExpr.OpBlock = function(l) { var $x = ["OpBlock",4,l]; $x.__enum__ = haxe._Template.TemplateExpr; $x.toString = $estr; return $x; }
@@ -1690,6 +1553,8 @@ List.prototype.toString = function() {
 	return s.b.join("");
 }
 List.prototype.__class__ = List;
+tools = {}
+tools.haxelib = {}
 tools.haxelib.Status = { __ename__ : ["tools","haxelib","Status"], __constructs__ : ["OK_USER","OK_PROJECT","OK_PROJECTS","OK_SEARCH","OK_LICENSES","OK_REGISTER","OK_SUBMIT","OK_ACCOUNT","OK_SERVERINFO","OK_REMINDER","ERR_REMINDER","ERR_LICENSE","ERR_UNKNOWN","ERR_NOTHANDLED","ERR_PASSWORD","ERR_EMAIL","ERR_DEVELOPER","ERR_HAXELIBJSON","ERR_USER","ERR_REGISTERED","ERR_PROJECTNOTFOUND"] }
 tools.haxelib.Status.ERR_DEVELOPER = ["ERR_DEVELOPER",16];
 tools.haxelib.Status.ERR_DEVELOPER.toString = $estr;
@@ -1796,95 +1661,6 @@ tools.haxelib.Marshall.toJson = function(s) {
 	}(this));
 }
 tools.haxelib.Marshall.prototype.__class__ = tools.haxelib.Marshall;
-tools.haxelib.Common = function() { }
-tools.haxelib.Common.__name__ = ["tools","haxelib","Common"];
-tools.haxelib.Common.slash = function(d) {
-	return (StringTools.endsWith(d,"/")?d:(d + "/"));
-}
-tools.haxelib.Common.safe = function(name) {
-	if(!tools.haxelib.Common.alphanum.match(name)) throw "Invalid parameter : " + name;
-	return name.split(".").join(",");
-}
-tools.haxelib.Common.unsafe = function(name) {
-	return name.split(",").join(".");
-}
-tools.haxelib.Common.pkgName = function(lib,ver) {
-	return tools.haxelib.Common.safe(lib) + "-" + tools.haxelib.Common.safe(ver) + ".zip";
-}
-tools.haxelib.Common.validEmail = function(v) {
-	return ((tools.haxelib.Common.emailRe.match(v))?null:"must be a valid email address");
-}
-tools.haxelib.Common.optionalEmail = function(v) {
-	if(v.length > 0) return tools.haxelib.Common.validEmail(v);
-	return null;
-}
-tools.haxelib.Common.validPW = function(v) {
-	return ((v.length >= 5)?null:"must be >= 5 characters");
-}
-tools.haxelib.Common.optionalPW = function(v) {
-	if(v.length > 0) return tools.haxelib.Common.validPW(v);
-	return null;
-}
-tools.haxelib.Common.validUrl = function(v) {
-	var r = new EReg("^(http://)([^:/]+)(:[0-9]+)?/?(.*)$","");
-	return ((r.match(v))?null:"invalid http url");
-}
-tools.haxelib.Common.camelCase = function(s) {
-	if(s.indexOf("-") != -1) {
-		var spl = s.split("-"), cc = new StringBuf();
-		cc.b[cc.b.length] = spl[0].toLowerCase();
-		{
-			var _g1 = 1, _g = spl.length;
-			while(_g1 < _g) {
-				var i = _g1++;
-				cc.b[cc.b.length] = spl[i].charAt(0).toUpperCase() + spl[i].substr(1);
-			}
-		}
-		return cc.b.join("");
-	}
-	return s;
-}
-tools.haxelib.Common.prototype.__class__ = tools.haxelib.Common;
-tools.haxelib.Options = function(p) { if( p === $_ ) return; {
-	this.switches = new Hash();
-}}
-tools.haxelib.Options.__name__ = ["tools","haxelib","Options"];
-tools.haxelib.Options.prototype.addSwitch = function(k,v) {
-	this.switches.set(k,v);
-}
-tools.haxelib.Options.prototype.addSwitches = function(d) {
-	var n = Reflect.copy(d);
-	{ var $it26 = this.switches.keys();
-	while( $it26.hasNext() ) { var s = $it26.next();
-	{
-		n[s] = this.switches.get(s);
-	}
-	}}
-	return n;
-}
-tools.haxelib.Options.prototype.flag = function(s) {
-	return this.switches.exists(s);
-}
-tools.haxelib.Options.prototype.getRepo = function() {
-	return this.switches.get("-R");
-}
-tools.haxelib.Options.prototype.getSwitch = function(s) {
-	return this.switches.get(s);
-}
-tools.haxelib.Options.prototype.gotSome = function() {
-	return Lambda.array(this.switches).length > 0;
-}
-tools.haxelib.Options.prototype.parseSwitches = function(params) {
-	{ var $it27 = params.keys();
-	while( $it27.hasNext() ) { var o = $it27.next();
-	{
-		if(StringTools.startsWith(o,"-")) this.switches.set(o,params.get(o));
-	}
-	}}
-}
-tools.haxelib.Options.prototype.repo = null;
-tools.haxelib.Options.prototype.switches = null;
-tools.haxelib.Options.prototype.__class__ = tools.haxelib.Options;
 tools.haxelib.LocalCommand = { __ename__ : ["tools","haxelib","LocalCommand"], __constructs__ : ["LIST","REMOVE","SET","SETUP","CONFIG","PACK","DEV","PATH","RUN","TEST","INSTALL","UPGRADE","NEW","BUILD"] }
 tools.haxelib.LocalCommand.BUILD = function(prj) { var $x = ["BUILD",13,prj]; $x.__enum__ = tools.haxelib.LocalCommand; $x.toString = $estr; return $x; }
 tools.haxelib.LocalCommand.CONFIG = ["CONFIG",4];
@@ -1928,6 +1704,103 @@ tools.haxelib.RemoteCommand.USER = function(email) { var $x = ["USER",2,email]; 
 tools.haxelib.CmdContext = { __ename__ : ["tools","haxelib","CmdContext"], __constructs__ : ["LOCAL","REMOTE"] }
 tools.haxelib.CmdContext.LOCAL = function(l,options) { var $x = ["LOCAL",0,l,options]; $x.__enum__ = tools.haxelib.CmdContext; $x.toString = $estr; return $x; }
 tools.haxelib.CmdContext.REMOTE = function(r,options) { var $x = ["REMOTE",1,r,options]; $x.__enum__ = tools.haxelib.CmdContext; $x.toString = $estr; return $x; }
+tools.haxelib.Options = function(p) { if( p === $_ ) return; {
+	this.switches = new Hash();
+}}
+tools.haxelib.Options.__name__ = ["tools","haxelib","Options"];
+tools.haxelib.Options.prototype.addSwitch = function(k,v) {
+	this.switches.set(k,v);
+}
+tools.haxelib.Options.prototype.addSwitches = function(d) {
+	var n = Reflect.copy(d);
+	{ var $it26 = this.switches.keys();
+	while( $it26.hasNext() ) { var s = $it26.next();
+	{
+		n[s] = this.switches.get(s);
+	}
+	}}
+	return n;
+}
+tools.haxelib.Options.prototype.flag = function(s) {
+	return this.switches.exists(s);
+}
+tools.haxelib.Options.prototype.getRepo = function() {
+	return this.switches.get("-R");
+}
+tools.haxelib.Options.prototype.getSwitch = function(s) {
+	return this.switches.get(s);
+}
+tools.haxelib.Options.prototype.gotSome = function() {
+	return Lambda.array(this.switches).length > 0;
+}
+tools.haxelib.Options.prototype.parseSwitches = function(params) {
+	{ var $it27 = params.keys();
+	while( $it27.hasNext() ) { var o = $it27.next();
+	{
+		if(StringTools.startsWith(o,"-")) this.switches.set(o,params.get(o));
+	}
+	}}
+}
+tools.haxelib.Options.prototype.repo = null;
+tools.haxelib.Options.prototype.switches = null;
+tools.haxelib.Options.prototype.__class__ = tools.haxelib.Options;
+tools.haxelib.Config = function(p) { if( p === $_ ) return; {
+	null;
+}}
+tools.haxelib.Config.__name__ = ["tools","haxelib","Config"];
+tools.haxelib.Config.prototype.build = function() {
+	return Reflect.field(this.data,tools.haxelib.Config.BUILD);
+}
+tools.haxelib.Config.prototype.data = null;
+tools.haxelib.Config.prototype.file = function() {
+	return Reflect.field(this.data,tools.haxelib.Config.FILE);
+}
+tools.haxelib.Config.prototype.globals = function() {
+	return Reflect.field(this.data,tools.haxelib.Config.GLOBAL);
+}
+tools.haxelib.Config.prototype.pack = function() {
+	return Reflect.field(this.data,tools.haxelib.Config.PACK);
+}
+tools.haxelib.Config.prototype.__class__ = tools.haxelib.Config;
+tools.haxelib.ConfigJson = function(j) { if( j === $_ ) return; {
+	tools.haxelib.Config.apply(this,[]);
+	this.data = hxjson2.JSON.decode(j);
+}}
+tools.haxelib.ConfigJson.__name__ = ["tools","haxelib","ConfigJson"];
+tools.haxelib.ConfigJson.__super__ = tools.haxelib.Config;
+for(var k in tools.haxelib.Config.prototype ) tools.haxelib.ConfigJson.prototype[k] = tools.haxelib.Config.prototype[k];
+tools.haxelib.ConfigJson.prototype.__class__ = tools.haxelib.ConfigJson;
+tools.haxelib.Common = function() { }
+tools.haxelib.Common.__name__ = ["tools","haxelib","Common"];
+tools.haxelib.Common.slash = function(d) {
+	return (StringTools.endsWith(d,"/")?d:(d + "/"));
+}
+tools.haxelib.Common.safe = function(name) {
+	if(!tools.haxelib.Common.alphanum.match(name)) throw "Invalid parameter : " + name;
+	return name.split(".").join(",");
+}
+tools.haxelib.Common.unsafe = function(name) {
+	return name.split(",").join(".");
+}
+tools.haxelib.Common.pkgName = function(lib,ver) {
+	return tools.haxelib.Common.safe(lib) + "-" + tools.haxelib.Common.safe(ver) + ".zip";
+}
+tools.haxelib.Common.camelCase = function(s) {
+	if(s.indexOf("-") != -1) {
+		var spl = s.split("-"), cc = new StringBuf();
+		cc.b[cc.b.length] = spl[0].toLowerCase();
+		{
+			var _g1 = 1, _g = spl.length;
+			while(_g1 < _g) {
+				var i = _g1++;
+				cc.b[cc.b.length] = spl[i].charAt(0).toUpperCase() + spl[i].substr(1);
+			}
+		}
+		return cc.b.join("");
+	}
+	return s;
+}
+tools.haxelib.Common.prototype.__class__ = tools.haxelib.Common;
 ValueType = { __ename__ : ["ValueType"], __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] }
 ValueType.TBool = ["TBool",3];
 ValueType.TBool.toString = $estr;
@@ -2396,6 +2269,141 @@ IntHash.prototype.toString = function() {
 	return s.b.join("");
 }
 IntHash.prototype.__class__ = IntHash;
+tools.haxelib.HtmlMacros = function() { }
+tools.haxelib.HtmlMacros.__name__ = ["tools","haxelib","HtmlMacros"];
+tools.haxelib.HtmlMacros.pkgName = function(resolve,pkg,ver) {
+	return tools.haxelib.Common.pkgName(pkg,ver);
+}
+tools.haxelib.HtmlMacros.prototype.__class__ = tools.haxelib.HtmlMacros;
+tools.haxelib.RepoService = function(r) { if( r === $_ ) return; {
+	this.repo = r;
+}}
+tools.haxelib.RepoService.__name__ = ["tools","haxelib","RepoService"];
+tools.haxelib.RepoService.prototype.projects = function(cb) {
+	tools.haxelib.WebCntrl.doService(this.url("projects",{ }),cb);
+}
+tools.haxelib.RepoService.prototype.repo = null;
+tools.haxelib.RepoService.prototype.serverInfo = function(cb) {
+	tools.haxelib.WebCntrl.doService(this.url("serverInfo",{ }),cb);
+}
+tools.haxelib.RepoService.prototype.url = function(cmd,params) {
+	var p, u = this.repo + "?method=" + cmd;
+	if(Std["is"](params,String)) {
+		p = params;
+	}
+	else p = JQuery.param(params);
+	return ((p.length == 0)?u:u + "&" + p);
+}
+tools.haxelib.RepoService.prototype.__class__ = tools.haxelib.RepoService;
+tools.haxelib.WebCntrl = function(p) { if( p === $_ ) return; {
+	if(haxe.Firebug.detect()) haxe.Firebug.redirectTraces();
+	else haxe.Log.trace = $closure(tools.haxelib.WebCntrl,"nullTrace");
+	tools.haxelib.WebCntrl.setupMacros();
+	this.ready();
+}}
+tools.haxelib.WebCntrl.__name__ = ["tools","haxelib","WebCntrl"];
+tools.haxelib.WebCntrl.ctrl = null;
+tools.haxelib.WebCntrl.htmlMacros = null;
+tools.haxelib.WebCntrl.main = function() {
+	tools.haxelib.WebCntrl.ctrl = new tools.haxelib.WebCntrl();
+}
+tools.haxelib.WebCntrl.status = function(m) {
+	new JQuery("#help").html("<div style=\"color:#ff0000\">" + m + "</div>").fadeIn();
+}
+tools.haxelib.WebCntrl.nullTrace = function(v,inf) {
+	null;
+}
+tools.haxelib.WebCntrl.setupMacros = function() {
+	tools.haxelib.WebCntrl.htmlMacros = { }
+	{
+		var _g = 0, _g1 = Type.getClassFields(tools.haxelib.HtmlMacros);
+		while(_g < _g1.length) {
+			var f = _g1[_g];
+			++_g;
+			var fld = Reflect.field(tools.haxelib.HtmlMacros,f);
+			if(Reflect.isFunction(fld)) tools.haxelib.WebCntrl.htmlMacros[f] = fld;
+		}
+	}
+}
+tools.haxelib.WebCntrl.template = function(tmpl,data) {
+	var tmpl1 = StringTools.htmlUnescape(new JQuery(tmpl).get(0).innerHTML), t = new haxe.Template(tmpl1);
+	return t.execute(data,tools.haxelib.WebCntrl.htmlMacros);
+}
+tools.haxelib.WebCntrl.doService = function(url,cb) {
+	haxe.Log.trace("service: " + url,{ fileName : "WebCntrl.hx", lineNumber : 114, className : "tools.haxelib.WebCntrl", methodName : "doService"});
+	JQuery.getJSON(url,function(data) {
+		cb(tools.haxelib.Marshall.fromJson(data));
+	});
+}
+tools.haxelib.WebCntrl.msg = function(m) {
+	var d = new JQuery("#dialog");
+	d.html(m);
+	d.dialog("open");
+}
+tools.haxelib.WebCntrl.statusHandler = function(s) {
+	var $e = (s);
+	switch( $e[1] ) {
+	case 2:
+	var prjs = $e[2];
+	{
+		haxe.Log.trace(prjs,{ fileName : "WebCntrl.hx", lineNumber : 145, className : "tools.haxelib.WebCntrl", methodName : "statusHandler"});
+		new JQuery("#prj-list").html(tools.haxelib.WebCntrl.template("#tmpl-prj-list",{ projects : prjs}));
+		
+
+       $('.project').toggle(
+             function() { $('.details',$(this)).css({display:'inline'}) ;},
+             function() { $('.details',$(this)).css({display:'none'}); });
+;
+		new JQuery(".details").css({ display : "none"});
+	}break;
+	default:{
+		haxe.Log.trace("nout",{ fileName : "WebCntrl.hx", lineNumber : 156, className : "tools.haxelib.WebCntrl", methodName : "statusHandler"});
+	}break;
+	}
+}
+tools.haxelib.WebCntrl.serverInfoHandler = function(s) {
+	var $e = (s);
+	switch( $e[1] ) {
+	case 8:
+	var si = $e[2];
+	{
+		new JQuery("#server-info").html(tools.haxelib.WebCntrl.template("#tmpl-server-info",si));
+	}break;
+	default:{
+		haxe.Log.trace("nout",{ fileName : "WebCntrl.hx", lineNumber : 166, className : "tools.haxelib.WebCntrl", methodName : "serverInfoHandler"});
+	}break;
+	}
+}
+tools.haxelib.WebCntrl.prototype.initDialog = function() {
+	var d = new JQuery("#dialog");
+	d.dialog({ bgiframe : true, autoOpen : false, modal : true, buttons : { Ok : function() {
+		d.dialog("close");
+	}}});
+}
+tools.haxelib.WebCntrl.prototype.loadCss = function(path) {
+	var jq = new JQuery("link[href*=\"" + path + "\"]");
+	if(jq.length == 0) {
+		var l = new JQuery("<link/>");
+		l.attr({ rel : "stylesheet"});
+		l.attr({ type : "text/css"});
+		l.attr({ href : path});
+		l.appendTo("head");
+	}
+}
+tools.haxelib.WebCntrl.prototype.ready = function() {
+	var me = this, rs = new tools.haxelib.RepoService("/repo.php");
+	new JQuery("").ready(function() {
+		rs.serverInfo($closure(tools.haxelib.WebCntrl,"serverInfoHandler"));
+		rs.projects($closure(tools.haxelib.WebCntrl,"statusHandler"));
+	});
+}
+tools.haxelib.WebCntrl.prototype.trace = function(s) {
+	if(window.console) {
+		window.console.log(s);
+	}
+	else null;
+}
+tools.haxelib.WebCntrl.prototype.__class__ = tools.haxelib.WebCntrl;
 hxjson2.JSONTokenType = { __ename__ : ["hxjson2","JSONTokenType"], __constructs__ : ["UNKNOWN","COMMA","LEFT_BRACE","RIGHT_BRACE","LEFT_BRACKET","RIGHT_BRACKET","COLON","TRUE","FALSE","NULL","STRING","NUMBER","NAN"] }
 hxjson2.JSONTokenType.COLON = ["COLON",6];
 hxjson2.JSONTokenType.COLON.toString = $estr;
@@ -2719,10 +2727,12 @@ haxe.Template.expr_trim = new EReg("^[ ]*([^ ]+)[ ]*$","");
 haxe.Template.expr_int = new EReg("^[0-9]+$","");
 haxe.Template.expr_float = new EReg("^([+-]?)(?=\\d|,\\d)\\d*(,\\d*)?([Ee]([+-]?\\d+))?$","");
 haxe.Template.globals = { }
+tools.haxelib.Config.GLOBAL = "global";
+tools.haxelib.Config.BUILD = "build";
+tools.haxelib.Config.FILE = "file";
+tools.haxelib.Config.PACK = "pack";
 tools.haxelib.Common.CONFIG_FILE = "haxelib.json";
 tools.haxelib.Common.HXP_FILE = "Hxpfile";
-tools.haxelib.Common.HXP_TEMPLATE = "HxpfileTemplate";
 tools.haxelib.Common.alphanum = new EReg("^[A-Za-z0-9_.-]+$","");
-tools.haxelib.Common.emailRe = new EReg("[A-Z0-9._%-]+@[A-Z0-9.-]+\\.[A-Z][A-Z][A-Z]?","i");
 js.Lib.onerror = null;
-$Main.init = tools.haxelib.JsCntrl.main();
+$Main.init = tools.haxelib.WebCntrl.main();

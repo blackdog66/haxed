@@ -1,7 +1,6 @@
 
 package tools.haxelib;
 
-import tools.haxelib.Config;
 import tools.haxelib.Parser;
 import tools.haxelib.Package;
 import tools.haxelib.Common;
@@ -421,17 +420,17 @@ class ClientCore {
   
   public function
   setup(path){
-      if( !Os.exists(path) ) {
-        try {
-          Os.mkdir(path);
-        } catch( e : Dynamic ) {
-          Os.print("Failed to create directory '"+path
-                   +"' ("+Std.string(e)+"), maybe you need appropriate user rights");
-          neko.Sys.exit(1);
-        }
+    if( !Os.exists(path) ) {
+      try {
+        Os.mkdir(path);
+      } catch( e : Dynamic ) {
+        Os.print("Failed to create directory '"+path
+                 +"' ("+Std.string(e)+"), maybe you need appropriate user rights");
+        neko.Sys.exit(1);
       }
-
-      Os.fileOut(getConfigFile(),path) ;
+    }
+    
+    Os.fileOut(getConfigFile(),path) ;
   }
 
   public function
@@ -513,12 +512,12 @@ class ClientCore {
   }
 
   public function
-  packit(hxpFile:String) {
+  packit(hxpFile:String):String {
     var
       hxp = Parser.process(hxpFile),
       conf = Parser.getConfig(hxp);
 
-    Package.createFrom(conf);
+    return Package.createFrom(conf);
   }
   
   public function newHxp() {

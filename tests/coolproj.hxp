@@ -1,6 +1,6 @@
 
-project:           	project-name
-website:         	http://project-name.com
+project:            cool-project
+website:            http://project-name.com
 version:            1.2.3
 comments:           version comments
 description:        freeform
@@ -13,7 +13,7 @@ license:            GPL
 
 build 
       depends:          myproject
-      classpath:        /home/blackdog/Projects/hxBSON
+      class-path:       /home/blackdog/Projects/hxBSON
                         /home/blackdog/Projects/iphSrc 
       target:           js 
       target-file:      main.js

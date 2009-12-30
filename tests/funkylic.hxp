@@ -1,5 +1,5 @@
 
-project:            myproject
+project:            funky
 website:            http://myproject.com
 version:            1.2.3
 comments:           this is a new version
@@ -9,7 +9,7 @@ description:        freeform
 author:             My Name
 author-email:       woot@woot.com
 tags:               tag1 tag2
-license:            GPL
+license:            FUNKY
 
 build 
       class-path:        /home/blackdog/Projects/hxNode
@@ -18,3 +18,5 @@ build
       target-file:      main.js
       main-class:       Main
 
+pack
+        include:        /home/blackdog/Projects/hxNode

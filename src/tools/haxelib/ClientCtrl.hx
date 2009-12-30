@@ -249,7 +249,7 @@ class ClientCtrl {
 
     case "submit":
       var
-        path = param("Zip file",Validate.zip),
+        path = param("Zip file"),
         password = param("Password");
       
       options.addSwitch("-P",password);

@@ -4,8 +4,12 @@ package tools.haxelib;
   Used across neko, php and js
 */
 
-
 import hxjson2.JSON;
+
+/*
+  Data structures used in marshalling between targets
+
+*/
 
 typedef UserInfo = {
   var fullname : String;
@@ -110,49 +114,41 @@ class Marshall {
   }
 }
 
-class Common {
-  public static var CONFIG_FILE = "haxelib.json";
-  public static var HXP_FILE = "Hxpfile";
+/* Command descriptions as enums */
 
-  static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
+enum LocalCommand {
+  LIST;
+  REMOVE(pkg:String,ver:String);
+  SET(prj:String,ver:String);
+  SETUP(path:String);
+  CONFIG;
+  PACK(path:String);
+  DEV(prj:String,dir:String);
+  PATH(paths:Array<{project:String,version:String}>);
+  RUN(param:String,args:Array<String>);
+  TEST(pkg:String);
+  INSTALL(prj:String,ver:String);
+  UPGRADE;
+  NEW;
+  BUILD(prj:String);
+}
 
-  public static inline function
-  slash(d:String) {
-    return StringTools.endsWith(d,"/") ? d : (d + "/") ; }
+enum RemoteCommand {
+  SEARCH(query:String);
+  INFO(project:String);
+  USER(email:String);
+  REGISTER(email:String,password:String,fullName:String);
+  SUBMIT(pkgPath:String);  
+  ACCOUNT(cemail:String,cpass:String,nemail:String,npass:String,nname:String);
+  LICENSE;
+  PROJECTS;
+  SERVERINFO;
+  REMINDER(email:String);
+}
 
-  
-  public static function
-  safe( name : String ) {
-    if( !alphanum.match(name) )
-      throw "Invalid parameter : "+name;
-    return name.split(".").join(","); }
-
-  public static function
-  unsafe( name : String ) {
-    return name.split(",").join(".");}
-
-  public static function
-  pkgName( lib : String, ver : String ) {
-      return safe(lib)+"-"+safe(ver)+".zip";
-  }
-  
-  public static function
-  camelCase(s:String) {
-    if (s.indexOf("-") != -1) { 
-      var
-        spl = s.split("-"),
-        cc = new StringBuf();
-
-      cc.add(spl[0].toLowerCase());
-      for (i in 1 ... spl.length) {
-        cc.add(spl[i].charAt(0).toUpperCase() + spl[i].substr(1));
-      }
-
-      return cc.toString();
-    }
-    return s;      
-  }
-  
+enum CmdContext {
+  LOCAL(l:LocalCommand,options:Options);
+  REMOTE(r:RemoteCommand,options:Options) ;
 }
 
 class Options {
@@ -208,37 +204,134 @@ class Options {
   }
 }
 
-enum LocalCommand {
-  LIST;
-  REMOVE(pkg:String,ver:String);
-  SET(prj:String,ver:String);
-  SETUP(path:String);
-  CONFIG;
-  PACK(path:String);
-  DEV(prj:String,dir:String);
-  PATH(paths:Array<{project:String,version:String}>);
-  RUN(param:String,args:Array<String>);
-  TEST(pkg:String);
-  INSTALL(prj:String,ver:String);
-  UPGRADE;
-  NEW;
-  BUILD(prj:String);
+/* Configuration Access.
+   
+  Application interface to config no matter how it's constructed, from hxp or
+  json, or xml
+
+  Note, using Array instead of list for json compatibility.
+
+*/
+
+typedef PrjVer = {
+  var prj:String;
+  var ver:String;
+  var op:String;
 }
 
-enum RemoteCommand {
-  SEARCH(query:String);
-  INFO(project:String);
-  USER(email:String);
-  REGISTER(email:String,password:String,fullName:String);
-  SUBMIT(pkgPath:String);  
-  ACCOUNT(cemail:String,cpass:String,nemail:String,npass:String,nname:String);
-  LICENSE;
-  PROJECTS;
-  SERVERINFO;
-  REMINDER(email:String);
+typedef Global = {
+  var project:String;
+  var authorName:String;
+  var authorEmail:String;
+  var version:String;
+  var comments:String;
+  var description:String;
+  var tags:Array<String>;
+  var website:String;
+  var license:String;
+}
+  
+typedef Build = {
+  var attrs:Array<String>;
+  var depends:Array<PrjVer>;
+  var classPath:Array<String>;
+  var target:String;
+  var targetFile:String;
+  var mainClass:String;
+  var options: Array<String>;
 }
 
-enum CmdContext {
-  LOCAL(l:LocalCommand,options:Options);
-  REMOTE(r:RemoteCommand,options:Options) ;
+typedef Pack = {
+  var include:Array<String>;
+}
+  
+typedef Repo = {
+  var attrs:Array<String>;
+  var type:String;
+  var location:String;
+  var tag:String;
+}
+
+  
+class Config {
+  public static var GLOBAL = "global";
+  public static var BUILD = "build";
+  public static var FILE = "file";
+  public static var PACK = "pack";
+
+  public var data:Dynamic;
+
+  public function new() {}
+  
+  public function
+  globals():Global {
+    return Reflect.field(data,GLOBAL);
+  }
+  
+  public function
+  build():Build {
+    return Reflect.field(data,BUILD);
+  }
+
+  public function
+  pack():Pack {
+    return Reflect.field(data,PACK);
+  }
+  
+  public function
+  file():String {
+    return Reflect.field(data,FILE);
+  }
+  
+}  
+
+class ConfigJson extends Config {
+  public
+  function new (j:String) {
+    super();
+    data =  hxjson2.JSON.decode(j);
+  }
+}
+
+class Common {
+  public static var CONFIG_FILE = "haxelib.json";
+  public static var HXP_FILE = "Hxpfile";
+
+  static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
+
+  public static inline function
+  slash(d:String) {
+    return StringTools.endsWith(d,"/") ? d : (d + "/") ; }
+
+  
+  public static function
+  safe( name : String ) {
+    if( !alphanum.match(name) )
+      throw "Invalid parameter : "+name;
+    return name.split(".").join(","); }
+
+  public static function
+  unsafe( name : String ) {
+    return name.split(",").join(".");}
+
+  public static function
+  pkgName( lib : String, ver : String ) {
+      return safe(lib)+"-"+safe(ver)+".zip";
+  }
+  
+  public static function
+  camelCase(s:String) {
+    if (s.indexOf("-") != -1) { 
+      var
+        spl = s.split("-"),
+        cc = new StringBuf();
+
+      cc.add(spl[0].toLowerCase());
+      for (i in 1 ... spl.length) {
+        cc.add(spl[i].charAt(0).toUpperCase() + spl[i].substr(1));
+      }
+      return cc.toString();
+    }
+    return s;      
+  }  
 }

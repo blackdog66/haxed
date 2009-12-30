@@ -18,4 +18,4 @@
 
 -cp ./src/
 -js ./www/Controller.js
--main tools.haxelib.JsCntrl
+-main tools.haxelib.WebCntrl

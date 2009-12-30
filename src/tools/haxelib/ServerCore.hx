@@ -4,7 +4,6 @@ package tools.haxelib;
 import tools.haxelib.Common;
 import tools.haxelib.ServerData;
 import tools.haxelib.ZipReader;
-import tools.haxelib.Config;
 import tools.haxelib.License;
 
 using Lambda;
@@ -231,7 +230,7 @@ class ServerCore {
     var v = new Version();
     v.project = p;
     v.name =  Std.string(glbs.version);
-    v.comments = glbs.synopsis;
+    v.comments = glbs.comments;
     v.downloads = 0;
     v.date = Date.now().toString();
     v.documentation = "docs";

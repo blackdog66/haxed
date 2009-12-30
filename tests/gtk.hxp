@@ -1,0 +1,45 @@
+
+# this is an example hxp, note comments are specified with #
+# these are global keys and are all required ...
+
+project:            hxGtk
+website:            http://www.ipowerhouse.com
+description:        A set of wrappers for Gtk-server
+                    that provide a fantastic gui
+                    experience.
+author:             Ritchie Turner
+author-email:       blackdog@ipowerhouse.com
+tags:               gui gtk
+license:            GPL
+version:            0.5
+comments:           comments for 0.5
+                    over multiple lines
+
+# the build section is equivalent to an hxml file
+# note, I haven't done all the options yet ...
+
+build 
+      class-path:       ./
+                        /home/blackdog/Projects/hxNode # on multiple lines
+      depends:          myproject
+      target:           neko
+      target-file:      main.n
+      main-class:       test.Test
+
+pack
+        include:        ./gtk
+                        ./ui
+                        /home/blackdog/Projects/hxNode/
+
+# arbitrary keys .... good for new functionality in the future or adding
+# any new search criteria or meta data
+
+another:   this is another global key
+           
+newSection
+        path:   this is a path
+        woot:   and
+                why
+                not
+
+       

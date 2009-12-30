@@ -10,12 +10,9 @@ tested client on windows yet.
 * Overview
 
   Please find for review a new version of haxelib, based on initial
-  ideas from John De Goes who can better describe his vision for haxelib
-  which is very interesting.
-
-  I've provisionally named this project Hxp, haxe package, and it's a
-  superset of the existing haxelib. Comfortingly the existing haxelib
-  semantics are intact - and a lot of the old code.
+  ideas from John De Goes who can better describe his vision for
+  haxelib which is very Comfortingly the existing haxelib semantics
+  are intact - and a lot of the old code.
 
   The project is feature complete but has rough edges; it's ready for
   community input and patches - but not for general usage as for
@@ -31,9 +28,18 @@ tested client on windows yet.
   haxelib convert command which creates a new package from an old, but
   if this new version needs to coexist for some time with the old then
   I will need to implement a bit more client compatibility.
- 
-  The project is at http://www.github.com/blackdog66
-    
+  
+  There is a test php server at lib.ipowerhouse.com.
+      
+  The project is at http://www.github.com/blackdog66. I'm very happy
+  to hand this over to Nicolas if he would prefer to host it on google
+  etc and continue to post patches myself, but I very much prefer if
+  the community (if it so desires) picks this up.
+
+  Cheers
+
+  bd
+
 * Features
 
    1. Server can be deployed to php and neko.

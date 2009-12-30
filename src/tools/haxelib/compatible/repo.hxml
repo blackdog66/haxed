@@ -1,0 +1,6 @@
+
+-cp ../../../../src/
+-cp .
+-neko convert.n
+-main Convert
+-resource ../../../../client.json@clientConfig
