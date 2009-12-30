@@ -1,0 +1,13 @@
+
+This is a setup for php using nginx and fast-cgi
+
+Download spawn-fcgi from http://redmine.lighttpd.net/projects
+Get a new nginx, the current in Ubuntu is too old for the -p . syntax below
+
+nginx -p . -c nginx.conf
+
+then have a look at start to see how to fire up spawn-fcgi and nginx.
+
+Cheers
+
+bd
