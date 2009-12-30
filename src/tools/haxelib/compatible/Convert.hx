@@ -46,28 +46,30 @@ class Convert {
         data = Datas.readData(xml),
         dev = data.developers.first(),
         user = users.get(dev),
-        o = new Options();
+        o = new Options(),
+        email = dev+"@haxe.org";
 
       o.addSwitch("-R","lib.ipowerhouse.com");
       
-      client.register(o,dev + "@haxe.org",user.pw,user.fn,
+      client.register(o,email,user.pw,user.fn,
                       function(rurl:String,s:Status) {
                         trace("registed "+dev+"@haxe.org");
                         return true;
                       });
-      
+
+      Reflect.setField(data,"email",email);
       Os.fileOut(tmpDir+"/haxelib.json",toHpx(data));
       newPackage = packit(tmpDir+"/haxelib.json");
     
       zf.close();
     
-      client.submit(o,"",newPackage,function(rurl:String,s:Status) {
+      client.submit(o,user.pw,newPackage,function(rurl:String,s:Status) {
           trace("submitted to "+rurl);
           trace("status "+s);
           return true;
         });
       
-      if (i++ == 20) break;    
+      if (i++ == 20) break;     // don't do them all right now
     }
       
     trace("nnull = "+nnull);
@@ -77,14 +79,17 @@ class Convert {
   getUsers():Hash<OldUser> {
     var
       sql = "select name,pass,fullname from user",
-      rows = Os.shell('cat "'+sql+'" | sqlite3 haxelib.db').split("\n"),
-      users = new Hash<OldUser>();
-
-    for (r in rows) {
-      var u = r.split("|");
-      users.set(u[0],{pw:u[0],fn:u[1]});
-    }
+      users = new Hash<OldUser>(),
+      rows;
     
+    cnx = neko.db.Sqlite.open("haxelib.db");
+    rows = cnx.execute(sql);
+    
+    for (r in rows) {
+      users.set(r.name,{pw:r.pass,fn:r.fullname});
+    }
+
+    cnx.close();
     return users;
   }
   
