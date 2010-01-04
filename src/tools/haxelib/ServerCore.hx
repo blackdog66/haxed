@@ -13,7 +13,7 @@ import php.io.File;
 import php.Web;
 import php.Lib;
 import php.db.Manager;
-import php.db.Sqlite;
+import db.Sqlite;
 #elseif neko
 import neko.io.File;
 import neko.Web;
