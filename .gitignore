@@ -4,6 +4,7 @@ www/lib/
 *.log
 *.zip
 *.db
+*.json
 .svn/
 ritchie/
 /repo
