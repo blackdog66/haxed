@@ -208,7 +208,7 @@ Reflect.makeVarArgs = function(f) {
 	}
 }
 Reflect.prototype.__class__ = Reflect;
-hxjson2 = {}
+if(typeof hxjson2=='undefined') hxjson2 = {}
 hxjson2.JSONEncoder = function(value) { if( value === $_ ) return; {
 	this.jsonString = this.convertToString(value);
 }}
@@ -354,7 +354,7 @@ hxjson2.JSONEncoder.prototype.objectToString = function(o) {
 	return "{" + s + "}";
 }
 hxjson2.JSONEncoder.prototype.__class__ = hxjson2.JSONEncoder;
-haxe = {}
+if(typeof haxe=='undefined') haxe = {}
 haxe.Log = function() { }
 haxe.Log.__name__ = ["haxe","Log"];
 haxe.Log.trace = function(v,infos) {
@@ -781,7 +781,7 @@ hxjson2.JSONToken.__name__ = ["hxjson2","JSONToken"];
 hxjson2.JSONToken.prototype.type = null;
 hxjson2.JSONToken.prototype.value = null;
 hxjson2.JSONToken.prototype.__class__ = hxjson2.JSONToken;
-haxe._Template = {}
+if(!haxe._Template) haxe._Template = {}
 haxe._Template.TemplateExpr = { __ename__ : ["haxe","_Template","TemplateExpr"], __constructs__ : ["OpVar","OpExpr","OpIf","OpStr","OpBlock","OpForeach","OpMacro"] }
 haxe._Template.TemplateExpr.OpBlock = function(l) { var $x = ["OpBlock",4,l]; $x.__enum__ = haxe._Template.TemplateExpr; $x.toString = $estr; return $x; }
 haxe._Template.TemplateExpr.OpExpr = function(expr) { var $x = ["OpExpr",1,expr]; $x.__enum__ = haxe._Template.TemplateExpr; $x.toString = $estr; return $x; }
@@ -1553,8 +1553,8 @@ List.prototype.toString = function() {
 	return s.b.join("");
 }
 List.prototype.__class__ = List;
-tools = {}
-tools.haxelib = {}
+if(typeof tools=='undefined') tools = {}
+if(!tools.haxelib) tools.haxelib = {}
 tools.haxelib.Status = { __ename__ : ["tools","haxelib","Status"], __constructs__ : ["OK_USER","OK_PROJECT","OK_PROJECTS","OK_SEARCH","OK_LICENSES","OK_REGISTER","OK_SUBMIT","OK_ACCOUNT","OK_SERVERINFO","OK_REMINDER","ERR_REMINDER","ERR_LICENSE","ERR_UNKNOWN","ERR_NOTHANDLED","ERR_PASSWORD","ERR_EMAIL","ERR_DEVELOPER","ERR_HAXELIBJSON","ERR_USER","ERR_REGISTERED","ERR_PROJECTNOTFOUND"] }
 tools.haxelib.Status.ERR_DEVELOPER = ["ERR_DEVELOPER",16];
 tools.haxelib.Status.ERR_DEVELOPER.toString = $estr;
@@ -1985,7 +1985,7 @@ Type.enumIndex = function(e) {
 	return e[1];
 }
 Type.prototype.__class__ = Type;
-js = {}
+if(typeof js=='undefined') js = {}
 js.Lib = function() { }
 js.Lib.__name__ = ["js","Lib"];
 js.Lib.isIE = null;
@@ -2159,8 +2159,8 @@ js.Boot.__instanceof = function(o,cl) {
 	}
 }
 js.Boot.__init = function() {
-	js.Lib.isIE = (document.all != null && window.opera == null);
-	js.Lib.isOpera = (window.opera != null);
+	js.Lib.isIE = (typeof document!='undefined' && document.all != null && typeof window!='undefined' && window.opera == null);
+	js.Lib.isOpera = (typeof window!='undefined' && window.opera != null);
 	Array.prototype.copy = Array.prototype.slice;
 	Array.prototype.insert = function(i,x) {
 		this.splice(i,0,x);
@@ -2391,7 +2391,7 @@ tools.haxelib.WebCntrl.prototype.loadCss = function(path) {
 	}
 }
 tools.haxelib.WebCntrl.prototype.ready = function() {
-	var me = this, rs = new tools.haxelib.RepoService("/repo.php");
+	var me = this, rs = new tools.haxelib.RepoService("repo.php");
 	new JQuery("").ready(function() {
 		rs.serverInfo($closure(tools.haxelib.WebCntrl,"serverInfoHandler"));
 		rs.projects($closure(tools.haxelib.WebCntrl,"statusHandler"));
