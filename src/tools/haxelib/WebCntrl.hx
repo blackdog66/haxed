@@ -171,7 +171,7 @@ class WebCntrl {
   public
   function ready() {
     var me = this,
-      rs = new RepoService("/repo.php");
+      rs = new RepoService("repo.php");
         
     new JQuery('').ready(function() {
         rs.serverInfo(serverInfoHandler);
