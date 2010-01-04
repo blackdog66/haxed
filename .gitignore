@@ -6,3 +6,10 @@ www/lib/
 *.db
 .svn/
 ritchie/
+/repo
+/www/files
+/www/lib
+/www/res
+/www/test.php
+/www/Controller.js
+
