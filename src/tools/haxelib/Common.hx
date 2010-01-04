@@ -229,6 +229,7 @@ typedef Global = {
   var tags:Array<String>;
   var website:String;
   var license:String;
+  var derivesFrom:Array<String>;
 }
   
 typedef Build = {
