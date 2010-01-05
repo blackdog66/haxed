@@ -27,9 +27,9 @@ var Haxelib = (function() {
                         safe:safe
             });
             $("#prj-list").html(r);
-            $('.project').toggle(
-                function() { $('.details',$(this)).css({display:'inline'}) ;},
-                function() { $('.details',$(this)).css({display:'none'}); });
+            $('.project-header').toggle(
+                function() { $('.details',$(this).next()).css({display:'inline'}) ;},
+                function() { $('.details',$(this).next()).css({display:'none'}); });
 
             $(".details").css({display:"none"});
         });

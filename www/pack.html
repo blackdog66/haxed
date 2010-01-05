@@ -3,17 +3,20 @@
 <textarea id="tmpl-prj-list" style="display:none">
 {for p in projects}
 <a href="/files/${p.name}-${safe(p.curversion)}.zip">Download</a>
-<span class="project">
+<span class="project-header">
 ${p.name} ${p.license} <b>${p.curversion}</b>
+</span>
+<span class="project">
 <blockquote>
 <div class="details">
-  Desc:   ${p.desc}<br>
-  WebSite: ${p.website}<br>
-  Owner    ${p.owner}<br>
-  Releases<br>
+  Desc:   ${p.desc}<br/>
+  WebSite: ${p.website}<br/>
+  Owner    ${p.owner}<br/>
+  Tags <br/>
+  Releases<br/>
   <ol>
   {for v in p.versions}
-  	<li>[${v.name}] = ${v.date}<br>
+  	<li>[${v.name}] = ${v.date}<br/>
   		${v.comments} <a href="/files/${p.name}-${safe(v.name)}.zip">Download</a>
     </li>
   {/for}
