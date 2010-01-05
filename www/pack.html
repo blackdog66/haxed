@@ -14,7 +14,7 @@ ${p.name} ${p.license} <b>${p.curversion}</b>
   <ol>
   {for v in p.versions}
   	<li>[${v.name}] = ${v.date}<br>
-  		${v.comments} <a href="/files/${v.name}-${safe(v.name)}.zip">Download</a>
+  		${v.comments} <a href="/files/${p.name}-${safe(v.name)}.zip">Download</a>
     </li>
   {/for}
     </ol>
