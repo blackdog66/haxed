@@ -87,11 +87,12 @@ class Marshall {
       e = Type.createEnum(Status,d.ERR);
     return e;
   }
-  
+
+  /* jsonp is the jsonp callback string */
   public static function
-  toJson(s:Status):Dynamic {
+  toJson(s:Status,?jsonp:String):Dynamic {
     var m = Type.enumConstructor(s);
-    return switch(s) {
+    var j = switch(s) {
     case OK_USER(ui):
       JSON.encode({ERR:m,PAYLOAD:ui});
     case OK_PROJECT(info):
@@ -111,6 +112,8 @@ class Marshall {
     default:
       JSON.encode({ERR:m});
     }
+
+    return (jsonp != null) ? (jsonp +"("+j+");") : j;
   }
 }
 
