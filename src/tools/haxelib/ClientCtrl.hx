@@ -232,11 +232,17 @@ class ClientCtrl {
       LOCAL(RUN(prj,args),options);
 
     case "new":
+      var vals = null;
+      
+      if (Os.ask("Interactive?") == Yes ) {
+        vals=askAboutHxp();
+      }
+
       if (Os.exists("Hxpfile"))
         if (Os.ask("Hxpfile exists, overwrite?") == No)
           neko.Sys.exit(0);
-      
-      LOCAL(NEW,options);
+
+      LOCAL(NEW(vals),options);
 
     case "build":
       LOCAL(BUILD("Hxpfile"),options);
@@ -302,4 +308,20 @@ class ClientCtrl {
       Os.print("  "+c+" : "+commands.get(c));
     neko.Sys.exit(1);
   }
+
+  public static function
+  askAboutHxp():Global {
+    return {
+    	project:param("Project name"),
+        authorName:param("Author name"),
+        authorEmail:param("Author email",Validate.email),
+        version:param("Version"),
+        comments:param("Version comments"),
+        description:param("Descripion"),
+        tags:Validate.toArray(param("Tags")),
+        website:param("Website",Validate.url),
+        license:param("License"),
+        derivesFrom:null
+        };
+    }
 }

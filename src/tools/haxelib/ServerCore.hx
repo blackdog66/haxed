@@ -233,7 +233,7 @@ class ServerCore {
     v.comments = glbs.comments;
     v.downloads = 0;
     v.date = Date.now().toString();
-    v.documentation = "docs";
+    v.documentation = "docs"; // TODO
     v.meta = json;
     v.insert();
 

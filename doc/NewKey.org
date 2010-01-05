@@ -1,0 +1,96 @@
+
+* Adding a new Key
+
+New keys and sections can be added arbitrarily to the hxp file. They
+will be searchable by default if that's all you want to do.
+
+However, if you want to add a key and then access it at a later date,
+then modifying the source will be necessary, but easy.
+
+First, to make haxelib aware of the new keys so that it doesn't warn
+about it do the following
+
+1. In Parser.hx you will find the following code for each significant
+   section
+
+ Validate.forSection(Config.GLOBAL)
+      .add("project",true,Validate.name)
+      .add("author",true)
+      .add("author-email",true,Validate.email)
+      .add("version",true)
+      .add("website",true,Validate.url)
+      .add("description",true)
+      .add("comments",true)
+      .add("tags",true,Validate.toArray)
+      .add("license",true,function(v) { return v.toUpperCase() ;} )
+      .add("derives-from",false,Validate.toArray)
+      .add("my-new-field",true,Validate.myValidation);
+	
+I've added my-new-field to the list, true for a required field, and
+then a valadation function. If you need your own validation then add
+it to the Validate class as a static or use an existing. As you can
+see the new line will force a my-new-field to be entered for the
+GLOBAL section.
+
+If you wish to add a new section, just place your .add within a new
+Valdate.forSection, e.g.
+
+ Validate.forSection("my-section")
+ .add("my-new-field",true,Validate.myValidation);
+
+2. There is a standard api for other parts of haxelib to access your
+   new keys. Have a look in Common.hx, and there you will find from
+   about line 207, Configuration Access.
+
+   So that you can access your new key in a typesafe way, add the key
+   to the appropriate typedef section, e.g. 
+
+typedef Global = {
+  var project:String;
+  var authorName:String;
+  var authorEmail:String;
+  var version:String;
+  var comments:String;
+  var description:String;
+  var tags:Array<String>;
+  var website:String;
+  var license:String;
+  var myNewField:Array<String>;
+}
+
+Note, that when parsing the field, - spaced keys are converted to
+camelCase so that they may be used within typedefs.
+
+These typedefs can then be used in conjunction with the Config class, also in
+Common.hx, so that you can do
+
+Config.globals().project
+Config.globals().myNewField
+
+etc.
+
+So where is this data stored?
+
+On the server it's stored in the Version tables's meta field. This is
+a text field which (currently) holds all the hpx info.
+
+To use the data on the server in a plugin or whatever you can use the
+ConfigJson class in the following way
+
+var
+      conf = new ConfigJson(json),
+      glbs = conf.globals();
+
+glbs.myNewField 
+
+
+where the json is coming from the meta field.
+
+      
+
+
+
+
+
+
+

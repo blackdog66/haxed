@@ -24,21 +24,19 @@ class ServerMain {
   function main() {
     var
       repo,
-      cmdCtx = ServerCtrl.dispatch(),
+      dinfo = ServerCtrl.dispatch(),
       config:ServerConf = hxjson2.JSON.decode(haxe.Resource.getString("serverConfig"));
 
     License.set(config.licenses);
     repo = new ServerCore(config.dataDir);
 
     Lib.print(Marshall.toJson(
-      switch(cmdCtx) {
+      switch(dinfo.cmdCtx) {
       case REMOTE(cmd,options):
         switch(cmd) {
         case USER(email):
           repo.user(email);
         case REGISTER(email,password,fullName):
-          //if (Common.validEmail(email) != null) ERR_EMAIL("");
-          //if (Common.validPW(password) != null) ERR_PASSWORD("");
           repo.register(email,password,fullName);
         case SUBMIT(password):
           repo.submit(password);
@@ -47,11 +45,6 @@ class ServerMain {
         case SEARCH(query):
           repo.search(query,options);
         case ACCOUNT(cemail,cpass,nemail,npass,nname):
-          // if (Common.validEmail(cemail) != null) ERR_EMAIL("current");
-          //if (Common.validPW(cpass) != null) ERR_PASSWORD("current");
-          //if (Common.validEmail(nemail) != null) ERR_EMAIL("new");
-          //if (Common.validPW(npass) != null) ERR_PASSWORD("new");
-          
           repo.account(cemail,cpass,nemail,npass,nname);
         case LICENSE:
           repo.license();
@@ -66,7 +59,7 @@ class ServerMain {
         trace("shouldn't get here");
         ERR_UNKNOWN;
       }
-    ));
+      ,dinfo.jsonp));
     
     repo.cleanup();
   }

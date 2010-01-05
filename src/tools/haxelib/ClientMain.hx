@@ -133,8 +133,8 @@ class ClientMain {
         client.install(options,projectName,version);
       case UPGRADE:
         client.upgrade();
-      case NEW:
-        client.newHxp();
+      case NEW(interactive):
+        client.newHxp(interactive);
       case BUILD(hxpFile):
         client.build(hxpFile);
       }
