@@ -6,3 +6,4 @@ www/lib/
 *.db
 .svn/
 ritchie/
+Controller.js

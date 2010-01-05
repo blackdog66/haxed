@@ -1,0 +1,25 @@
+<div id="prj-list"></div>
+
+<textarea id="tmpl-prj-list" style="display:none">
+{for p in projects}
+<a href="/files/${p.name}-${safe(p.curversion)}.zip">Download</a>
+<span class="project">
+${p.name} ${p.license} <b>${p.curversion}</b>
+<blockquote>
+<div class="details">
+  Desc:   ${p.desc}<br>
+  WebSite: ${p.website}<br>
+  Owner    ${p.owner}<br>
+  Releases<br>
+  <ol>
+  {for v in p.versions}
+  	<li>[${v.name}] = ${v.date}<br>
+  		${v.comments} <a href="/files/${v.name}-${safe(v.name)}.zip">Download</a>
+    </li>
+  {/for}
+    </ol>
+</div>
+</blockquote>
+</span>
+{/for}
+</textarea>

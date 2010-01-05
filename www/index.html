@@ -4,49 +4,25 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
 <title>haxelib</title>
+<link type="text/css" href="/theme/sunny/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+
 </head>
 
 <body>
-<div id="server-info"></div>
-<hr/>
-<h2>Projects</h2>
-<div id="prj-list"></div>
+
+<div id="tab-container">
+  <ul>
+    <li><a href="/home.html">Home</a></li>
+    <li><a href="/pack.html">Packages</a></li>
+    <li><a href="/docs.html">Docs</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+</div>
 
 <script type="text/javascript" src="/js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="/js/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="/js/jquery.form.js"></script>
-<script type="text/javascript" src="/Controller.js"></script>
-
-<textarea id="tmpl-prj-list" style="display:none">
-::foreach projects::
-<a href="/files/$$pkgName(::name::,::curversion::)">Download</a>
-<span class="project">
-::name:: ::license:: <b>::curversion::</b>
-<blockquote>
-<div class="details">
-  Desc:   ::desc::<br>
-  WebSite: ::website::<br>
-  Owner    ::owner::<br>
-  Releases<br>
-  <ol>
-  ::foreach versions::
-  	<li>[::name::] = ::date::<br>
-  		::comments:: <a href="/files/$$pkgName(::name::,::name::)">Download</a>
-    </li>
-  ::end::
-    </ol>
-</div>
-</blockquote>
-</span>
-::end::
-</textarea>
-
-<textarea id="tmpl-server-info" style="display:none">
-<h2>Welcome to ::name::</h2>
-This server supports the following licenses:
-::foreach licenses::
-<a href="::url::">::name::</a> ::end::
-</textarea>
-
+<script type="text/javascript" src="/js/template.js"></script>
+<script type="text/javascript" src="/Haxelib.js"></script>
 </body> </html>
 
