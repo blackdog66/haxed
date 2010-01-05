@@ -42,3 +42,55 @@ Valdate.forSection, e.g.
    new keys. Have a look in Common.hx, and there you will find from
    about line 207, Configuration Access.
 
+   So that you can access your new key in a typesafe way, add the key
+   to the appropriate typedef section, e.g. 
+
+typedef Global = {
+  var project:String;
+  var authorName:String;
+  var authorEmail:String;
+  var version:String;
+  var comments:String;
+  var description:String;
+  var tags:Array<String>;
+  var website:String;
+  var license:String;
+  var myNewField:Array<String>;
+}
+
+Note, that when parsing the field, - spaced keys are converted to
+camelCase so that they may be used within typedefs.
+
+These typedefs can then be used in conjunction with the Config class, also in
+Common.hx, so that you can do
+
+Config.globals().project
+Config.globals().myNewField
+
+etc.
+
+So where is this data stored?
+
+On the server it's stored in the Version tables's meta field. This is
+a text field which (currently) holds all the hpx info.
+
+To use the data on the server in a plugin or whatever you can use the
+ConfigJson class in the following way
+
+var
+      conf = new ConfigJson(json),
+      glbs = conf.globals();
+
+glbs.myNewField 
+
+
+where the json is coming from the meta field.
+
+      
+
+
+
+
+
+
+

@@ -129,7 +129,7 @@ enum LocalCommand {
   TEST(pkg:String);
   INSTALL(prj:String,ver:String);
   UPGRADE;
-  NEW;
+  NEW(interactive:Global);
   BUILD(prj:String);
 }
 

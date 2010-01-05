@@ -520,16 +520,37 @@ class ClientCore {
     return Package.createFrom(conf);
   }
   
-  public function newHxp() {
-    var nf = getRepos() + Common.HXP_FILE;
-    if (!Os.exists(nf)) {
-      Os.fileOut(nf,haxe.Resource.getString("HxpTemplate"));
-    }
+  public function
+  newHxp(interactive:Global) {
+    if (interactive == null) {
+      var nf = getRepos() + Common.HXP_FILE;
+      if (!Os.exists(nf)) {
+        Os.fileOut(nf,haxe.Resource.getString("HxpTemplate"));
+      }
 
-    Os.cp(nf,Common.HXP_FILE);
+      Os.cp(nf,Common.HXP_FILE);
+    } else {
+      // the inadequacies of haxe template here ...
+      Reflect.setField(interactive,"tags",Lambda.map(Reflect.field(interactive,"tags"),function(t) { return {tag:t}; }));
+      
+      var tmpl = '
+project:            ::project::
+website:            ::website::
+version:            ::version::
+comments:           ::comments::
+description:        ::description::
+author:             ::authorName::
+author-email:       ::authorEmail::
+tags:               ::foreach tags::::tag:: ::end::
+license:            ::license::
+';
+      Os.fileOut(Common.HXP_FILE,tmpl,interactive);
+      
+    }
   }
 
-  public function build(hxpFile:String) {
+  public function
+  build(hxpFile:String) {
     var hxp = Parser.process(hxpFile);
     Builder.compile(Parser.getConfig(hxp));
   }
