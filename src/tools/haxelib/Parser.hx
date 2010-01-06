@@ -96,6 +96,11 @@ class Parser {
   public static function
   tokens(hf:String) {
     var
+      curChar = 0,
+      lineNo = 1,
+      state = START_KEY,
+      retState = START_KEY,
+      lineStart = 0,
       len = hf.length,
       curKey = null,
       curVal = null,
