@@ -96,15 +96,15 @@ class Convert {
   public static function
   toHpx(x:XmlInfos) {
     var tmpl = '
-name:			::project::
-website:		::website::
-version:		::version::
-comments:		::versionComments::
-description:	::desc::
-author-email:	::email::
-tags:			::foreach tags::::name::::end::
-license:		::license::
-author:			::foreach developers::::name::::end::
+name:           ::project::
+website:        ::website::
+version:        ::version::
+comments:       ::versionComments::
+description:    ::desc::
+author-email:   ::email::
+tags:           ::foreach tags::::name::::end::
+license:        ::license::
+author:         ::foreach developers::::name::::end::
 ';
     return Os.template(tmpl,x);
     //build-depends: ::foreach dependencies::::project:: >= ::version:: ::end::
