@@ -4,6 +4,13 @@ www/lib/
 *.log
 *.zip
 *.db
+*.json
 .svn/
 ritchie/
-Controller.js
+/repo
+/www/files
+/www/lib
+/www/res
+/www/test.php
+/www/Controller.js
+

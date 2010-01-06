@@ -3,4 +3,4 @@
 cd ..
 rm haxelib.db
 
-cat scripts/schema.sql | sqlite haxelib.db
+cat scripts/schema.sql | sqlite3 haxelib.db
