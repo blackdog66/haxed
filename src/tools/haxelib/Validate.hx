@@ -127,6 +127,8 @@ class Validate {
         vds = sections.get(section),
         s = Reflect.field(hxp.hbl,section),
         fldCopy = Reflect.copy(s);
+
+      if (s == null) continue; // don't bother checking a section which is not defined
       
       for (fld in vds.keys()){
         var
