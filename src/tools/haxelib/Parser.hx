@@ -1,6 +1,5 @@
 package tools.haxelib;
 
-
 import tools.haxelib.Common;
 using tools.haxelib.Validate;
 using Lambda;
@@ -219,14 +218,23 @@ class Parser {
       curChar++;      
 
     } while (curChar < len);
-    
-    if (state != START_KEY) addProperty(curKey,curVal);
+
+    checkFinalProperty(curKey,curVal);
         
     return toks;
   }
 
-  static
-  function parse(file:String):Hxp {
+  /* if we get to the end of file in one of these states it means the final
+     prop has not been added */
+  static function
+  checkFinalProperty(curKey,curVal) {
+    if (state == MULTI_LINE || state == CAPTURE_VAL ||
+        retState == MULTI_LINE || retState == CAPTURE_VAL)
+      addProperty(curKey,curVal);
+  }
+
+  static function
+  parse(file:String):Hxp {
     var contents = neko.io.File.getContent(file);
     return tokens(contents).fold(function(token,hbl:Hxp) {
         trace(token);
@@ -242,8 +250,8 @@ class Parser {
       },new Hxp(file));    
   }
   
-  public static
-  function process(file:String):Hxp {
+  public static function
+  process(file:String):Hxp {
 
     var h = parse(file);
 
@@ -256,8 +264,7 @@ class Parser {
       .add("description",true)
       .add("comments",true)
       .add("tags",true,Validate.toArray)
-      .add("license",true,function(v) { return v.toUpperCase() ;})
-      .add("derives-from",false,Validate.toArray );
+      .add("license",true,function(v) { return v.toUpperCase() ;} );
     
     Validate.forSection(Config.BUILD)
       .add("depends",false,Validate.depends)
@@ -275,8 +282,8 @@ class Parser {
     return h;
   }
   
-  public static
-  function getConfig(hbl:Hxp):Config {
+  public static function
+  getConfig(hbl:Hxp):Config {
     return new ConfigHxp(hbl);
   }
 }
