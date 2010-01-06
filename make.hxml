@@ -14,8 +14,3 @@
 -resource client.json@clientConfig
 -resource HxpTemplate@HxpTemplate
 
---next 
-
--cp ./src/
--js ./www/Controller.js
--main tools.haxelib.WebCntrl
