@@ -6,7 +6,7 @@ import tools.haxelib.Common;
 class Package {
 
   public static var packDir = "/tmp/haxelib-pkg/";
-  
+
   public static function
   outFile(name:String,hblFile:String) {
     var p  = neko.io.Path.directory(hblFile);
@@ -46,27 +46,27 @@ class Package {
 </project>';
 
     return new haxe.Template(tmpl).execute({mytags:tags,glbs:glbs});
-    
+
   }
 
   public static function
   packageJson(conf:Config) {
     return hxjson2.JSON.encode(conf.data) ;
   }
-  
+
   public static function
   sources(conf:Config) {
     var
       libs = conf.build(),
       include = Reflect.field(conf.pack(),"include"),
-      exclude = if (include != null) 
+      exclude = if (include != null)
       	function(s:String) {
           return !Lambda.exists(include,function(el)
         	{ return StringTools.startsWith(s,el); });
       	} else null;
 
     trace("include is "+include);
-    if (libs.classPath != null){
+    if (Reflect.hasField(libs, "classPath") && libs.classPath != null){
       Lambda.iter(libs.classPath,function(d) {
           if (!Os.exists(d))
             throw "Source dir "+d+" does not exist";
@@ -84,7 +84,7 @@ class Package {
   public static function
   json(conf:Config) {
     Os.fileOut(toPackDir(Common.CONFIG_FILE),packageJson(conf));
-  } 
+  }
 
   public static function
   zip(conf:Config) {
@@ -95,7 +95,7 @@ class Package {
     trace("Created "+outf);
     return outf;
   }
-  
+
   public static function
   createFrom(config:Config) {
       initPackDir();
@@ -103,5 +103,5 @@ class Package {
       xml(config);
       json(config);
       return zip(config);
-  }  
+  }
 }
