@@ -256,12 +256,16 @@ class ServerCore {
 
   static function
   getInfo(p:Project):ProjectInfo {
-   var u = p.owner,
-      iv = Version.manager.search({project:p.id})
-             .map(function(v) {
+   var
+     u = p.owner,
+     iv = Version.manager.search({project:p.id})
+            .map(function(v) {
                  return { date: v.date, name:v.name, comments:v.comments };
-               })
-             .array();
+              }).array(),
+     tags = Tag.manager.search({project:p.id})
+     		.map(function(el){
+         		return {tag:el.tag};
+       		}).array();
     
     return {
       name: p.name,
@@ -270,6 +274,7 @@ class ServerCore {
       owner: u.email,
       license:p.license,
       curversion:p.version.name,
+      tags:tags,
       versions:iv
       };    
   }
@@ -382,7 +387,7 @@ class ServerCore {
   }
 
   public function
-  projects() {
+  projects(options) {
     return OK_PROJECTS(
               Project.manager
                  .all()

@@ -4,7 +4,9 @@
 </div>
 
 <textarea id="tmpl-prj-list" style="display:none">
+<div id="filter-scope">${filter()}</div><br/>
 {for p in projects}
+{if inFilter(p.tags)}
 <a href="/files/${p.name}-${safe(p.curversion)}.zip">Download</a>
 <span class="project-header">
 ${p.name} ${p.license} <b>${p.curversion}</b>
@@ -14,8 +16,8 @@ ${p.name} ${p.license} <b>${p.curversion}</b>
 <div class="details">
   Desc:   ${p.desc}<br/>
   WebSite: ${p.website}<br/>
-  Owner    ${p.owner}<br/>
-  Tags <br/>
+  Owner:    ${p.owner}<br/>
+  Tags: {for t in p.tags} ${t.tag} {/for}<p/>
   <b>Releases</b><br/>
   <ol>
   {for v in p.versions}
@@ -27,13 +29,14 @@ ${p.name} ${p.license} <b>${p.curversion}</b>
 </div>
 </blockquote>
 </span>
+{/if}
 {/for}
 </textarea>
 
 <textarea id="tmpl-tags" style="display:none">
 <ul>
 {for t in tags}
-<li class="tag ${t.tag}">${t.tag}(${t.count})</li>
+<li><a id="tag-${t.tag}" href="#">${t.tag}(${t.count})</a></li>
 {/for}
 </ul>
 </textarea>

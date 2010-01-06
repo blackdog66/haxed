@@ -3,6 +3,8 @@
 
 var Haxelib = (function() {
 
+    var filter = "All";
+
     function url(u) {
         return "repo.php?method="+u;
     }
@@ -18,11 +20,30 @@ var Haxelib = (function() {
         });
     }
 
+    function setFilter(f) {
+        filter = f;
+    }
+
+    function getFilter() {
+        return filter;
+    }
+
+    function inFilter(tags) {
+        if (filter !== "All"){
+            return $.grep(tags,function(el) {
+                              return el.tag === filter;
+                          }).length > 0;
+        }
+        return true;
+    }
+
     function renderPackages(){
          $.getJSON(url("projects"),function(d) {
             var r = TrimPath.processDOMTemplate('tmpl-prj-list',{
                         projects:d.PAYLOAD,
-                        safe:safe
+                        safe:safe,
+                        inFilter:inFilter,
+                        filter:getFilter
             });
             $("#prj-list").html(r);
             $('.project-header').toggle(
@@ -36,8 +57,15 @@ var Haxelib = (function() {
     function renderTags(nTags,tmpl,dst){
         $.getJSON(url("toptags")+"&ntags="+nTags,function(td) {
            $(dst).html(TrimPath.processDOMTemplate(tmpl,td.PAYLOAD));
+           $("a",dst).click(function(){
+               var t = $(this).attr("id").split("-")[1] ;
+               $("#filter-scope").html(t);
+               setFilter(t);
+               renderPackages();
+           });
         });
     }
+
 
     $().ready(function() {
         $('#tab-container').tabs();

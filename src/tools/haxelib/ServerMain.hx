@@ -49,7 +49,7 @@ class ServerMain {
         case LICENSE:
           repo.license();
         case PROJECTS:
-          repo.projects();
+          repo.projects(options);
         case SERVERINFO:
           OK_SERVERINFO({name:config.serverName,licenses:config.licenses});
         case REMINDER(email):

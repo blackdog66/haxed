@@ -31,6 +31,7 @@ typedef ProjectInfo = {
   var license : String;
   var curversion : String;
   var versions : Array<VersionInfo>;
+  var tags: Array<{tag:String}>;
 }
 
 typedef SearchInfo = {

@@ -208,6 +208,7 @@ Website: ::website::
 License: ::license::
 Owner: ::owner::
 Version: ::curversion::
+Tags: ::foreach tags:: ::tag::::end::
 Releases:
 ::foreach versions::
 [::name::] - ::date::
