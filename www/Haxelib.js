@@ -6,7 +6,7 @@
 var Haxelib = (function() {
 
     function url(u) {
-        return "/repo.php?method="+u;
+        return "repo.php?method="+u;
     }
 
     function safe(p) {
