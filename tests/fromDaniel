@@ -1,0 +1,17 @@
+
+
+project:        hxServlet
+
+website:        http://blackdog-haxe.com
+version:        0.35
+comments:       - __ prefixed functions are considered private
+                - fixes for RemotingServlet
+                - fixes for multipart requests
+description:    Fast Proxied haXe Servlets
+author-email:   blackdog@haxe.org
+tags:           woot           
+license:        BSD
+
+author:        blackdog
+
+
