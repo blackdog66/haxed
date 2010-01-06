@@ -269,7 +269,7 @@ class Parser {
       .add("website",true,Validate.url)
       .add("description",true)
       .add("comments",true)
-      .add("tags",true,Validate.toArray)
+      .add("tags",false,Validate.toArray)
       .add("license",true,function(v) { return v.toUpperCase() ;} );
     
     Validate.forSection(Config.BUILD)

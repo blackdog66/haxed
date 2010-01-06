@@ -199,6 +199,7 @@ class ServerCore {
       d.insert();
     }
       
+    if (!Reflect.hasField(g, "tags")) g.tags = new Array<String>();
     for( tag in g.tags ) {
      var t = new Tag();
       t.tag = tag;

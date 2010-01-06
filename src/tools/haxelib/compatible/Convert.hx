@@ -116,7 +116,7 @@ class Convert {
       } else {
         d = Std.string(t);
       }
-      if (d.length == 0) d = "null";
+      //if (d.length == 0) d = "null";
       Reflect.setField(data, field, StringTools.trim(d));
     }
     var tmpl = '
@@ -126,10 +126,13 @@ version:        ::version::
 comments:       ::versionComments::
 description:    ::desc::
 author-email:   ::email::
-tags:           ::tags::
 license:        ::license::
 author:         ::developers::
 ';
+    if (Reflect.hasField(data, "tags") && data.tags.length > 0) {
+      tmpl += 'tags:           ::tags::
+';
+    }
     return Os.template(tmpl,data);
     //build-depends: ::foreach dependencies::::project:: >= ::version:: ::end::
 

@@ -36,7 +36,7 @@ class Package {
   packageXml(conf:Config) {
     var
       glbs = conf.globals(),
-      tags = Lambda.map(glbs.tags,function(el) { return { tag : el };}),
+      tags = Lambda.map(Reflect.hasField(glbs, "tags") ? glbs.tags : new Array<String>(),function(el) { return { tag : el };}),
       tmpl =  '
 <project name="::glbs.project::" url="::glbs.website::" license="::glbs.license::">
     <user name="mylogin"/>
