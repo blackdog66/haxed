@@ -59,8 +59,8 @@ class Convert {
                       });
 
       Reflect.setField(data,"email",email);
-      Os.fileOut(tmpDir+"/haxelib.json",toHxp(data));
-      newPackage = packit(tmpDir+"/haxelib.json");
+      Os.fileOut(tmpDir+"haxelib.json",toHxp(data));
+      newPackage = packit(tmpDir+"haxelib.json");
 
       zf.close();
 
@@ -117,7 +117,7 @@ class Convert {
         d = Std.string(t);
       }
       if (d.length == 0) d = "null";
-      Reflect.setField(data, field, d);
+      Reflect.setField(data, field, StringTools.trim(d));
     }
     var tmpl = '
 project:        ::project::
