@@ -95,12 +95,13 @@ class Parser {
   
   public static function
   tokens(hf:String) {
+    curChar = 0;
+    lineNo = 1;
+    state = START_KEY;
+    retState = START_KEY;
+    lineStart = 0;
+
     var
-      curChar = 0,
-      lineNo = 1,
-      state = START_KEY,
-      retState = START_KEY,
-      lineStart = 0,
       len = hf.length,
       curKey = null,
       curVal = null,
@@ -108,8 +109,9 @@ class Parser {
       indent = 0,
       keyIndent=0,
       valIndent=0,
-      inSection = false,
-      toks = new List<Token>();
+      inSection = false;
+
+    toks = new List<Token>();
     
     do {
       c = hf.charAt(curChar);
