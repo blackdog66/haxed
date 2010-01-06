@@ -61,6 +61,8 @@ class ClientMain {
     case OK_REMINDER:
       Os.print("Email sent");
       return false;
+    case OK_TOPTAGS(tt):
+      handleOptions(options,rurl,tt,formatTopTags);
     case ERR_REMINDER:
       Os.print("Email not sent");
       return false;
@@ -186,6 +188,10 @@ class ClientMain {
         client.reminder(email,options,function(rurl:String,s:Status) {
             return handleServerResponse(options,rurl,s);
           });
+      case TOPTAGS(nTags):
+        client.topTags(nTags,options,function(rurl:String,s:Status) {
+            return handleServerResponse(options,rurl,s);
+          });
       }
     }
   }
@@ -257,6 +263,15 @@ Accepts these licenses:
     return Os.template(tmpl,{licenses:ls});
   }
 
+  static function
+  formatTopTags(tt:TopTagInfo) {
+    var tmpl='tags:
+::foreach tags::
+::tag:: - ::count:: ::end::
+';
+    return Os.template(tmpl,tt);
+  }
+  
   static function
   formatProjects(prj:Array<ProjectInfo>) {
     return Lambda.fold(prj,function(p,sb:StringBuf) {
