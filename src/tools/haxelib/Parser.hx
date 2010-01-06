@@ -33,6 +33,7 @@ class Parser {
   static var state = START_KEY;
   static var retState = START_KEY;
   static var lineStart = 0;
+  static var toks:List<Token>;
   
   static inline function isAllWhite(c:String) {
     return c == " " || c == "\t"  || c == "\r" || c == "\n";
@@ -81,10 +82,22 @@ class Parser {
   }
 
   public static function
+  addProperty(ck:StringBuf,cv:StringBuf) {
+    var
+      k = tidy(ck).substr(0,-1),
+      v = tidy(cv);
+
+    if (k.length == 0) syntax("Need a key");
+    if (v.length == 0) syntax("Need a value for "+k);
+    
+    var ps = PROPERTY(k,v,info());
+    toks.add(ps);
+  }
+  
+  public static function
   tokens(hf:String) {
     var
       len = hf.length,
-      toks = new List<Token>(),
       curKey = null,
       curVal = null,
       c = "",
@@ -93,6 +106,8 @@ class Parser {
       valIndent=0,
       inSection = false;
 
+    toks = new List<Token>();
+    
     do {
       c = hf.charAt(curChar);
 
@@ -169,15 +184,7 @@ class Parser {
           nextState(CAPTURE_VAL);
         } else {
           if (col == 0 || col == keyIndent || c == "\n" ) {
-            var
-              k = tidy(curKey).substr(0,-1),
-              v = tidy(curVal);
-
-            if (k.length == 0) syntax("Need a key");
-            if (v.length == 0) syntax("Need a value for "+k);
-            
-            var ps = PROPERTY(k,v,info());
-            toks.add(ps);
+            addProperty(curKey,curVal);
             nextState(START_KEY);
           } else {
               syntax("expecting a new key at column " + keyIndent +
@@ -211,7 +218,10 @@ class Parser {
       
       curChar++;      
 
-    } while (curChar < len);       
+    } while (curChar < len);
+    
+    if (state != START_KEY) addProperty(curKey,curVal);
+        
     return toks;
   }
 
@@ -219,7 +229,7 @@ class Parser {
   function parse(file:String):Hxp {
     var contents = neko.io.File.getContent(file);
     return tokens(contents).fold(function(token,hbl:Hxp) {
-        //        trace(token);
+        //         trace(token);
         switch(token) {
         case PROPERTY(name,val,info):
           hbl.setProperty(name,val,info);
