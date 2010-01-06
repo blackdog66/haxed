@@ -1,4 +1,7 @@
-<div id="prj-list"></div>
+<div style="width:80%">
+<div style="width:200px;border:1px;float:left;" id="tag-space"></div>
+<div style="overflow:auto;" id="prj-list"></div>
+</div>
 
 <textarea id="tmpl-prj-list" style="display:none">
 {for p in projects}
@@ -13,10 +16,10 @@ ${p.name} ${p.license} <b>${p.curversion}</b>
   WebSite: ${p.website}<br/>
   Owner    ${p.owner}<br/>
   Tags <br/>
-  Releases<br/>
+  <b>Releases</b><br/>
   <ol>
   {for v in p.versions}
-  	<li>[${v.name}] = ${v.date}<br/>
+  	<li>Version ${v.name} uploaded on ${v.date}<br/>
   		${v.comments} <a href="/files/${p.name}-${safe(v.name)}.zip">Download</a>
     </li>
   {/for}
@@ -25,4 +28,12 @@ ${p.name} ${p.license} <b>${p.curversion}</b>
 </blockquote>
 </span>
 {/for}
+</textarea>
+
+<textarea id="tmpl-tags" style="display:none">
+<ul>
+{for t in tags}
+<li class="tag ${t.tag}">${t.tag}(${t.count})</li>
+{/for}
+</ul>
 </textarea>

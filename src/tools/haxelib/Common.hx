@@ -37,6 +37,10 @@ typedef SearchInfo = {
   var items : Array<{id:Int,name:String,context:String}>;
 }
 
+typedef TopTagInfo = {
+  var tags:Array<{count:Int,tag:String}>;
+}
+  
 typedef LicenseSpec = {
   var pub:Bool;
   var name:String;
@@ -64,6 +68,7 @@ enum Status {
   OK_ACCOUNT;
   OK_SERVERINFO(si:ServerInfo);
   OK_REMINDER;
+  OK_TOPTAGS(tt:TopTagInfo);
   ERR_REMINDER;
   ERR_LICENSE(info:LicenseErr);
   ERR_UNKNOWN;
@@ -109,6 +114,8 @@ class Marshall {
       JSON.encode({ERR:m,PAYLOAD:email});
     case OK_SERVERINFO(si):
       JSON.encode({ERR:m,PAYLOAD:si});
+    case OK_TOPTAGS(tt):
+      JSON.encode({ERR:m,PAYLOAD:tt});
     default:
       JSON.encode({ERR:m});
     }
@@ -146,6 +153,7 @@ enum RemoteCommand {
   LICENSE;
   PROJECTS;
   SERVERINFO;
+  TOPTAGS(topn:Int);
   REMINDER(email:String);
 }
 

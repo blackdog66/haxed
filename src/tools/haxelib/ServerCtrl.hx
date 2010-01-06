@@ -77,7 +77,10 @@ class ServerCtrl  {
         case "reminder":
           var email = getParam(params,"email");
           REMOTE(REMINDER(email),options);
-          
+
+        case "toptags":
+          var nTags = getParam(params,"ntags");
+          REMOTE(TOPTAGS(Std.parseInt(nTags)),options);
         default:
           throw "don't know this method! "+getParam(params,"method");
         }

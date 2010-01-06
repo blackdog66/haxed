@@ -163,6 +163,11 @@ class ClientRestful extends ClientCore {
   reminder(email:String,options:Options,fn:String->Status->Bool) {
     requestDispatch(options,"reminder",{email:email},fn);
   }
+
+  public function
+  topTags(nTags:Int,options:Options,fn:String->Status->Bool) {
+    requestDispatch(options,"toptags",{ntags:nTags},fn);
+  }
 }
 
 

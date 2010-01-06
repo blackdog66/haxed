@@ -1,8 +1,6 @@
 /*jslint white: false, onevar: true, browser: true, evil: true, undef: true, eqeqeq: true, regexp: true, newcap: true, immed: true */
 /*global $  window TrimPath*/
 
-
-
 var Haxelib = (function() {
 
     function url(u) {
@@ -35,6 +33,12 @@ var Haxelib = (function() {
         });
     }
 
+    function renderTags(nTags,tmpl,dst){
+        $.getJSON(url("toptags")+"&ntags="+nTags,function(td) {
+           $(dst).html(TrimPath.processDOMTemplate(tmpl,td.PAYLOAD));
+        });
+    }
+
     $().ready(function() {
         $('#tab-container').tabs();
         $('#tab-container').bind('tabsshow', function(event, ui) {
@@ -42,8 +46,10 @@ var Haxelib = (function() {
             switch(selected) {
             case "home":
                 renderServerInfo();
+
             break;
             case "packages":
+                renderTags(5,"tmpl-tags","#tag-space");
                 renderPackages();
             break;
             case "docs":

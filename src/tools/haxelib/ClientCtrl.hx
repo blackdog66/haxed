@@ -30,6 +30,7 @@ class ClientCtrl {
     commands.set("reminder","send password to your registered email address");
     commands.set("new","create a new Hxpfile in the current directory");
     commands.set("build","build your project");
+    commands.set("toptags","most used tags");
   }
 
   static var curArg = 0;
@@ -291,7 +292,10 @@ class ClientCtrl {
     case "reminder":
       var email = param("Email",Validate.email);
       REMOTE(REMINDER(email),options);
-      
+
+    case "toptags":
+      var nTags = param("Top N (provide an int)");
+      REMOTE(TOPTAGS(Std.parseInt(nTags)),options);
     default:
       usage();
       null;

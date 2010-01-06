@@ -247,6 +247,13 @@ class ServerCore {
       fn(v);
   }
 
+  public function
+  topTags(n:Int):Status {
+    return OK_TOPTAGS({tags:Tag.manager.topTags(n).map(function(el) {
+        return {count:el.count,tag:el.tag};
+          }).array() });
+  }
+
   static function
   getInfo(p:Project):ProjectInfo {
    var u = p.owner,

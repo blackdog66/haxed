@@ -229,7 +229,7 @@ class Parser {
   function parse(file:String):Hxp {
     var contents = neko.io.File.getContent(file);
     return tokens(contents).fold(function(token,hbl:Hxp) {
-        //         trace(token);
+        trace(token);
         switch(token) {
         case PROPERTY(name,val,info):
           hbl.setProperty(name,val,info);
