@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+# $1 users email
+# $2 admin email
+# $3 server name 
+
+echo "Your password for host $3  is $2" | sendmail -s "haxelib Reminder" $1
