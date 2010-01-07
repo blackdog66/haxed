@@ -13,6 +13,7 @@ import neko.Lib;
 private typedef ServerConf =  {
   var serverName:String;
   var dataDir:String;
+  var adminEmail:String;
   var licenses:Array<{pub:Bool,name:String,url:String}>;
 }
 
