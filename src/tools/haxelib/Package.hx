@@ -65,7 +65,6 @@ class Package {
         	{ return StringTools.startsWith(s,el); });
       	} else null;
 
-    trace("include is "+include);
     if (Reflect.hasField(libs, "classPath") && libs.classPath != null){
       Lambda.iter(libs.classPath,function(d) {
           if (!Os.exists(d))
