@@ -34,12 +34,6 @@ typedef ProjectInfo = {
   var tags: Array<{tag:String}>;
 }
 
-/*
-typedef SearchInfo = {
-  var items : Array<{id:Int,name:String,context:String}>;
-}
-*/
-
 typedef TopTagInfo = {
   var tags:Array<{count:Int,tag:String}>;
 }

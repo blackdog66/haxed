@@ -96,7 +96,7 @@ class ServerCore {
   private function
   processUploaded(password:String,tmpFile:String):Status {
     var
-      json = ZipReader.content(tmpFile,"haxelib.json") ;
+      json = ZipReader.content(tmpFile,Common.CONFIG_FILE) ;
     
     if (json == null)
       return ERR_HAXELIBJSON;
