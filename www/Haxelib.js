@@ -57,6 +57,7 @@ var Haxelib = (function() {
     function renderTags(nTags,tmpl,dst){
         $.getJSON(url("toptags")+"&ntags="+nTags,function(td) {
            $(dst).html(TrimPath.processDOMTemplate(tmpl,td.PAYLOAD));
+           $("ul",dst).prepend('<li><a href="#" id="tag-All">All</a></li>');
            $("a",dst).click(function(){
                var t = $(this).attr("id").split("-")[1] ;
                $("#filter-scope").html(t);
@@ -65,7 +66,6 @@ var Haxelib = (function() {
            });
         });
     }
-
 
     $().ready(function() {
         $('#tab-container').tabs();
