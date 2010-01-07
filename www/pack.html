@@ -16,7 +16,11 @@
 </div>
 
 <textarea id="tmpl-prj-list" style="display:none">
-Filter:&nbsp;<span id="filter-scope">${filter()}</span><p/>
+Filter:&nbsp;<span id="filter-scope">${filter()}
+{if filter() != "None"}
+(<a href="#" id="nofilter">Remove</a>)
+{/if}
+</span><p/>
 {for p in projects}
 <a href="/files/${p.name}-${safe(p.curversion)}.zip">Download</a>
 <span class="project-header">

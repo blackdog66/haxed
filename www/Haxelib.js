@@ -57,6 +57,11 @@ var Haxelib = (function() {
             function() { $('.details',$(this).next()).css({display:'none'}); });
 
         $(".details").css({display:"none"});
+
+        $("#nofilter").click(function() {
+            setFilter("None");
+            queryAll();
+        });
     }
 
     function queryTags(){
