@@ -34,9 +34,11 @@ typedef ProjectInfo = {
   var tags: Array<{tag:String}>;
 }
 
+/*
 typedef SearchInfo = {
   var items : Array<{id:Int,name:String,context:String}>;
 }
+*/
 
 typedef TopTagInfo = {
   var tags:Array<{count:Int,tag:String}>;
@@ -62,7 +64,7 @@ enum Status {
   OK_USER(ui:UserInfo);
   OK_PROJECT(pi:ProjectInfo);
   OK_PROJECTS(prj:Array<ProjectInfo>);
-  OK_SEARCH(si:SearchInfo);
+  OK_SEARCH(si:Array<ProjectInfo>);
   OK_LICENSES(lics:Array<LicenseSpec>);
   OK_REGISTER;
   OK_SUBMIT;
@@ -193,6 +195,10 @@ class Options {
     return switches.get(s);
   }
 
+  public function removeSwitch(k:String) {
+    switches.remove(k);
+  }
+  
   public function
   addSwitches(d:Dynamic):Dynamic {
     var n = Reflect.copy(d);

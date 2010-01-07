@@ -12,32 +12,36 @@ class ClientMain {
     Os.log(v);
   }
 
-  static function toJson(obj:Dynamic,url:String) {
+  static function
+  toJson(obj:Dynamic,url:String) {
     return neko.Lib.println(hxjson2.JSON.encode({repo:url,payload:obj}));
   }
 
-  static function handleOptions(options:Options,rurl:String,obj:Dynamic,formatter:Dynamic->String) {
-    if (options.flag("-j")) {
-      toJson(obj,rurl);
-    } else {
-      Os.print(formatRepoUrl(rurl));
-      Os.print(formatter(obj));
-    }
+  static function
+  handleOptions(options:Options,rurl:String,obj:Dynamic,formatter:Dynamic->String) {
 
-    if (options.flag("-R"))
-      return true; // only checking one repo, so handled
+    if (obj != null) {
+      if (options.flag("-j")) {
+        toJson(obj,rurl);
+      } else {
+        Os.print(formatRepoUrl(rurl));
+        Os.print(formatter(obj));
+      }
+
+      if (options.flag("-R"))
+        return true; // only checking one repo, so handled
     
-    if (options.flag("-a"))
-      return false; // not handled, check next repo
-
-    return false; 
+      if (options.flag("-a"))
+        return false; // not handled, check next repo      
+    }
+    return false;    
   }
 
   static function
   handleServerResponse(options:Options,rurl:String,s:Status) {
     return switch(s) {
     case OK_SEARCH(si):
-      handleOptions(options,rurl,si,formatSearchInfo);
+      handleOptions(options,rurl,si,formatProjects);
      case OK_PROJECT(pi):
       handleOptions(options,rurl,pi,formatProjectInfo);
     case OK_USER(ui):
@@ -92,7 +96,7 @@ class ClientMain {
       Os.print("Given author is not a developer");
       return false;
     case ERR_HAXELIBJSON:
-      Os.print("haxelib.json is missing");
+      Os.print(Common.CONFIG_FILE +" is missing");
       return false;
     }
   }
@@ -208,11 +212,14 @@ Website: ::website::
 License: ::license::
 Owner: ::owner::
 Version: ::curversion::
-Tags: ::foreach tags:: ::tag::::end::
+::if (tags != null):: Tags: ::foreach tags:: ::tag::::end::::end::
+
+::if (versions != null)::
 Releases:
 ::foreach versions::
 [::name::] - ::date::
         ::comments::
+::end::
 ::end::
 
 ';
@@ -232,6 +239,7 @@ Projects:
     return Os.template(tmpl,ui);
   }
 
+  /*
   static function
   formatSearchInfo(si:SearchInfo) {
     var tmpl='::foreach items::
@@ -242,6 +250,7 @@ Project: ::name::
 ';
     return Os.template(tmpl,si);
   }
+  */
 
     static function
   formatServerInfo(si:ServerInfo) {

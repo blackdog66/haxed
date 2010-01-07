@@ -259,26 +259,29 @@ class ServerCore {
 
   static function
   getInfo(p:Project):ProjectInfo {
-   var
-     u = p.owner,
-     iv = Version.manager.search({project:p.id})
+    p.sync();
+    
+    var
+      u = p.owner,
+    
+      iv = Version.manager.search({project:p.id})
             .map(function(v) {
                  return { date: v.date, name:v.name, comments:v.comments };
-              }).array(),
-     tags = Tag.manager.search({project:p.id})
+              }),
+      tags = Tag.manager.search({project:p.id})
      		.map(function(el){
          		return {tag:el.tag};
-       		}).array();
-    
-    return {
+              });
+
+     return {
       name: p.name,
       desc:p.description,
       website:p.website,
       owner: u.email,
       license:p.license,
-      curversion:p.version.name,
-      tags:tags,
-      versions:iv
+      curversion:(p.version != null) ? p.version.name : "",
+      tags:(tags != null) ? tags.array() : null,
+      versions:(iv != null) ? iv.array() : null
       };    
   }
   
@@ -308,36 +311,26 @@ class ServerCore {
   
   public function
   search(query:String,opts:Options):Status {
+    var found ;
  
-    if (!opts.gotSome()) {
-    return OK_SEARCH({
-        items:Project.manager.containing(query)
-            .map(function(p) {
-                return {id:p.id,name:p.name,context:null};
-              }).array()
-            
-        });
-    }
-
-    if (opts.getSwitch("-Sv") != null)
-      return OK_SEARCH({ items:
-      Project.manager.all()
+    if (opts.getSwitch("-Sv") != null) {
+      found = Project.manager.all()
+        .filter(function(p) {
+            return p.version.comments.indexOf(query) != -1;
+          })
         .map(function(p) {
-            if (p.version.comments.indexOf(query) != -1)
-              return {id:p.version.id,name:p.version.name,context:null};
-
-            return {id:-1,name:null,context:null};
+            return getInfo(p);
           })
-        .filter(function(el) {
-            return el.id != -1;
-          })
-        .array()
-        });
+        .array();
+        
+    if (found.length > 0)
+      return OK_SEARCH(found);
+    return ERR_PROJECTNOTFOUND;
+    }
 
     var path = opts.getSwitch("-Sm");
     if (path != null) {
-      return OK_SEARCH( { items:
-          Project.manager.all()
+         found = Project.manager.all()
             .map(function(p) {
                 var
                   j = hxjson2.JSON.decode(p.version.meta),
@@ -346,22 +339,40 @@ class ServerCore {
                 if (obj != null) {
                   var recode = hxjson2.JSON.encode(obj);
                   if (recode.indexOf(query) != -1) {
-                    return {id:p.version.id,name:p.name,context:recode};
+                    return getInfo(p);
                   }
                 }
                 
-                return {id:-1,name:null,context:null};
+                return {
+                	name:null,
+                    desc:null,
+                    website:null,
+                    owner:null,
+                    license:null,
+                    curversion:null,
+                    versions:null,
+                    tags:null};
                 
               })
             .filter(function(el) {
-                return el.id != -1;
+                return el.name != null;
               })
-            .array()
-            });
+           .array();
 
+         if (found.length > 0)
+           return OK_SEARCH(found);
+         return ERR_PROJECTNOTFOUND;
     }
     
-    return ERR_NOTHANDLED;
+    found = Project.manager.containing(query)
+      .map(function(p) {
+          return getInfo(p);
+        }).array();
+
+    if (found.length > 0)
+      return OK_SEARCH(found);
+    
+     return ERR_PROJECTNOTFOUND;
   }
 
   public function license():Status {

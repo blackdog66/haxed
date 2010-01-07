@@ -59,6 +59,7 @@ class ClientRestful extends ClientCore {
     
     if (options.repo != null) {
       request(url(options.repo,cmd),prms,function(d) {
+          options.removeSwitch("-R"); // don't want it passed to remote - this needs to be looked at
           if (d != null)
             fn(options.repo,Marshall.fromJson(d)) ;
             
