@@ -46,7 +46,7 @@ class Convert {
         data = Datas.readData(xml),
         dev = data.developers.first(),
         //user = users.get(dev),
-        user = { pw: "12345", fn: "Old Haxelib" },
+        user = { pw: "12345", fn: dev },
         o = new Options(),
         email = dev+"@haxe.org";
 
