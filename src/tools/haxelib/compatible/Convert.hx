@@ -64,6 +64,8 @@ class Convert {
 
       zf.close();
 
+      o.addSwitch("-R","localhost:8200");
+
       client.submit(o,user.pw,newPackage,function(rurl:String,s:Status) {
           trace("submitted to "+rurl);
           trace("status "+s);
