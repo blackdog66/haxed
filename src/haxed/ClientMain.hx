@@ -1,8 +1,8 @@
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Common;
-import tools.haxelib.ClientRestful;
-import tools.haxelib.ClientCtrl;
+import haxed.Common;
+import haxed.ClientRestful;
+import haxed.ClientCtrl;
 
 class ClientMain {
   public static var VERSION = "0.1";

@@ -1,5 +1,5 @@
 
-package tools.haxelib;
+package haxed;
 
 #if php
 import php.FileSystem;

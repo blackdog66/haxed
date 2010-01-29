@@ -1,7 +1,7 @@
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Os;
-import tools.haxelib.Common;
+import haxed.Os;
+import haxed.Common;
 
 class Package {
 

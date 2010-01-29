@@ -1,9 +1,9 @@
 package tests;
 
-import tools.haxelib.Os;
-import tools.haxelib.Hxp;
-import tools.haxelib.Package;
-import tools.haxelib.Config;
+import haxed.Os;
+import haxed.Hxp;
+import haxed.Package;
+import haxed.Config;
 
 import utest.Assert;
 

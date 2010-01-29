@@ -1,8 +1,8 @@
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Common;
-import tools.haxelib.ServerCore;
-import tools.haxelib.License;
+import haxed.Common;
+import haxed.ServerCore;
+import haxed.License;
 
 #if php
 import php.Lib;

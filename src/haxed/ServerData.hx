@@ -1,4 +1,4 @@
-package tools.haxelib;
+package haxed;
 
 #if php
 import php.db.Object;

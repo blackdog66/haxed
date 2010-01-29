@@ -1,7 +1,7 @@
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Common;
-using tools.haxelib.Validate;
+import haxed.Common;
+using haxed.Validate;
 using Lambda;
 using StringTools;
 

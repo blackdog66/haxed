@@ -1,4 +1,4 @@
-package tools.haxelib;
+package haxed;
 
 /*
   Used across neko, php and js

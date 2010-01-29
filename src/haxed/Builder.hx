@@ -1,7 +1,7 @@
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Common;
-import tools.haxelib.Os;
+import haxed.Common;
+import haxed.Os;
 using Lambda;
 using StringTools;
 

@@ -1,10 +1,10 @@
 
-import tools.haxelib.Common;
-import tools.haxelib.Os;
-import tools.haxelib.Package;
-import tools.haxelib.Parser;
-import tools.haxelib.ClientRestful;
-import tools.haxelib.compatible.Datas;
+import haxed.Common;
+import haxed.Os;
+import haxed.Package;
+import haxed.Parser;
+import haxed.ClientRestful;
+import haxed.compatible.Datas;
 
 
 typedef OldUser = { pw:String,fn:String };

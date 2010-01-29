@@ -1,10 +1,10 @@
 
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Common;
-import tools.haxelib.ServerData;
-import tools.haxelib.ZipReader;
-import tools.haxelib.License;
+import haxed.Common;
+import haxed.ServerData;
+import haxed.ZipReader;
+import haxed.License;
 
 using Lambda;
 

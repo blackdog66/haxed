@@ -1,8 +1,8 @@
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Os;
-import tools.haxelib.Common;
-import tools.haxelib.ClientCore;
+import haxed.Os;
+import haxed.Common;
+import haxed.ClientCore;
 
 class ClientCtrl {
   

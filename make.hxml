@@ -3,14 +3,14 @@
 -cp ./src/
 -php ./www
 --php-front repo.php 
--main tools.haxelib.ServerMain
+-main haxed.ServerMain
 -resource server.json@serverConfig
 
 --next
 
 -cp ./src/
 -neko client.n
--main tools.haxelib.ClientMain
+-main haxed.ClientMain
 -resource client.json@clientConfig
 -resource HxpTemplate@HxpTemplate
 

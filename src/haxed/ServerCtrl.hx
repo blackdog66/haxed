@@ -1,7 +1,7 @@
 
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Common;
+import haxed.Common;
 
 #if php
 import php.Web;

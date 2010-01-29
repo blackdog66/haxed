@@ -1,4 +1,4 @@
-package tools.haxelib.compatible;
+package haxed.compatible;
 
 import neko.zip.Reader;
 import haxe.xml.Check;

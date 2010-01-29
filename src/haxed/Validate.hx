@@ -1,8 +1,8 @@
 
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Parser;
-import tools.haxelib.Common;
+import haxed.Parser;
+import haxed.Common;
 
 using Lambda;
 
