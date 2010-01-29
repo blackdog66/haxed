@@ -307,7 +307,7 @@ class ConfigJson extends Config {
 }
 
 class Common {
-  public static var CONFIG_FILE = "haxelib.json";
+  public static var CONFIG_FILE = "haxed.json";
   public static var HXP_FILE = "Hxpfile";
 
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;

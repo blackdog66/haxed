@@ -113,11 +113,11 @@ class ClientCore {
     var rep = try {
       Os.fileIn(getConfigFile());
     } catch( e : Dynamic ) {
-      throw "This is the first time you are runing haxelib. Please run haxelib setup first";
+      throw "This is the first time you are runing haxed. Please run haxed setup first";
     }
       
     if( !Os.exists(rep) )
-      throw "haxelib Repository "+rep+" does not exists. Please run haxelib setup again";
+      throw "haxed Repository "+rep+" does not exists. Please run haxed setup again";
 
     repositoryDir = rep +"/";
     return repositoryDir;

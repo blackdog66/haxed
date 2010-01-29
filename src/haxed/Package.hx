@@ -5,7 +5,7 @@ import haxed.Common;
 
 class Package {
 
-  public static var packDir = "/tmp/haxelib-pkg/";
+  public static var packDir = "/tmp/haxed-pkg/";
 
   public static function
   outFile(name:String,hblFile:String) {
@@ -77,7 +77,7 @@ class Package {
   public static function
   xml(conf:Config) {
     var glbs = conf.globals();
-    Os.fileOut(toPackDir("haxelib.xml"),packageXml(conf));
+    Os.fileOut(toPackDir("haxed.xml"),packageXml(conf));
   }
 
   public static function

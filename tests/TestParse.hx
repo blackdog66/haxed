@@ -66,7 +66,7 @@ class TestPackage  {
  
   function testAXml() {
     Package.xml(conf);
-    Assert.isTrue(Os.exists(Package.packDir+"haxelib.xml"));
+    Assert.isTrue(Os.exists(Package.packDir+"haxed.xml"));
   }
   
   function testBPackageSources() {
@@ -86,7 +86,7 @@ class TestPackage  {
   function testCJson() {
     Package.json(conf);
     var g = conf.globals();
-    Assert.isTrue(Os.exists(Package.packDir+"haxelib.json"));
+    Assert.isTrue(Os.exists(Package.packDir+"haxed.json"));
   }  
  
 }

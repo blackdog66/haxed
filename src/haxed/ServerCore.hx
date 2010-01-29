@@ -39,7 +39,7 @@ class Mail {
 }
 
 class ServerCore {
-  static var DB = "haxelib.db";
+  static var DB = "haxed.db";
   
   var dataDir:String;
   var repo:String;
