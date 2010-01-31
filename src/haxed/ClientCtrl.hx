@@ -317,7 +317,7 @@ class ClientCtrl {
   public static function
   askAboutHxp():Global {
     return {
-    	project:param("Project name"),
+    	name:param("Project name"),
         authorName:param("Author name"),
         authorEmail:param("Author email",Validate.email),
         version:param("Version"),

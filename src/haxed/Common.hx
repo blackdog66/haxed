@@ -232,7 +232,7 @@ typedef PrjVer = {
 }
 
 typedef Global = {
-  var project:String;
+  var name:String;
   var authorName:String;
   var authorEmail:String;
   var version:String;
@@ -267,7 +267,7 @@ typedef Repo = {
 
   
 class Config {
-  public static var GLOBAL = "global";
+  public static var GLOBAL = "project";
   public static var BUILD = "build";
   public static var FILE = "file";
   public static var PACK = "pack";

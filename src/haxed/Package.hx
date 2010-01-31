@@ -38,7 +38,7 @@ class Package {
       glbs = conf.globals(),
       tags = Lambda.map(Reflect.hasField(glbs, "tags") ? glbs.tags : new Array<String>(),function(el) { return { tag : el };}),
       tmpl =  '
-<project name="::glbs.project::" url="::glbs.website::" license="::glbs.license::">
+<project name="::glbs.name::" url="::glbs.website::" license="::glbs.license::">
     <user name="mylogin"/>
 
     <description>::glbs.description::</description>
@@ -87,7 +87,7 @@ class Package {
 
   public static function
   zip(conf:Config) {
-    var name = conf.globals().project+".zip";
+    var name = conf.globals().name+".zip";
     var outf = outFile(name,conf.file());
     trace("Zipping:"+outf);
     Os.zip(outf,Os.files(packDir),packDir);

@@ -117,7 +117,7 @@ class ServerCore {
     if (lc != null)
       return lc;
     
-    var prj = Project.manager.search({ name : glbs.project }).first();
+    var prj = Project.manager.search({ name : glbs.name }).first();
     if (prj == null)
       prj = createProject(user,glbs) ;
 
@@ -182,7 +182,7 @@ class ServerCore {
   createProject(u:User,g:Global):Project {
     var p = new Project();
 
-    p.name = g.project;
+    p.name = g.name;
     p.description = g.description;
     p.website = g.website;
     p.license = g.license;

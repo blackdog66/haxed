@@ -5,21 +5,22 @@ using haxed.Validate;
 using Lambda;
 using StringTools;
 
-typedef Info = { line:Int,col:Int };
+typedef Info = { line:Int,col:Int};
 
 enum Token {
   PROPERTY(name:String,value:String,info:Info);
-  SECTION(name:String,attrs:String,info:Info);
+  SECTION(name:String,info:Info);
   ENDSECTION(info:Info);
 }
 
 private enum State {
+  START_KEY_OR_DOCUMENT;
+  START_DOCUMENT;
   START_KEY;
   CAPTURE_KEY;
   START_VAL;
   CAPTURE_VAL;
   MULTI_LINE;
-  SECTION_ATTRS;
   SKIP;
   SKIPPASTNL;
   SKIPTONL;
@@ -31,6 +32,7 @@ class Parser {
   static var lineNo = 1;
   static var state = START_KEY;
   static var retState = START_KEY;
+  static var context:Array<State>;
   static var lineStart = 0;
   static var toks:List<Token>;
   
@@ -54,6 +56,10 @@ class Parser {
     return sb.toString().trim();
   }
 
+  static inline function sectionTidy(sb:StringBuf) {
+    return sb.toString().substr(0,-1).trim();
+  }
+
   static inline function column() {
     return curChar - lineStart;
   }
@@ -73,6 +79,9 @@ class Parser {
   
   static function
   syntax(msg:String) {
+    #if debug
+    neko.Lib.print("State:" + state+"  > ");
+    #end
     if (column() > -1)
       neko.Lib.println("At line "+lineNo+" col "+column()+": "+msg);
     else 
@@ -83,13 +92,13 @@ class Parser {
   public static function
   addProperty(ck:StringBuf,cv:StringBuf) {
     var
-      k = tidy(ck).substr(0,-1),
+      k = tidy(ck),
       v = tidy(cv);
 
     if (k.length == 0) syntax("Need a key");
     if (v.length == 0) syntax("Need a value for "+k);
     
-    var ps = PROPERTY(k,v,info());
+    var ps = PROPERTY(k.substr(0,k.length-1),v,info());
     toks.add(ps);
   }
   
@@ -97,8 +106,9 @@ class Parser {
   tokens(hf:String) {
     curChar = 0;
     lineNo = 1;
-    state = START_KEY;
-    retState = START_KEY;
+    state = START_KEY_OR_DOCUMENT;
+    retState = START_KEY_OR_DOCUMENT;
+    context = new Array<State>();
     lineStart = 0;
 
     var
@@ -109,7 +119,8 @@ class Parser {
       indent = 0,
       keyIndent=0,
       valIndent=0,
-      inSection = false;
+      inSection = false,
+      docCount = 0;
 
     toks = new List<Token>();
     
@@ -117,7 +128,9 @@ class Parser {
       c = hf.charAt(curChar);
 
       if (c == "\t") syntax("I don't like tabs!");
-      if (c == "#") nextState(SKIPPASTNL);
+      if (c == "#") {
+        nextState(SKIPPASTNL);
+      } 
       
       if (isNL(c)) {
         lineStart = curChar + 1 ;
@@ -125,17 +138,41 @@ class Parser {
       }
       
       switch(state) {
+
+      case START_KEY_OR_DOCUMENT:
+        if (!isAllWhite(c)) {
+          if (c == "-") {
+            docCount++;
+            nextState(START_DOCUMENT);
+          } else {
+            curChar--;
+            nextState(START_KEY);
+          }
+        }
+        
+      case START_DOCUMENT:
+        if (c == "-") {
+          docCount++;
+          if (docCount == 3) {
+            docCount = 0;
+            context.push(START_DOCUMENT);
+            nextState(START_KEY);
+          }
+        } else
+          syntax("expecting - in the token ---");
+
       case START_KEY:
         if  (!isAllWhite(c)) {
           curKey = new StringBuf();
           curKey.add(c);
           
           keyIndent = column();
-          
+
           nextState(CAPTURE_KEY);
         } else {
           nextState(SKIP,START_KEY);
         }
+
       case CAPTURE_KEY:
         if (!isAllWhite(c))
           curKey.add(c);
@@ -143,34 +180,26 @@ class Parser {
           var k = tidy(curKey);
 
           if (k.endsWith(":")) {
+            var ctx = context.pop();
             
-            if (keyIndent > 0 && !inSection)
-              syntax("A key needs to be at column 0 or within a section");
+            if (ctx == START_DOCUMENT) {
+              if (keyIndent != 0)
+                syntax("A section should start on column 0");
 
-            if (keyIndent == 0 && inSection == true) {
-              inSection = false;
-              toks.add(ENDSECTION(info()));
-            }
+              inSection = true;            
 
-            nextState(SKIPTONL,START_VAL);
-          } else {
-
-            if (keyIndent != 0)
-              syntax("A section should start on column 0");
-
-            inSection = true;            
-
-            if (isNL(c)) {
-              var ss = SECTION(tidy(curKey),"",info());
+              var ss = SECTION(sectionTidy(curKey),info());
               toks.add(ss);
          
               nextState(START_KEY);
-            } else {
-              nextState(SECTION_ATTRS);
-              curVal = new StringBuf();
-            }
+            } else
+              nextState(SKIPTONL,START_VAL);
+                  
+          } else {
+            syntax("Key "+k+" should end with :");
           }
         }
+        
       case START_VAL:
         if (c == "\n") syntax(tidy(curKey) +" is empty");
         valIndent = column();
@@ -190,22 +219,13 @@ class Parser {
         } else {
           if (col == 0 || col == keyIndent || c == "\n" ) {
             addProperty(curKey,curVal);
-            nextState(START_KEY);
-          } else {
-              syntax("expecting a new key at column " + keyIndent +
-                     " or a multi-line value at column "+valIndent+", but got "+col);
-          }
+            nextState(START_KEY_OR_DOCUMENT);
+          } else
+            syntax("expecting a new key at column " + keyIndent +
+                   " or a multi-line value at column "+valIndent+", but got "+col);
         }
         curChar--;
-      case SECTION_ATTRS:
-        if (!isNL(c))
-          curVal.add(c);
-        else {
-          var ss = SECTION(tidy(curKey),tidy(curVal),info());
-          toks.add(ss);
-          nextState(START_KEY);
-        }
-      case SKIP:
+       case SKIP:
         if(!isAllWhite(c)) {
           nextState(retState);
           curChar--;
@@ -247,8 +267,8 @@ class Parser {
         switch(token) {
         case PROPERTY(name,val,info):
           hbl.setProperty(name,val,info);
-        case SECTION(name,attrs,info):
-          hbl.setSection(name,attrs,info);
+        case SECTION(name,info):
+          hbl.setSection(name,info);
         case ENDSECTION(info):
           hbl.endSection(info);
         }
@@ -262,7 +282,7 @@ class Parser {
     var h = parse(file);
 
     Validate.forSection(Config.GLOBAL)
-      .add("project",true,Validate.name)
+      .add("name",true,Validate.name)
       .add("author",true)
       .add("author-email",true,Validate.email)
       .add("version",true)
@@ -284,7 +304,6 @@ class Parser {
     
     Validate.applyAllTo(h);
 
-    //    trace(h.hbl);
     return h;
   }
   
@@ -308,13 +327,12 @@ class Hxp {
   }
 
   public function
-  setSection(name,attrs,info:Info) {
+  setSection(name,info:Info) {
     var
       curSec = Reflect.field(hbl,curSection),
       newSection = {};
 
     curSection = Common.camelCase(name);
-    Reflect.setField(newSection,"attrs",attrs);
     Reflect.setField(hbl,curSection,newSection);
   }
 

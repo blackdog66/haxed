@@ -354,7 +354,7 @@ class ClientCore {
     var
       conf = new ConfigJson(json),
       glbs = conf.globals(),    
-      prj = glbs.project,
+      prj = glbs.name,
       ver = glbs.version,
       pdir = projectDir(prj);
     
@@ -534,15 +534,17 @@ class ClientCore {
       Reflect.setField(interactive,"tags",Lambda.map(Reflect.field(interactive,"tags"),function(t) { return {tag:t}; }));
       
       var tmpl = '
-project:            ::project::
-website:            ::website::
-version:            ::version::
-comments:           ::comments::
-description:        ::description::
-author:             ::authorName::
-author-email:       ::authorEmail::
-tags:               ::foreach tags::::tag:: ::end::
-license:            ::license::
+---
+project:
+    name:            ::name::
+    website:            ::website::
+    version:            ::version::
+    comments:           ::comments::
+    description:        ::description::
+    author:             ::authorName::
+    author-email:       ::authorEmail::
+    tags:               ::foreach tags::::tag:: ::end::
+    license:            ::license::
 ';
       Os.fileOut(Common.HXP_FILE,tmpl,interactive);
       
