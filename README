@@ -48,8 +48,8 @@ tested client on windows yet.
    3. Is command line compatible with haxelib but adds new commands and
       switches, importantly for the haxe compiler "haxelib path" is
       intact.
-   4. Uses a configuration format called hxp modeled after Cabal of
-      Haskell. The hxp format is more like a makefile which you
+   4. Uses a configuration format called hxp modeled after YAML. 
+      The hxp format is more like a makefile which you
       include in your project directory, and can build the package
       from, e.g.  haxelib pack prj.hxp
    5. There is a default list of repositories, which clients can be
@@ -92,6 +92,8 @@ START >>>>>
 # this is an example hxp, note comments are specified with #
 # these are global keys and are all required ...
 
+---
+
 project:            hxGtk
 website:            http://www.ipowerhouse.com
 description:        A set of wrappers for Gtk-server
@@ -108,7 +110,8 @@ comments:           comments for 0.5
 # the build section is equivalent to an hxml file
 # note, I haven't done all the options yet ...
 
-build 
+---
+build: 
       class-path:       ./
                         /home/blackdog/Projects/hxNode # on multiple lines
       depends:          myproject > 1.0
@@ -116,7 +119,8 @@ build
       target-file:      main.n
       main-class:       test.Test
 
-pack
+---
+pack:
         include:        ./gtk
                         ./ui
                         /home/blackdog/Projects/hxNode/
@@ -124,9 +128,11 @@ pack
 # arbitrary keys .... good for new functionality in the future or adding
 # any new search criteria or meta data
 
+---
 another:   this is another global key
            
-newSection
+---
+newSection::
         path:   this is a path
         woot:   and
                 why
