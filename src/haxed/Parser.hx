@@ -21,63 +21,147 @@ private enum State {
   START_VAL;
   CAPTURE_VAL;
   MULTI_LINE;
-  SKIP;
-  SKIPPASTNL;
-  SKIPTONL;
 }
 
-class Parser {
-
-  static var curChar = 0;
-  static var lineNo = 1;
-  static var state = START_KEY;
-  static var retState = START_KEY;
-  static var context:Array<State>;
-  static var lineStart = 0;
-  static var toks:List<Token>;
+class Tokenizer<T> {
+  var parseText:String;
+  var textLength:Int;
+  var curChar:Int;
+  var lineNo:Int;
+  var curState:T;
+  var retState:T;
+  var startState:T;
+  var lineStart:Int;
+  var reWnd:Bool;
   
-  static inline function isAllWhite(c:String) {
-    return c == " " || c == "\t"  || c == "\r" || c == "\n";
+  public function new(pt:String,ss:T) {
+    startState = curState = retState = ss;
+    parseText = pt;
+    textLength = parseText.length;
+    curChar = 0;
+    lineNo = 1;
+    reWnd = false;
+    lineStart = 0;
+  }
+  
+  public inline function
+  isAlpha(c:String) {
+    return ~/\S/.match(c);
   }
 
-  static inline function isWhite(c:String) {
-    return c == " " || c == "\t"  || c == "\r" ;
+  public inline function
+  isWhite(c:String) {
+    return ~/\s/.match(c) ;
   }
 
-  static inline function isNL(c:String) {
+  public inline function
+  isNL(c:String) {
     return c == "\n";
   }
+
+  public function
+  peek() {
+    if (curChar > textLength) {
+      trace("yes returning EOF on "+curState);
+      return "EOF";
+    }
+    return parseText.charAt(curChar);
+  }
   
-  static inline function peek(s:String) {
-    return s.charAt(curChar+1);
+  public inline function
+  column() {
+    return (curChar-1) - lineStart;
   }
 
-  static inline function tidy(sb:StringBuf) {
-    return sb.toString().trim();
+  public inline function
+  state() {
+    return curState;
+  }
+  
+  public function
+  nextState(newState:T,?rs:T,rw=false) {
+    if (rs != null)
+        retState = rs;
+
+    curState = newState;
+    if (rw) rewind();
   }
 
-  static inline function sectionTidy(sb:StringBuf) {
-    return sb.toString().substr(0,-1).trim();
+  public function
+  popState() {
+    if (retState == null || retState == curState /* guard against infinite loops */)
+      curState = startState;
+    else 
+      curState = retState;
+    
+    trace("returning to "+retState);
+    retState = null;
+    
   }
 
-  static inline function column() {
-    return curChar - lineStart;
-  }
-
-  static function nextState(newState:State,?rs:State) {
-    if (rs != null) retState = rs;
-    state = newState;
-  }
-
-  static inline function popState() {
-    state = retState;
-  }
-
-  static inline function info():Info {
+  public inline function
+  info():Info {
     return {line:lineNo,col:column()};
   }
+
+  public function
+  nextChar() {
+    if (curChar > textLength)
+      return "EOF";
   
-  static function
+    var nc = parseText.charAt(curChar);    
+  
+    if (nc == "\t") syntax("I don't like tabs!");
+
+    if (isNL(nc) && ! reWnd) {
+#if debug
+        neko.Lib.println(">>"+state+":"+lineNo+"("+curChar+"): "+parseText.substr(lineStart,curChar-lineStart)+"<");
+#end
+      lineStart = curChar + 1;
+      lineNo++;
+    }
+    
+    curChar++;
+    reWnd = false;
+    return nc;
+  }
+
+  public function
+  rewind() {
+    reWnd = true;
+    curChar--;
+  }
+
+  public inline function
+  prevChar() {
+    return parseText.charAt(curChar-1);
+  }
+
+  public function
+  skipToNL(retState:T) {
+    var c;
+    nextState(retState);
+    while ((c = nextChar()) != "EOF") {
+      if (isNL(c)) {
+        rewind();
+        break;
+      }
+    }
+  }
+
+  public function
+  skipToAlpha(retState:T) {
+    var c;
+    nextState(retState);
+    while ((c = nextChar()) != "EOF") {
+      if(isAlpha(c) || isNL(c)) {
+        rewind();
+        break;
+      }
+    }
+  }
+  
+  public function
   syntax(msg:String) {
     #if debug
     neko.Lib.print("State:" + state+"  > ");
@@ -88,31 +172,35 @@ class Parser {
       neko.Lib.println("At line "+ (lineNo -1) +": "+msg);
     neko.Sys.exit(1);
   }
+}
 
+class Parser {
+
+  static inline function sectionTidy(sb:StringBuf) {
+    return sb.toString().substr(0,-1).trim();
+  }
+
+  static inline function tidy(sb:StringBuf) {
+    return sb.toString().trim();
+  }
+  
   public static function
-  addProperty(ck:StringBuf,cv:StringBuf) {
+  makeProperty(tk,ck:StringBuf,cv:StringBuf) {
     var
       k = tidy(ck),
       v = tidy(cv);
 
-    if (k.length == 0) syntax("Need a key");
-    if (v.length == 0) syntax("Need a value for "+k);
+    if (k.length == 0) tk.syntax("Need a key");
+    if (v.length == 0) tk.syntax("Need a value for "+k);
     
-    var ps = PROPERTY(k.substr(0,k.length-1),v,info());
-    toks.add(ps);
+    return PROPERTY(k.substr(0,k.length-1),v,tk.info());
   }
   
   public static function
   tokens(hf:String) {
-    curChar = 0;
-    lineNo = 1;
-    state = START_KEY_OR_DOCUMENT;
-    retState = START_KEY_OR_DOCUMENT;
-    context = new Array<State>();
-    lineStart = 0;
-
     var
-      len = hf.length,
+      tk = new Tokenizer<State>(hf,START_KEY_OR_DOCUMENT),
+      context = new Array<State>(),
       curKey = null,
       curVal = null,
       c = "",
@@ -120,150 +208,118 @@ class Parser {
       keyIndent=0,
       valIndent=0,
       inSection = false,
-      docCount = 0;
-
-    toks = new List<Token>();
+      capturingVal = false,
+      docCount = 0,
+      toks = new List<Token>();
     
-    do {
-      c = hf.charAt(curChar);
-
-      if (c == "\t") syntax("I don't like tabs!");
-      if (c == "#") {
-        nextState(SKIPPASTNL);
-      } 
+    while ((c = tk.nextChar()) != "EOF") {
       
-      if (isNL(c)) {
-        lineStart = curChar + 1 ;
-        lineNo++;
+      if (c == "#") {
+        tk.skipToNL(tk.state());
+        continue;
       }
       
-      switch(state) {
-
+      switch(tk.state()) {
+        
       case START_KEY_OR_DOCUMENT:
-        if (!isAllWhite(c)) {
+        if (tk.isAlpha(c)) {
           if (c == "-") {
             docCount++;
-            nextState(START_DOCUMENT);
+            tk.nextState(START_DOCUMENT);
           } else {
-            curChar--;
-            nextState(START_KEY);
+            tk.nextState(START_KEY,true);
           }
         }
-        
+                   
       case START_DOCUMENT:
         if (c == "-") {
           docCount++;
           if (docCount == 3) {
             docCount = 0;
             context.push(START_DOCUMENT);
-            nextState(START_KEY);
+            tk.nextState(START_KEY);
           }
         } else
-          syntax("expecting - in the token ---");
+          tk.syntax("expecting 3 - tokens");
 
       case START_KEY:
-        if  (!isAllWhite(c)) {
+        if (tk.isAlpha(c)) {
           curKey = new StringBuf();
           curKey.add(c);
           
-          keyIndent = column();
-
-          nextState(CAPTURE_KEY);
-        } else {
-          nextState(SKIP,START_KEY);
+          keyIndent = tk.column();
+          tk.nextState(CAPTURE_KEY);
         }
 
       case CAPTURE_KEY:
-        if (!isAllWhite(c))
+        if (tk.isAlpha(c))
           curKey.add(c);
         else {
           var k = tidy(curKey);
-
           if (k.endsWith(":")) {
             var ctx = context.pop();
             
             if (ctx == START_DOCUMENT) {
               if (keyIndent != 0)
-                syntax("A section should start on column 0");
+                tk.syntax("A section should start on column 0, is "+keyIndent);
 
               inSection = true;            
 
-              var ss = SECTION(sectionTidy(curKey),info());
+              var ss = SECTION(sectionTidy(curKey),tk.info());
               toks.add(ss);
          
-              nextState(START_KEY);
+              tk.nextState(START_KEY);
             } else
-              nextState(SKIPTONL,START_VAL);
-                  
+              tk.skipToAlpha(START_VAL);
+        
           } else {
-            syntax("Key "+k+" should end with :");
+            tk.syntax("Key "+k+" should end with :");
           }
         }
         
       case START_VAL:
-        if (c == "\n") syntax(tidy(curKey) +" is empty");
-        valIndent = column();
+        if (tk.prevChar() == "\n") tk.syntax(tidy(curKey) +"key's value is empty");
+        valIndent = tk.column();
         curVal = new StringBuf();
         curVal.add(c);
-        nextState(CAPTURE_VAL);
+        tk.nextState(CAPTURE_VAL);
+        
       case CAPTURE_VAL:
-        if (!isNL(c)) 
+        capturingVal = true;
+        if (!tk.isNL(c)) 
           curVal.add(c); 
-        else
-          nextState(SKIPTONL,MULTI_LINE);
+        else 
+          tk.skipToAlpha(MULTI_LINE);
+
       case MULTI_LINE:
-        var col = column();
+        var col = tk.column();
         if (col == valIndent) {
           curVal.add("\n");
-          nextState(CAPTURE_VAL);
+          tk.nextState(CAPTURE_VAL);
         } else {
-          if (col == 0 || col == keyIndent || c == "\n" ) {
-            addProperty(curKey,curVal);
-            nextState(START_KEY_OR_DOCUMENT);
+          if (col == 0 || col == keyIndent || c == "\n") {
+            capturingVal = false;
+            toks.add(makeProperty(tk,curKey,curVal));
+            tk.nextState(START_KEY_OR_DOCUMENT,true);
           } else
-            syntax("expecting a new key at column " + keyIndent +
-                   " or a multi-line value at column "+valIndent+", but got "+col);
-        }
-        curChar--;
-       case SKIP:
-        if(!isAllWhite(c)) {
-          nextState(retState);
-          curChar--;
-        }
-      case SKIPTONL:
-        if (!isWhite(c)) {
-          popState();
-          curChar--;
-        }
-      case SKIPPASTNL:
-        if (isNL(c)) {
-          popState();
+            tk.syntax("expecting a new key at column " + keyIndent +
+                   " or a multi-line value at column "+valIndent);
         }
       }
-      
-      curChar++;      
+    }
 
-    } while (curChar < len);
-
-    checkFinalProperty(curKey,curVal);
-        
+    if (capturingVal) toks.add(makeProperty(tk,curKey,curVal));
+    
     return toks;
-  }
-
-  /* if we get to the end of file in one of these states it means the final
-     prop has not been added */
-  static function
-  checkFinalProperty(curKey,curVal) {
-    if (state == MULTI_LINE || state == CAPTURE_VAL ||
-        retState == MULTI_LINE || retState == CAPTURE_VAL)
-      addProperty(curKey,curVal);
   }
 
   static function
   parse(file:String):Hxp {
     var contents = neko.io.File.getContent(file);
     return tokens(contents).fold(function(token,hbl:Hxp) {
-        //        trace(token);
+        #if debug
+        trace(token);
+        #end
         switch(token) {
         case PROPERTY(name,val,info):
           hbl.setProperty(name,val,info);

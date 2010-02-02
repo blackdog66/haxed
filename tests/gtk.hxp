@@ -20,12 +20,12 @@ project:
 # the build section is equivalent to an hxml file
 # note, I haven't done all the options yet ...
 
---
-
+---
+ 
 build: 
       class-path:       ./
                         /home/blackdog/Projects/hxNode # on multiple lines
-      depends:          myproject
+      depends:          dfssdfds
       target:           neko
       target-file:      main.n
       main-class:       test.Test
@@ -51,5 +51,3 @@ newSection:
         woot:   and
                 why
                 not
-
-       
