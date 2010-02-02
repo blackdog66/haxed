@@ -1,4 +1,4 @@
-haxelib
+haxed
 -------
 
 NOTE: This is _not_ for general usage, just for feedback. Still in
@@ -9,28 +9,18 @@ tested client on windows yet.
 
 * Overview
 
-  Please find for review a new version of haxelib, based on initial
-  ideas from John De Goes who can better describe his vision for
-  haxelib which is very Comfortingly the existing haxelib semantics
+  Please find for review a new version of haxelib called haxed, based on initial
+  ideas from John De Goes. Comfortingly the existing haxelib semantics
   are intact - and a lot of the old code.
-
-  The project is feature complete but has rough edges; it's ready for
-  community input and patches - but not for general usage as for
-  example, i haven't tested on Windows yet, and I've left trace in
-  which some may find useful. I'll be working fairly hard -
-  notwithstanding New Year - to get most of the tweaks out of the way
-  in the next few (working) days.
 
   Please have a look at the Tweaks section below for stuff that still
   needs to be added. Please have a look at the Open Questions section
   for stuff that I'm not sure of. Right now the biggest question for
   me is how much backward compatibility is required. There is a
-  haxelib convert command which creates a new package from an old, but
+  haxed convert command which creates a new package from an old, but
   if this new version needs to coexist for some time with the old then
   I will need to implement a bit more client compatibility.
   
-  There is a test php server at lib.ipowerhouse.com.
-      
   The project is at http://www.github.com/blackdog66. I'm very happy
   to hand this over to Nicolas if he would prefer to host it on google
   etc and continue to post patches myself, but I very much prefer if
@@ -48,10 +38,10 @@ tested client on windows yet.
    3. Is command line compatible with haxelib but adds new commands and
       switches, importantly for the haxe compiler "haxelib path" is
       intact.
-   4. Uses a configuration format called hxp modeled after YAML. 
+   4. Uses a very limited subset of YAML as a file format 
       The hxp format is more like a makefile which you
       include in your project directory, and can build the package
-      from, e.g.  haxelib pack prj.hxp
+      from, e.g.  haxed pack prj.hxp, or haxed build nekobuild 
    5. There is a default list of repositories, which clients can be
       compiled to search with, -R on command line operates on an arbitrary
       repository.
@@ -65,24 +55,24 @@ tested client on windows yet.
    11. Conversion utility of packages from current haxelib.xml format to
        new format where an email should be supplied.
    12. Client data can be returned in the normal manner or as
-       JSON with the -j switch, e.g. haxelib search -j blah, good for scripting
+       JSON with the -j switch, e.g. haxed search -j blah, good for scripting
 
 * The Hxp File
   
   The client side system revolves around the Hxp file (haxe
   package). The Hxp file is a unifcation of build (hxml) and packaging
-  (haxelib.hxml). The Hxp file will typically be found in your project
+  (haxed.hxml). The Hxp file will typically be found in your project
   directory and reference other libraries and class-paths as required.
 
-  To facilitate the use of an Hxp file the "haxelib new" command is
+  To facilitate the use of an Hxp file the "haxed new" command is
   available ...
 
-  haxelib new
+  haxed new
 
   creates a file called Hxpfile in your current directory. Tweak the
   default descriptions for your project. You can save a template
-  Hxpfile into your local repository directory (i.e. haxelib config),
-  which will be used next time you issue an "haxelib new" command. 
+  Hxpfile into your local repository directory (i.e. haxed config),
+  which will be used next time you issue an "haxed new" command. 
 
 ** Example Hxp
 
@@ -145,16 +135,16 @@ newSection::
 
    Once you have an hxp, you can do the following:
 
-   haxelib build Hxpfile
+   haxed build Hxpfile build-target
 
    Runs the haxe compiler with the given build information.
 
-   haxelib pack Hxpfile
+   haxed pack Hxpfile
 
    Packs your project into a zip file using the name of the project
    key as the name of the file, e.g. hxGtk.zip.
 
-   haxelib submit -R lib.ipowerhouse.com hxGtk.zip
+   haxed submit -R lib.ipowerhouse.com hxGtk.zip
 
    Submits the file to a given repository. Note, that based on your
    license a repository may decline to accept you file.
@@ -176,16 +166,16 @@ Here's a list of the new/modified commands.
 
 ** new
    
-   haxelib new
+   haxed new
 
    Creates an Hxpfile in your current working directory. The file
-   created is based on a template within your local haxelib
-   repository, given by "haxelib config". If you update your template it
+   created is based on a template within your local haxed
+   repository, given by "haxed config". If you update your template it
    will be used in subsequent hxp new operations. 
    
 ** pack
 
-   haxelib pack <hxpfile>
+   haxed pack <hxpfile>
 
    This command requires you provide an hxp specification file. Rather
    than you laying out the files into a package directory and then
@@ -198,7 +188,7 @@ Here's a list of the new/modified commands.
 
 ** build
 
-   haxelib build <hxpfile>
+   haxed build <hxpfile>
 
    Runs the haxe compiler with input from the *build* section of the
    hxpfile.
@@ -207,7 +197,7 @@ Here's a list of the new/modified commands.
    
 ** install
 
-   haxelib install <project>
+   haxed install <project>
 
    Checks all repositories compiled into the client for the
    project. If the project has dependencies, checks all repositories
@@ -215,25 +205,25 @@ Here's a list of the new/modified commands.
 
 ** search
 
-   haxelib search <word>
+   haxed search <word>
 
-   Same semantics as existing haxelib. Checks description and project
+   Same semantics as existing haxed. Checks description and project
    name. Returns project names.
 
-   haxelib search -Sm build.target neko
+   haxed search -Sm build.target neko
 
    You can specify a search into any section/key/value of the original
    hxpfile. (See Discarding Sections/Keys in Open Questions)
    
 ** account
 
-   haxelib account <curEmail> <curPass> <newEmail> <newPass> <newName>
+   haxed account <curEmail> <curPass> <newEmail> <newPass> <newName>
 
    Updates your account information.
 
 ** reminder
 
-   haxelib reminder <curEmail>
+   haxed reminder <curEmail>
 
    Sends a password reminder to your email address.
 
@@ -244,7 +234,7 @@ Here's a list of the new/modified commands.
   will make a client.n and a php server in www.
 
   For testing I've been using an alias to client.n so as not to
-  disrupt my existing haxelib, e.g. on linux
+  disrupt my existing haxed, e.g. on linux
 
   alias hxp='neko /path/to/client.n'
 
@@ -252,10 +242,10 @@ Here's a list of the new/modified commands.
 
   hxp pack etc.
 
-  Now, the haxe compiler uses the haxelib path <package> command to
+  Now, the haxe compiler uses the haxed path <package> command to
   get the paths of a lib during compilation, for compatibility right
-  now, I'm generating a haxelib.xml in the zip file as normal so that
-  that process still works with the old haxelib being called IF you
+  now, I'm generating a haxed.xml in the zip file as normal so that
+  that process still works with the old haxed being called IF you
   didn't rename the old one.
 
 ** PHP 5.2.11 
@@ -274,7 +264,7 @@ Here's a list of the new/modified commands.
 
    Some sections/keys may be relevant only in the client
    context. Right now all information is being stored in the
-   haxelib.json, how to specify discarding info, e.g. class-paths from
+   haxed.json, how to specify discarding info, e.g. class-paths from
    build can be discarded as they are local paths and copied directly
    into the root of the package.
   
