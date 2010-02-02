@@ -15,7 +15,8 @@ class Builder {
 
   static var libs:String;
   
-  static function getLibs(d:Array<PrjVer>) {
+  static function
+  getLibs(d:Array<PrjVer>) {
     var sb = new StringBuf();
     if (d != null){
       for (l in d) {
@@ -28,8 +29,8 @@ class Builder {
     return sb.toString();
   }
 
-  static
-  function getCps(classpaths:Array<String>) {
+  static function
+  getCps(classpaths:Array<String>) {
     var f = new StringBuf();
     if (classpaths != null) {
       for (c in classpaths)
@@ -39,8 +40,8 @@ class Builder {
     return f.toString();
   }
 
-  static
-  function getTargetType(tt:TargetType) {
+  static function
+  getTargetType(tt:TargetType) {
     return switch (tt) {
     case JS: "js";
     case NEKO: "neko";

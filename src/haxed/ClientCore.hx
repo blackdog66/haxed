@@ -537,7 +537,7 @@ class ClientCore {
       var tmpl = '
 ---
 project:
-    name:            ::name::
+    name:               ::name::
     website:            ::website::
     version:            ::version::
     comments:           ::comments::
