@@ -515,9 +515,10 @@ class ClientCore {
   packit(hxpFile:String):String {
     var
       hxp = Parser.process(hxpFile),
-      conf = Parser.getConfig(hxp);
-
-    return Package.createFrom(conf);
+      conf = Parser.getConfig(hxp),
+      confDir = Package.confDir(hxpFile);
+    
+    return Package.createFrom(confDir,conf);
   }
   
   public function

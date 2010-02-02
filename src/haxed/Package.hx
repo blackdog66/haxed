@@ -8,11 +8,15 @@ class Package {
   public static var packDir = "/tmp/haxed-pkg/";
 
   public static function
-  outFile(name:String,hblFile:String) {
-    var p  = neko.io.Path.directory(hblFile);
-    if (p != "")
-      return Common.slash(p) + name;
-    return name;
+  confDir(confFile:String) {
+    var p  = neko.io.Path.directory(confFile);
+    if (p == "") p = Os.cwd();
+    return Common.slash(p);
+  }
+  
+  public static function
+  outFile(name:String,confFile:String) {
+    return confDir(confFile) + name;
   }
 
   public static inline function
@@ -58,19 +62,35 @@ class Package {
   sources(conf:Config) {
     var
       libs = conf.build(),
-      include = Reflect.field(conf.pack(),"include"),
+      include = Reflect.field(conf.pack(),"include");
+
+    /*
       exclude = if (include != null)
       	function(s:String) {
           return !Lambda.exists(include,function(el)
         	{ return StringTools.startsWith(s,el); });
       	} else null;
+    */
 
-    if (Reflect.hasField(libs, "classPath") && libs.classPath != null){
-      Lambda.iter(libs.classPath,function(d) {
-          if (!Os.exists(d))
-            throw "Source dir "+d+" does not exist";
-          Os.copyTree(Common.slash(d),packDir,exclude);
-        });
+    if (libs == null && include == null) {
+      Os.copyTree("./",packDir); // relying on having CD'd to the conf dir already
+    } else {
+      
+      if (Reflect.hasField(libs, "classPath") && libs.classPath != null){
+        Lambda.iter(libs.classPath,function(d) {
+            if (!Os.exists(d))
+              throw "class-path dir "+d+" does not exist";
+            Os.copyTree(Common.slash(d),packDir);
+          });
+      }
+
+      if(include != null) {
+        Lambda.iter(include,function(d) {
+            if (!Os.exists(d))
+              throw "include dir "+d+" does not exist";
+            Os.copyTree(Common.slash(d),packDir);
+          });
+      }
     }
   }
 
@@ -96,11 +116,13 @@ class Package {
   }
 
   public static function
-  createFrom(config:Config) {
-      initPackDir();
-      sources(config);
-      xml(config);
-      json(config);
-      return zip(config);
+  createFrom(confDir:String,config:Config) {
+    Os.cd(confDir);
+    trace("CD'd to "+confDir);
+    initPackDir();
+    sources(config);
+    xml(config);
+    json(config);
+    return zip(config);
   }
 }
