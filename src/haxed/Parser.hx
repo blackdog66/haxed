@@ -139,10 +139,9 @@ class Tokenizer<T> {
   public function
   skipToNL(retState:T) {
     var c;
-    nextState(retState);
     while ((c = nextChar()) != "EOF") {
       if (isNL(c)) {
-        rewind();
+        nextState(retState,true);
         break;
       }
     }
@@ -151,10 +150,9 @@ class Tokenizer<T> {
   public function
   skipToAlpha(retState:T) {
     var c;
-    nextState(retState);
     while ((c = nextChar()) != "EOF") {
       if(isAlpha(c) || isNL(c)) {
-        rewind();
+        nextState(retState,true);
         break;
       }
     }
@@ -206,7 +204,6 @@ class Parser {
       indent = 0,
       keyIndent=0,
       valIndent=0,
-      inSection = false,
       capturingVal = false,
       docCount = 0,
       toks = new List<Token>();
@@ -257,19 +254,18 @@ class Parser {
           var k = tidy(curKey);
           if (k.endsWith(":")) {
             var ctx = context.pop();
-            
             if (ctx == START_DOCUMENT) {
               if (keyIndent != 0)
                 tk.syntax("A section should start on column 0, is "+keyIndent);
-
-              inSection = true;            
 
               var ss = SECTION(sectionTidy(curKey),tk.info());
               toks.add(ss);
          
               tk.nextState(START_KEY);
-            } else
+            } else {
+              if (keyIndent == 0) tk.syntax("A section key should be indented, maybe you forgot the --- to start a new section:");
               tk.skipToAlpha(START_VAL);
+            }
         
           } else {
             tk.syntax("Key "+k+" should end with :");
