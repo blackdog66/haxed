@@ -281,15 +281,16 @@ class Parser {
         
       case CAPTURE_VAL:
         capturingVal = true;
-        if (!tk.isNL(c)) 
+        if (!tk.isNL(c)) {
           curVal.add(c); 
-        else 
+        } else 
           tk.skipToAlpha(MULTI_LINE);
 
       case MULTI_LINE:
         var col = tk.column();
         if (col == valIndent) {
           curVal.add("\n");
+          curVal.add(c);
           tk.nextState(CAPTURE_VAL);
         } else {
           if (col == 0 || col == keyIndent || c == "\n") {
