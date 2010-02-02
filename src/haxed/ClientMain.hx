@@ -141,8 +141,8 @@ class ClientMain {
         client.upgrade();
       case NEW(interactive):
         client.newHxp(interactive);
-      case BUILD(hxpFile):
-        client.build(hxpFile);
+      case BUILD(hxpFile,target):
+        client.build(hxpFile,target);
       }
     
     case REMOTE(cmd,options):

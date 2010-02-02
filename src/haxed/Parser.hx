@@ -349,6 +349,7 @@ class Parser {
       .add("license",true,function(v) { return v.toUpperCase() ;} );
     
     Validate.forSection(Config.BUILD)
+      .add("name",false,Validate.name)
       .add("depends",false,Validate.depends)
       .add("class-path",true,Validate.toArray)
       .add("main-class",true)
@@ -373,23 +374,24 @@ class Hxp {
 
   public var file:String;
   public var hbl:Dynamic;
-  var curSection:String;
+  var curSection:Dynamic;
+  var builds:Array<Build>;
   
   public function new(f:String) {
     file = f;
     hbl = {};
-    curSection = Config.GLOBAL;
-    Reflect.setField(hbl,curSection,{});    
+    curSection = {};
+    builds = new Array<Build>();
+    Reflect.setField(hbl,Config.BUILD,builds);
   }
 
   public function
   setSection(name,info:Info) {
-    var
-      curSec = Reflect.field(hbl,curSection),
-      newSection = {};
-
-    curSection = Common.camelCase(name);
-    Reflect.setField(hbl,curSection,newSection);
+    curSection = {};
+    if (name == Config.BUILD) 
+      builds.push(curSection);
+    else
+      Reflect.setField(hbl,Common.camelCase(name),curSection);
   }
 
   public function
@@ -399,11 +401,8 @@ class Hxp {
   
   public function
   setProperty(name,values,info:Info) {
-    var
-      curSec = Reflect.field(hbl,curSection),
-      fld = Common.camelCase(name);
-
-    Reflect.setField(curSec,fld,values);
+    var fld = Common.camelCase(name);
+    Reflect.setField(curSection,fld,values);
   }
 
   function

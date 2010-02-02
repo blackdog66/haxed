@@ -61,7 +61,7 @@ class Package {
   public static function
   sources(conf:Config) {
     var
-      libs = conf.build(),
+      libs = conf.build()[0],
       include = Reflect.field(conf.pack(),"include");
 
     /*

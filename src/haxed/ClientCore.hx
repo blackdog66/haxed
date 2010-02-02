@@ -249,10 +249,10 @@ class ClientCore {
 
     var
       conf = configuration(prj),
-      deps = conf.build().depends;
+      deps = conf.build()[0].depends;
 
     if (deps != null) {
-      for( d in conf.build().depends )
+      for( d in conf.build()[0].depends )
         checkRec(d.prj,if( d.ver == "" ) null else d.ver,l);
     }
   }
@@ -365,10 +365,10 @@ class ClientCore {
     setCurrentVersion(prj,ver);
     Os.rm(filePath);
 
-    var deps = conf.build().depends;
+    var deps = conf.build()[0].depends;
 
     if (deps != null) {
-      for(d in conf.build().depends)
+      for(d in conf.build()[0].depends)
         install(new Options(),d.prj,d.ver);
     }
   }
@@ -553,9 +553,9 @@ project:
   }
 
   public function
-  build(hxpFile:String) {
+  build(hxpFile:String,target:String) {
     var hxp = Parser.process(hxpFile);
-    Builder.compile(Parser.getConfig(hxp));
+    Builder.compile(Parser.getConfig(hxp),target);
   }
 }
 

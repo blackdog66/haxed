@@ -17,18 +17,25 @@ class Builder {
   
   static function getLibs(d:Array<PrjVer>) {
     var sb = new StringBuf();
-    for (l in d) {
-      sb.add(" -lib ");
-      sb.add(l.prj) ;
-    }
+    if (d != null){
+      for (l in d) {
+        sb.add(" -lib ");
+        sb.add(l.prj) ;
+      }
+    } else
+      sb.add("");
+    
     return sb.toString();
   }
 
   static
   function getCps(classpaths:Array<String>) {
     var f = new StringBuf();
-    for (c in classpaths)
-      f.add(" -cp " + c);
+    if (classpaths != null) {
+      for (c in classpaths)
+        f.add(" -cp " + c);
+    } else
+      f.add("");
     return f.toString();
   }
 
@@ -42,23 +49,27 @@ class Builder {
   }
 
   public static function
-  compile(c:Config) {
-    var b = c.build();
-    trace(b);
-    var ctx = { MAIN:b.mainClass,
+  compile(c:Config,target:String) {
+    var builds = c.build();
+    for (b in builds) {
+      if (b.name == target || b.name == null || target == "all") {
+      var ctx = { MAIN:b.mainClass,
                 LIBS:getLibs(b.depends),
                 CPS:getCps(b.classPath),
                 TT:b.target,
                 TARGET: b.targetFile ,
                 OTHER: (b.options != null) ? b.options.join(" ") : ""};
 
+      neko.Lib.println("Building "+target);
     
-    var o = (Os.shell("haxe ::OTHER:: -main ::MAIN:: ::LIBS:: ::CPS:: -::TT:: ::TARGET::",true,ctx)),
-      filtered = o.split("\n")
-      .filter(function(l) {return l.trim() != ""; })
-      .array()
-      .join("\n");
-    
+      var o = (Os.shell("haxe ::OTHER:: -main ::MAIN:: ::LIBS:: ::CPS:: -::TT:: ::TARGET::",true,ctx)),
+        filtered = o.split("\n")
+        .filter(function(l) {return l.trim() != ""; })
+        .array()
+        .join("\n");
+      
+    }
+    }
   }
   
 }

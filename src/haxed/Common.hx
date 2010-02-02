@@ -137,7 +137,7 @@ enum LocalCommand {
   INSTALL(prj:String,ver:String);
   UPGRADE;
   NEW(interactive:Global);
-  BUILD(prj:String);
+  BUILD(prj:String,target:String);
 }
 
 enum RemoteCommand {
@@ -245,6 +245,7 @@ typedef Global = {
 }
   
 typedef Build = {
+  var name:String;
   var attrs:Array<String>;
   var depends:Array<PrjVer>;
   var classPath:Array<String>;
@@ -282,7 +283,7 @@ class Config {
   }
   
   public function
-  build():Build {
+  build():Array<Build> {
     return Reflect.field(data,BUILD);
   }
 

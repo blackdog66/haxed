@@ -247,7 +247,13 @@ class ClientCtrl {
       LOCAL(NEW(vals),options);
 
     case "build":
-      LOCAL(BUILD("Hxpfile"),options);
+      var
+        file = param("Project (Hxpfile)"),
+        target = param("Target (all)");
+
+      if (file == "") file = "Hxpfile";
+      if (target == "") target = "all";
+      LOCAL(BUILD(file,target),options);
     case "projects":
       REMOTE(PROJECTS,options);
       
