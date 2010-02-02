@@ -62,7 +62,6 @@ class Tokenizer<T> {
   public function
   peek() {
     if (curChar > textLength) {
-      trace("yes returning EOF on "+curState);
       return "EOF";
     }
     return parseText.charAt(curChar);
@@ -151,8 +150,13 @@ class Tokenizer<T> {
   skipToAlpha(retState:T) {
     var c;
     while ((c = nextChar()) != "EOF") {
-      if(isAlpha(c) || isNL(c)) {
-        nextState(retState,true);
+      if(isAlpha(c) || isNL(c) || c == "#") {
+        if (c == "#") {
+          skipToNL(retState);
+          nextState(retState,false);
+        } else {
+          nextState(retState,true);
+        }
         break;
       }
     }
