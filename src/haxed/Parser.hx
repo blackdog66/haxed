@@ -94,7 +94,6 @@ class Tokenizer<T> {
     else 
       curState = retState;
     
-    trace("returning to "+retState);
     retState = null;
     
   }
@@ -115,7 +114,7 @@ class Tokenizer<T> {
 
     if (isNL(nc) && ! reWnd) {
 #if debug
-        neko.Lib.println(">>"+state+":"+lineNo+"("+curChar+"): "+parseText.substr(lineStart,curChar-lineStart)+"<");
+      neko.Lib.println(">>"+state()+":"+lineNo+"("+curChar+"): "+parseText.substr(lineStart,curChar-lineStart)+"<");
 #end
       lineStart = curChar + 1;
       lineNo++;
@@ -164,7 +163,7 @@ class Tokenizer<T> {
   public function
   syntax(msg:String) {
     #if debug
-    neko.Lib.print("State:" + state+"  > ");
+    neko.Lib.print("State:" + state()+"  > ");
     #end
     if (column() > -1)
       neko.Lib.println("At line "+lineNo+" col "+column()+": "+msg);
