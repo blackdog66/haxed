@@ -1,6 +1,6 @@
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Common;
+import haxed.Common;
 
 using Lambda;
 

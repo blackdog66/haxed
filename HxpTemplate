@@ -4,26 +4,30 @@
 # This file doesn't like tabs, spaces only pls.
 # By default haxelib will include all files within the current directory,
 # so make sure you specify just the ones you want to include with pack include
+---
+project:
+    name:               myproject
+    website:            http://myproject.com
+    version:            1.2.3
+    comments:           freeform
+    description:        freeform
+                        can be multi line, 
+                        but indent is significant
+    author:             My Name
+    author-email:       woot@woot.com
+    tags:               tag1 tag2
+    license:            GPL
+        
+---
 
-project:            myproject
-website:            http://myproject.com
-version:            1.2.3
-comments:           freeform
-description:        freeform
-                    can be multi line, 
-                    but indent is significant
-author:             My Name
-author-email:       woot@woot.com
-tags:               tag1 tag2
-license:            GPL
-
-build 
+build: 
       depends:          hxJson2 > 1
       class-path:       classpath1
                         classpath2 etc
       target:           js 
       target-file:      main.js
       main-class:       Main
+---
 
-pack
+pack:
         include:        ./justthisdir

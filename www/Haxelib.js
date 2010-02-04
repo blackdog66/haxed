@@ -3,7 +3,7 @@
 
 var Haxelib = (function() {
 
-    var filter = "All";
+    var filter = "None";
 
     function url(u) {
         return "repo.php?method="+u;
@@ -28,42 +28,70 @@ var Haxelib = (function() {
         return filter;
     }
 
+/*
     function inFilter(tags) {
         if (filter !== "All"){
             return $.grep(tags,function(el) {
-                              return el.tag === filter;
-                          }).length > 0;
+                  return el.tag === filter;
+            }).length > 0;
         }
         return true;
     }
+*/
 
-    function renderPackages(){
-         $.getJSON(url("projects"),function(d) {
-            var r = TrimPath.processDOMTemplate('tmpl-prj-list',{
-                        projects:d.PAYLOAD,
-                        safe:safe,
-                        inFilter:inFilter,
-                        filter:getFilter
+    function renderPackageList(d) {
+        if (d.ERR === "ERR_PROJECTNOTFOUND") {
+           $("#prj-list").html("None found");
+           return;
+        }
+
+        var r = TrimPath.processDOMTemplate('tmpl-prj-list',{
+                  projects:d.PAYLOAD,
+                  filter:getFilter,
+                  safe:safe
             });
-            $("#prj-list").html(r);
-            $('.project-header').toggle(
-                function() { $('.details',$(this).next()).css({display:'inline'}) ;},
-                function() { $('.details',$(this).next()).css({display:'none'}); });
 
-            $(".details").css({display:"none"});
+        $("#prj-list").html(r);
+        $('.project-header').toggle(
+            function() { $('.details',$(this).next()).css({display:'inline'}) ;},
+            function() { $('.details',$(this).next()).css({display:'none'}); });
+
+        $(".details").css({display:"none"});
+
+        $("#nofilter").click(function() {
+            setFilter("None");
+            queryAll();
         });
+    }
+
+    function queryTags(){
+         $.getJSON(url("search")+"&query="+getFilter()+"&-St=true",renderPackageList);
+    }
+
+    function queryNames() {
+        $.getJSON(url("search")+"&query="+getFilter(),renderPackageList);
+    }
+
+    function queryAll() {
+        $.getJSON(url("projects"),renderPackageList);
     }
 
     function renderTags(nTags,tmpl,dst){
         $.getJSON(url("toptags")+"&ntags="+nTags,function(td) {
            $(dst).html(TrimPath.processDOMTemplate(tmpl,td.PAYLOAD));
-           $("ul",dst).prepend('<li><a href="#" id="tag-All">All</a></li>');
            $("a",dst).click(function(){
                var t = $(this).attr("id").split("-")[1] ;
                $("#filter-scope").html(t);
                setFilter(t);
-               renderPackages();
+               queryTags();
            });
+        });
+    }
+
+    function setupSearch() {
+		$("#btnQuery").click(function() {
+           setFilter($("#txtQuery").val());
+           queryNames();
         });
     }
 
@@ -74,11 +102,11 @@ var Haxelib = (function() {
             switch(selected) {
             case "home":
                 renderServerInfo();
-
             break;
             case "packages":
                 renderTags(5,"tmpl-tags","#tag-space");
-                renderPackages();
+                queryAll();
+                setupSearch();
             break;
             case "docs":
 

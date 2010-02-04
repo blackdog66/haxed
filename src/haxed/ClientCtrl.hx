@@ -1,8 +1,8 @@
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Os;
-import tools.haxelib.Common;
-import tools.haxelib.ClientCore;
+import haxed.Os;
+import haxed.Common;
+import haxed.ClientCore;
 
 class ClientCtrl {
   
@@ -19,7 +19,7 @@ class ClientCtrl {
     commands.set("user","list informations on a given user");
     commands.set("register","register yourself with a haxe repository");
     commands.set("submit","submit or update a project package");
-    commands.set("setup","set the haxelib repository path");
+    commands.set("setup","set the haxed repository path");
     commands.set("config","print the repository path");
     commands.set("run","run the specified project with parameters");
     commands.set("test","install the specified package locally");
@@ -208,7 +208,7 @@ class ClientCtrl {
       LOCAL(DEV(prj,dir),options);
 
     case "setup":
-      println("Please enter haxelib repository path with write access");
+      println("Please enter haxed repository path with write access");
       //      print("Hit enter for default ("+ClientCore.getRepos()+")");
       var line = param("Path",Validate.path);
       LOCAL(SETUP(line),options);
@@ -247,7 +247,13 @@ class ClientCtrl {
       LOCAL(NEW(vals),options);
 
     case "build":
-      LOCAL(BUILD("Hxpfile"),options);
+      var
+        file = param("Project (Hxpfile)"),
+        target = param("Target (all)");
+
+      if (file == "") file = "Hxpfile";
+      if (target == "") target = "all";
+      LOCAL(BUILD(file,target),options);
     case "projects":
       REMOTE(PROJECTS,options);
       
@@ -307,7 +313,7 @@ class ClientCtrl {
   function usage() {
     commandHelp();
     Os.print("Haxe Library Manager "+ClientMain.VERSION+" - (c)2009 ");
-    Os.print(" Usage : haxelib [command] [options]");
+    Os.print(" Usage : haxed [command] [options]");
     Os.print(" Commands :");
     for(c in commands.keys())
       Os.print("  "+c+" : "+commands.get(c));
@@ -317,7 +323,7 @@ class ClientCtrl {
   public static function
   askAboutHxp():Global {
     return {
-    	project:param("Project name"),
+    	name:param("Project name"),
         authorName:param("Author name"),
         authorEmail:param("Author email",Validate.email),
         version:param("Version"),

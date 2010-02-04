@@ -1,11 +1,11 @@
 
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Parser;
-import tools.haxelib.Package;
-import tools.haxelib.Common;
-import tools.haxelib.Os;
-import tools.haxelib.Builder;
+import haxed.Parser;
+import haxed.Package;
+import haxed.Common;
+import haxed.Os;
+import haxed.Builder;
 
 using Lambda;
 
@@ -113,11 +113,11 @@ class ClientCore {
     var rep = try {
       Os.fileIn(getConfigFile());
     } catch( e : Dynamic ) {
-      throw "This is the first time you are runing haxelib. Please run haxelib setup first";
+      throw "This is the first time you are runing haxed. Please run haxed setup first";
     }
       
     if( !Os.exists(rep) )
-      throw "haxelib Repository "+rep+" does not exists. Please run haxelib setup again";
+      throw "haxed Repository "+rep+" does not exists. Please run haxed setup again";
 
     repositoryDir = rep +"/";
     return repositoryDir;
@@ -249,10 +249,10 @@ class ClientCore {
 
     var
       conf = configuration(prj),
-      deps = conf.build().depends;
+      deps = conf.build()[0].depends;
 
     if (deps != null) {
-      for( d in conf.build().depends )
+      for( d in conf.build()[0].depends )
         checkRec(d.prj,if( d.ver == "" ) null else d.ver,l);
     }
   }
@@ -354,7 +354,7 @@ class ClientCore {
     var
       conf = new ConfigJson(json),
       glbs = conf.globals(),    
-      prj = glbs.project,
+      prj = glbs.name,
       ver = glbs.version,
       pdir = projectDir(prj);
     
@@ -365,10 +365,10 @@ class ClientCore {
     setCurrentVersion(prj,ver);
     Os.rm(filePath);
 
-    var deps = conf.build().depends;
+    var deps = conf.build()[0].depends;
 
     if (deps != null) {
-      for(d in conf.build().depends)
+      for(d in conf.build()[0].depends)
         install(new Options(),d.prj,d.ver);
     }
   }
@@ -515,9 +515,10 @@ class ClientCore {
   packit(hxpFile:String):String {
     var
       hxp = Parser.process(hxpFile),
-      conf = Parser.getConfig(hxp);
-
-    return Package.createFrom(conf);
+      conf = Parser.getConfig(hxp),
+      confDir = Package.confDir(hxpFile);
+    
+    return Package.createFrom(confDir,conf);
   }
   
   public function
@@ -534,15 +535,17 @@ class ClientCore {
       Reflect.setField(interactive,"tags",Lambda.map(Reflect.field(interactive,"tags"),function(t) { return {tag:t}; }));
       
       var tmpl = '
-project:            ::project::
-website:            ::website::
-version:            ::version::
-comments:           ::comments::
-description:        ::description::
-author:             ::authorName::
-author-email:       ::authorEmail::
-tags:               ::foreach tags::::tag:: ::end::
-license:            ::license::
+---
+project:
+    name:               ::name::
+    website:            ::website::
+    version:            ::version::
+    comments:           ::comments::
+    description:        ::description::
+    author:             ::authorName::
+    author-email:       ::authorEmail::
+    tags:               ::foreach tags::::tag:: ::end::
+    license:            ::license::
 ';
       Os.fileOut(Common.HXP_FILE,tmpl,interactive);
       
@@ -550,9 +553,9 @@ license:            ::license::
   }
 
   public function
-  build(hxpFile:String) {
+  build(hxpFile:String,target:String) {
     var hxp = Parser.process(hxpFile);
-    Builder.compile(Parser.getConfig(hxp));
+    Builder.compile(Parser.getConfig(hxp),target);
   }
 }
 

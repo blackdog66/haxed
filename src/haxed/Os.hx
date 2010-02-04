@@ -1,12 +1,14 @@
 
-package tools.haxelib;
+package haxed;
 
 #if php
+import php.Sys;
 import php.FileSystem;
 import php.io.File;
 import php.io.Path;
 import php.Lib;
 #elseif neko
+import neko.Sys;
 import neko.FileSystem;
 import neko.io.File;
 import neko.io.Path;
@@ -135,12 +137,22 @@ class Os {
     return tmpl.execute(ctx);
   }
 
-  public static function
+  public static inline function
+  cd(path:String) {
+    Sys.setCwd(path);
+  }
+
+  public static inline function
+  cwd() {
+    return Sys.getCwd();
+  }
+  
+  public static inline function
   exists(f:String) {
     return FileSystem.exists(f);
   }
 
-  public static function
+  public static inline function
   dir(d:String) {
     return FileSystem.readDirectory(d);
   }
@@ -329,7 +341,7 @@ class Os {
 
   public static function
   log(msg) {
-    var f = "haxelib.log";
+    var f = "haxed.log";
     if (!Os.exists(f)) Os.fileOut(f,"date:"+Date.now().toString());
     Os.fileAppend(f,msg+"\n");
   }

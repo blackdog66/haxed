@@ -1,10 +1,10 @@
 
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Common;
-import tools.haxelib.ServerData;
-import tools.haxelib.ZipReader;
-import tools.haxelib.License;
+import haxed.Common;
+import haxed.ServerData;
+import haxed.ZipReader;
+import haxed.License;
 
 using Lambda;
 
@@ -39,7 +39,7 @@ class Mail {
 }
 
 class ServerCore {
-  static var DB = "haxelib.db";
+  static var DB = "haxed.db";
   
   var dataDir:String;
   var repo:String;
@@ -117,7 +117,7 @@ class ServerCore {
     if (lc != null)
       return lc;
     
-    var prj = Project.manager.search({ name : glbs.project }).first();
+    var prj = Project.manager.search({ name : glbs.name }).first();
     if (prj == null)
       prj = createProject(user,glbs) ;
 
@@ -182,7 +182,7 @@ class ServerCore {
   createProject(u:User,g:Global):Project {
     var p = new Project();
 
-    p.name = g.project;
+    p.name = g.name;
     p.description = g.description;
     p.website = g.website;
     p.license = g.license;
@@ -312,22 +312,25 @@ class ServerCore {
   public function
   search(query:String,opts:Options):Status {
     var found ;
- 
-    if (opts.getSwitch("-Sv") != null) {
+
+    // tag query
+    if (opts.getSwitch("-St") != null) {
       found = Project.manager.all()
-        .filter(function(p) {
-            return p.version.comments.indexOf(query) != -1;
-          })
-        .map(function(p) {
+         .map(function(p) {
             return getInfo(p);
+          })
+        .filter(function(p) {
+            return p.tags.exists(function(el) { return el.tag == query; });
           })
         .array();
         
-    if (found.length > 0)
-      return OK_SEARCH(found);
-    return ERR_PROJECTNOTFOUND;
+      if (found.length > 0)
+        return OK_SEARCH(found);
+
+      return ERR_PROJECTNOTFOUND;
     }
 
+    // search within the json meta field
     var path = opts.getSwitch("-Sm");
     if (path != null) {
          found = Project.manager.all()
@@ -363,7 +366,8 @@ class ServerCore {
            return OK_SEARCH(found);
          return ERR_PROJECTNOTFOUND;
     }
-    
+
+    // check description and name
     found = Project.manager.containing(query)
       .map(function(p) {
           return getInfo(p);

@@ -1,7 +1,7 @@
 
-package tools.haxelib;
-import tools.haxelib.Common;
-import tools.haxelib.ClientCore;
+package haxed;
+import haxed.Common;
+import haxed.ClientCore;
 
 class ClientRestful extends ClientCore {
 

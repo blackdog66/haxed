@@ -1,18 +1,22 @@
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Os;
-import tools.haxelib.Common;
+import haxed.Os;
+import haxed.Common;
 
 class Package {
 
-  public static var packDir = "/tmp/haxelib-pkg/";
+  public static var packDir = "/tmp/haxed-pkg/";
 
   public static function
-  outFile(name:String,hblFile:String) {
-    var p  = neko.io.Path.directory(hblFile);
-    if (p != "")
-      return Common.slash(p) + name;
-    return name;
+  confDir(confFile:String) {
+    var p  = neko.io.Path.directory(confFile);
+    if (p == "") p = Os.cwd();
+    return Common.slash(p);
+  }
+  
+  public static function
+  outFile(name:String,confFile:String) {
+    return confDir(confFile) + name;
   }
 
   public static inline function
@@ -38,7 +42,7 @@ class Package {
       glbs = conf.globals(),
       tags = Lambda.map(Reflect.hasField(glbs, "tags") ? glbs.tags : new Array<String>(),function(el) { return { tag : el };}),
       tmpl =  '
-<project name="::glbs.project::" url="::glbs.website::" license="::glbs.license::">
+<project name="::glbs.name::" url="::glbs.website::" license="::glbs.license::">
     <user name="mylogin"/>
 
     <description>::glbs.description::</description>
@@ -57,28 +61,43 @@ class Package {
   public static function
   sources(conf:Config) {
     var
-      libs = conf.build(),
-      include = Reflect.field(conf.pack(),"include"),
+      libs = conf.build()[0],
+      include = Reflect.field(conf.pack(),"include");
+
+    /*
       exclude = if (include != null)
       	function(s:String) {
           return !Lambda.exists(include,function(el)
         	{ return StringTools.startsWith(s,el); });
       	} else null;
+    */
 
-    trace("include is "+include);
-    if (Reflect.hasField(libs, "classPath") && libs.classPath != null){
-      Lambda.iter(libs.classPath,function(d) {
-          if (!Os.exists(d))
-            throw "Source dir "+d+" does not exist";
-          Os.copyTree(Common.slash(d),packDir,exclude);
-        });
+    if (libs == null && include == null) {
+      Os.copyTree("./",packDir); // relying on having CD'd to the conf dir already
+    } else {
+      
+      if (Reflect.hasField(libs, "classPath") && libs.classPath != null){
+        Lambda.iter(libs.classPath,function(d) {
+            if (!Os.exists(d))
+              throw "class-path dir "+d+" does not exist";
+            Os.copyTree(Common.slash(d),packDir);
+          });
+      }
+
+      if(include != null) {
+        Lambda.iter(include,function(d) {
+            if (!Os.exists(d))
+              throw "include dir "+d+" does not exist";
+            Os.copyTree(Common.slash(d),packDir);
+          });
+      }
     }
   }
 
   public static function
   xml(conf:Config) {
     var glbs = conf.globals();
-    Os.fileOut(toPackDir("haxelib.xml"),packageXml(conf));
+    Os.fileOut(toPackDir("haxed.xml"),packageXml(conf));
   }
 
   public static function
@@ -88,7 +107,7 @@ class Package {
 
   public static function
   zip(conf:Config) {
-    var name = conf.globals().project+".zip";
+    var name = conf.globals().name+".zip";
     var outf = outFile(name,conf.file());
     trace("Zipping:"+outf);
     Os.zip(outf,Os.files(packDir),packDir);
@@ -97,11 +116,13 @@ class Package {
   }
 
   public static function
-  createFrom(config:Config) {
-      initPackDir();
-      sources(config);
-      xml(config);
-      json(config);
-      return zip(config);
+  createFrom(confDir:String,config:Config) {
+    Os.cd(confDir);
+    trace("CD'd to "+confDir);
+    initPackDir();
+    sources(config);
+    xml(config);
+    json(config);
+    return zip(config);
   }
 }

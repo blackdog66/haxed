@@ -1,6 +1,6 @@
 
-import tools.haxelib.Parser;
-import tools.haxelib.Os;
+import haxed.Parser;
+import haxed.Os;
 
 class TestValidate {
 

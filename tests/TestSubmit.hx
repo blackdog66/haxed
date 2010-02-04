@@ -1,7 +1,7 @@
 package tests;
 
-import tools.haxelib.ClientRestful;
-import tools.haxelib.Common;
+import haxed.ClientRestful;
+import haxed.Common;
 
 import utest.Assert;
 import utest.Runner;

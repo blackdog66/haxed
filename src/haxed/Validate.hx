@@ -1,8 +1,8 @@
 
-package tools.haxelib;
+package haxed;
 
-import tools.haxelib.Parser;
-import tools.haxelib.Common;
+import haxed.Parser;
+import haxed.Common;
 
 using Lambda;
 
@@ -125,33 +125,58 @@ class Validate {
     for (section in sections.keys()) {
       var
         vds = sections.get(section),
-        s = Reflect.field(hxp.hbl,section),
-        fldCopy = Reflect.copy(s);
+        mf = Reflect.field(hxp.hbl,section),
+        ma:Array<Dynamic>;
 
-      if (s == null) continue; // don't bother checking a section which is not defined
-      
-      for (fld in vds.keys()){
-        var
-          constraint = vds.get(fld),
-          givenVal = Reflect.field(s,fld);
+      if (mf == null) continue; // don't bother checking a section which is not defined
 
-        if (constraint.required && givenVal == null)
-          err(" is required",section,fld);
 
-        if (givenVal == null)
-          continue;
+#if debug
+      neko.Lib.println("Validating "+section);
+#end
+      // just make every element an array even if it isn't to make life easier
+      if (Std.is(mf,Array))
+        ma = mf;
+      else
+        ma = [mf];
 
-        if (constraint.valid != null) {
-          givenVal = constraint.valid(givenVal);
-          if (givenVal == null) err("",section,fld);
-        }
+ #if debug
+      var i = 0;
+#end
+      for (s in ma) {
+
+#if debug    
+        if (Reflect.field(s,"name") != null)
+          neko.Lib.println("    checking "+s.name);
+        else
+          neko.Lib.println("    checking element "+i++);
+#end
         
-        // remove validated field from all fields 
-        Reflect.deleteField(fldCopy,fld);
-
-        // update field with the validated value
-        Reflect.setField(s,fld,givenVal);            
-      }
+        var fldCopy = Reflect.copy(s);
+      
+        for (fld in vds.keys()){
+          var
+            constraint = vds.get(fld),
+            givenVal = Reflect.field(s,fld);
+          
+          if (constraint.required && givenVal == null)
+            err(" is required",section,fld);
+          
+          if (givenVal == null)
+            continue;
+          
+          if (constraint.valid != null) {
+            givenVal = constraint.valid(givenVal);
+            if (givenVal == null) err("",section,fld);
+          }
+          
+          // remove validated field from all fields 
+          Reflect.deleteField(fldCopy,fld);
+          
+          // update field with the validated value
+          Reflect.setField(s,fld,givenVal);            
+        }
+      
 
       // find which fields are left which have not been validated
       for (w in Reflect.fields(fldCopy)) {
@@ -159,13 +184,15 @@ class Validate {
       }
       // remove validated section from all sections
       Reflect.deleteField(sectionCopy,section);
+      }
+
     }
 
     // find which sections are left which have not been validated
     for (sw in Reflect.fields(sectionCopy)) {
       warn("is not a validated section",sw); 
     }
-    
+   
   }
   
 }

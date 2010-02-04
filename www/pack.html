@@ -1,12 +1,27 @@
-<div style="width:80%">
-<div style="width:200px;border:1px;float:left;" id="tag-space"></div>
-<div style="overflow:auto;" id="prj-list"></div>
+<div style="width:100%:min-height:300px;">
+<div style="width:200px;border:1px;float:left;" id="margin">
+  Tag Search
+	<div style="" id="tag-space">
+	</div>
+    Standard Search<p/>
+    <div style="text-align:center">
+    	Query:<input type="text" id="txtQuery" style="width:180px"/><p/>
+		<div style="" id="result-space">
+
+		</div>
+        <input type="button" id="btnQuery" value="Search"/>
+    </div>
+</div>
+<div style="overflow:auto;min-height:300px" id="prj-list"></div>
 </div>
 
 <textarea id="tmpl-prj-list" style="display:none">
-<div id="filter-scope">${filter()}</div><br/>
+Filter:&nbsp;<span id="filter-scope">${filter()}
+{if filter() != "None"}
+(<a href="#" id="nofilter">Remove</a>)
+{/if}
+</span><p/>
 {for p in projects}
-{if inFilter(p.tags)}
 <a href="/files/${p.name}-${safe(p.curversion)}.zip">Download</a>
 <span class="project-header">
 ${p.name} ${p.license} <b>${p.curversion}</b>
@@ -29,7 +44,6 @@ ${p.name} ${p.license} <b>${p.curversion}</b>
 </div>
 </blockquote>
 </span>
-{/if}
 {/for}
 </textarea>
 

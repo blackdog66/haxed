@@ -1,4 +1,4 @@
-package tools.haxelib;
+package haxed;
 
 /*
   Used across neko, php and js
@@ -137,7 +137,7 @@ enum LocalCommand {
   INSTALL(prj:String,ver:String);
   UPGRADE;
   NEW(interactive:Global);
-  BUILD(prj:String);
+  BUILD(prj:String,target:String);
 }
 
 enum RemoteCommand {
@@ -232,7 +232,7 @@ typedef PrjVer = {
 }
 
 typedef Global = {
-  var project:String;
+  var name:String;
   var authorName:String;
   var authorEmail:String;
   var version:String;
@@ -245,6 +245,7 @@ typedef Global = {
 }
   
 typedef Build = {
+  var name:String;
   var attrs:Array<String>;
   var depends:Array<PrjVer>;
   var classPath:Array<String>;
@@ -267,7 +268,7 @@ typedef Repo = {
 
   
 class Config {
-  public static var GLOBAL = "global";
+  public static var GLOBAL = "project";
   public static var BUILD = "build";
   public static var FILE = "file";
   public static var PACK = "pack";
@@ -282,7 +283,7 @@ class Config {
   }
   
   public function
-  build():Build {
+  build():Array<Build> {
     return Reflect.field(data,BUILD);
   }
 
@@ -307,7 +308,7 @@ class ConfigJson extends Config {
 }
 
 class Common {
-  public static var CONFIG_FILE = "haxelib.json";
+  public static var CONFIG_FILE = "haxed.json";
   public static var HXP_FILE = "Hxpfile";
 
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
