@@ -20,8 +20,8 @@ class RemoteRepos {
   static var repos:Array<String>;
   static var client:ClientCore;
   
-  public static
-  function init(c:ClientCore) {
+  public static function
+  init(c:ClientCore) {
     client = c;
     var
       conf:ClientConf = hxjson2.JSON.decode(haxe.Resource.getString("clientConfig"));
@@ -29,8 +29,8 @@ class RemoteRepos {
     repos = conf.repos;    
   }
   
-  static
-  function doRepo(cmd:String,prms:Dynamic,rps:Array<String>,
+  static function
+  doRepo(cmd:String,prms:Dynamic,rps:Array<String>,
                   userFn:String->Dynamic->Bool) {
     var next = rps.shift();
     if (next == null)
@@ -48,8 +48,8 @@ class RemoteRepos {
     client.request(u,prms,wrapper);
   }
   
-  public static
-  function each(cmd:String,prms:Dynamic,fn:String->Dynamic->Bool) {
+  public static function
+  each(cmd:String,prms:Dynamic,fn:String->Dynamic->Bool) {
     if (repos == null) throw "must call RemoteRepos.init() first";
     
     var tmpRepos = repos.copy();
@@ -140,7 +140,7 @@ class ClientCore {
     return Common.slash(projectDir(prj) + Common.safe(ver));
   }
 
-  static inline function
+  static function
   currentVersion(prj) {
     try {
     return Os.fileIn(projectDir(prj) + "/.current");
@@ -149,7 +149,7 @@ class ClientCore {
     }
   }
 
-  static inline function
+  static function
   devVersion(prj) {
     try {
     return Os.fileIn(projectDir(prj) + "/.dev");
@@ -226,8 +226,7 @@ class ClientCore {
   }
 
   
-  function
-  checkRec( prj : String, version : String, l : List<{ project : String, version : String }> ) {
+  function checkRec( prj : String, version : String, l : List<{ project : String, version : String }> ) {
     var pdir = projectDir(prj);
     if( !Os.exists(pdir) )
       throw "Dependancy "+prj+" is not installed";
