@@ -131,7 +131,7 @@ enum LocalCommand {
   CONFIG;
   PACK(path:String);
   DEV(prj:String,dir:String);
-  PATH(paths:Array<{project:String,version:String}>);
+  PATH(paths:Array<PrjVer>);
   RUN(param:String,args:Array<String>);
   TEST(pkg:String);
   INSTALL(prj:String,ver:String);
@@ -272,6 +272,7 @@ class Config {
   public static var BUILD = "build";
   public static var FILE = "file";
   public static var PACK = "pack";
+  public static var DEFAULT_BUILD = "default";
 
   public var data:Dynamic;
 
@@ -296,7 +297,19 @@ class Config {
   file():String {
     return Reflect.field(data,FILE);
   }
-  
+
+  public function
+  defaultBuild() {
+    var builds = build();
+    if (builds != null) {
+      for (b in build()) {
+        if (b.name == DEFAULT_BUILD)
+          return b;
+      }
+      return builds[0];
+    }
+    return null;
+  }
 }  
 
 class ConfigJson extends Config {

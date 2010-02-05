@@ -174,12 +174,12 @@ class ClientCtrl {
       REMOTE(USER(param("Email",Validate.email)),options);
 
     case "path":
-      var projects = new Array<{project:String,version:String}>();
+      var projects = new Array<PrjVer>();
       eachParam(function(p) {
           var
             pv = p.split(":"),
             version = (pv.length == 1) ? null : pv[1];
-          projects.push({project:pv[0],version:version});
+          projects.push({prj:pv[0],ver:version,op:null});
         });
       LOCAL(PATH(projects),options);
 
