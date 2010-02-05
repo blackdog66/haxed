@@ -5,6 +5,7 @@ import haxed.Parser;
 import haxed.Common;
 
 using Lambda;
+using StringTools;
 
 // this needs to be in a separate file as i want to 'using Validate'
 
@@ -16,6 +17,8 @@ private typedef Valid = {
 class Validate {
   static var sections = new Hash<Hash<Valid>>();
   static var reSplit = ~/\s/g;
+  static var reAlphanum = ~/^[A-Za-z0-9_.-]+$/;
+  static var reDir = ~/^[A-Za-z_0-9]/;
 
   public static function
   forSection(s:String):Hash<Valid> {
@@ -50,10 +53,22 @@ class Validate {
     return Lambda.map(reSplit.split(s),StringTools.trim).array();
   }
 
+  public static function directories(s:String):Array<String> {
+    var f = function(el:String) {
+      if (reDir.match(el.charAt(0)))
+        return "./"+el;
+      if (el.trim() == ".")
+        return "./";
+      
+      return el;
+    };
+    return Lambda.map(reSplit.split(s),f).array();
+
+  }
+  
   public static function
   name(v:String):String {
-    var alphanum = ~/^[A-Za-z0-9_.-]+$/;
-    if (alphanum.match(v)) return v;
+    if (reAlphanum.match(v)) return v;
     return null;
   }
 
@@ -78,7 +93,6 @@ class Validate {
     var z = v.toLowerCase();
     if (z == "swf" || z == "neko" || z == "js" || z == "cpp" || z == "php")
       return z;
-    trace(" Z is "+z);
     return null;
   }
 
