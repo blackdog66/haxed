@@ -46,7 +46,7 @@ class Convert {
         data = Datas.readData(xml),
         dev = data.developers.first(),
         //user = users.get(dev),
-        user = { pw: "12345", fn: "Old Haxelib" },
+        user = { pw: "12345", fn: dev },
         o = new Options(),
         email = dev+"@haxe.org";
 
@@ -63,6 +63,8 @@ class Convert {
       newPackage = packit(tmpDir+"haxelib.json");
 
       zf.close();
+
+      o.addSwitch("-R","localhost:8200");
 
       client.submit(o,user.pw,newPackage,function(rurl:String,s:Status) {
           trace("submitted to "+rurl);
