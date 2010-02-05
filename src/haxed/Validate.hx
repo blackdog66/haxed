@@ -91,7 +91,7 @@ class Validate {
   public static function
   target(v:String) {
     var z = v.toLowerCase();
-    if (z == "swf" || z == "neko" || z == "js" || z == "cpp" || z == "php")
+    if (z == "swf" || z == "neko" || z == "js" || z == "cpp" || z == "php" || z == "swf9")
       return z;
     return null;
   }
