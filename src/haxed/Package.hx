@@ -2,6 +2,7 @@ package haxed;
 
 import haxed.Os;
 import haxed.Common;
+using StringTools;
 
 class Package {
 
@@ -59,10 +60,13 @@ class Package {
   }
 
   public static function
-  sources(conf:Config) {
+  sources(confDir:String,conf:Config) {
+
+    Os.cd(confDir);
+    
     var
-      libs = conf.build()[0],
-      include = Reflect.field(conf.pack(),"include");
+      include = Reflect.field(conf.pack(),"include"),
+      builds = conf.build();
 
     /*
       exclude = if (include != null)
@@ -71,33 +75,47 @@ class Package {
         	{ return StringTools.startsWith(s,el); });
       	} else null;
     */
+    
+      if (builds != null) {
+        for (b in builds) {
+          if (Reflect.hasField(b, "classPath") && b.classPath != null){
 
-    if (libs == null && include == null) {
-      Os.copyTree("./",packDir); // relying on having CD'd to the conf dir already
-    } else {
-      
-      if (Reflect.hasField(libs, "classPath") && libs.classPath != null){
-        Lambda.iter(libs.classPath,function(d) {
-            if (!Os.exists(d))
-              throw "class-path dir "+d+" does not exist";
-            Os.copyTree(Common.slash(d),packDir);
-          });
+#if debug
+            trace("classpaths for build :"+b.name+" are "+b.classPath);
+#end
+
+            Lambda.iter(b.classPath,function(d) {
+                if (!Os.exists(d))
+                  throw "class-path dir "+d+" does not exist";
+                
+                // only copy a classpath tree if it's external to the package dir
+                if (!d.startsWith("./"))
+                  Os.copyTree(Common.slash(d),packDir);
+              });
+          }
+        }
       }
-
-      if(include != null) {
+      
+      if (include != null) {
         Lambda.iter(include,function(d) {
             if (!Os.exists(d))
               throw "include dir "+d+" does not exist";
             Os.copyTree(Common.slash(d),packDir);
           });
       }
-    }
+
+      // so if nothing was built or included just bring everthing in ...
+      // relying on having CD'd to the conf dir already
+      
+      if (builds == null && include == null) {
+        Os.copyTree("./",packDir); 
+      }
   }
 
   public static function
   xml(conf:Config) {
     var glbs = conf.globals();
-    Os.fileOut(toPackDir("haxed.xml"),packageXml(conf));
+    Os.fileOut(toPackDir("haxelib.xml"),packageXml(conf));
   }
 
   public static function
@@ -117,10 +135,8 @@ class Package {
 
   public static function
   createFrom(confDir:String,config:Config) {
-    Os.cd(confDir);
-    trace("CD'd to "+confDir);
     initPackDir();
-    sources(config);
+    sources(confDir,config);
     xml(config);
     json(config);
     return zip(config);
