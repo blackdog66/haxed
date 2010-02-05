@@ -39,11 +39,13 @@ class Builder {
   }
 
   static function
-  getCps(classpaths:Array<String>) {
+  getCps(classpaths:Array<String>,libRoot = "") {
     var f = new StringBuf();
     if (classpaths != null) {
-      for (c in classpaths)
-        f.add(" -cp " + c);
+      for (c in classpaths) {
+        var cp = (c.startsWith("./")) ? libRoot + c.substr(2) : c;
+        f.add(" -cp " + cp);
+      }
     } else
       f.add("");
     return f.toString();
@@ -61,13 +63,24 @@ class Builder {
   }
 
   public static function
-  compile(c:Config,target:String) {
-    var builds = c.build();
+  compile(c:Config,target:String,fromLib:Bool) {
+    var
+      builds = c.build(),
+      libRoot:String = null;
+
+    if (fromLib) {
+      var prj = c.globals().name;
+      libRoot = ClientCore
+        .internalPath([{prj:prj,ver:ClientCore.currentVersion(prj),op:null}])
+        .first();
+    }
+      
     for (b in builds) {
       if (b.name == target || b.name == null || target == "all") {
-      var ctx = { MAIN:b.mainClass,
+        
+        var ctx = { MAIN:b.mainClass,
                 LIBS:getLibs(b.depends),
-                CPS:getCps(b.classPath),
+                CPS:getCps(b.classPath,libRoot),
                 TT:b.target,
                 TARGET: b.targetFile ,
                 OTHER: (b.options != null) ? b.options.join(" ") : ""};

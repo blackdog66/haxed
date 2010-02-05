@@ -140,7 +140,7 @@ class ClientCore {
     return Common.slash(projectDir(prj) + Common.safe(ver));
   }
 
-  static function
+  public static function
   currentVersion(prj) {
     try {
     return Os.fileIn(projectDir(prj) + "/.current");
@@ -192,8 +192,10 @@ class ClientCore {
           v = "["+v+"]";
        versions.push(v);
       }
+      
       if( dev != null )
         versions.push("[dev:"+dev+"]");
+
       Os.print(Common.unsafe(p) + ": "+versions.join(" "));
     }
   }
@@ -268,33 +270,36 @@ class ClientCore {
 
     var list = new List();
 
-    trace("PROJECTS "+projects);
-
     for (p in projects) {
       checkRec(p.prj,p.ver,list);
     }
     
-    var rep = getRepository();
     for( d in list) {
       var
-        pdir = Common.safe(d.prj)+"/"+Common.safe(d.ver)+"/",
-        dir = rep + pdir;
+        pdir = versionDir(d.prj,d.ver);
+      
       try {
-        dir = devVersion(d.prj);
-        if( dir.length == 0 || (dir.charAt(dir.length-1) != '/' && dir.charAt(dir.length-1) != '\\') )
+        var dir = devVersion(d.prj);
+
+        if( dir.length == 0 ||
+            (dir.charAt(dir.length-1) != '/' &&
+             dir.charAt(dir.length-1) != '\\'))
           dir += "/";
+        
         pdir = dir;
       } catch( e : Dynamic ) {
-
       }
-      var ndir = dir + "ndll";
+      
+      var ndir = Common.slash(Common.slash(pdir) + "ndll");
+
       if(Os.exists(ndir) ) {
         var sysdir = ndir+"/"+neko.Sys.systemName();
         if( !Os.exists(sysdir) )
           throw "Project "+d.prj+" version "+d.ver+" does not have a neko dll for your system";
-        out.add("-L "+pdir+"ndll/");
+        out.add("-L "+ndir);
       }
-      out.add(dir);
+      
+      out.add(pdir);
     }
     return out;
   }
@@ -572,11 +577,24 @@ project:
   }
 
   public function
-  build(hxpFile:String,target:String) {
-    var hxp = Parser.process(hxpFile);
-    Builder.compile(Parser.getConfig(hxp),target);
+  build(hxpFile:String,target:String,options:Options) {
+    var
+      prj = options.getSwitch("-lib"),
+      config:Config,
+      fromLib = prj != null;
+    
+    if (fromLib) {
+      var p = internalPath([{prj:hxpFile,ver:currentVersion(prj),op:null}]);
+      trace("path =" +p.first());
+      config = new ConfigJson(Os.fileIn(p.first() + "/"+Common.CONFIG_FILE));
+    } else {
+      config = Parser.getConfig(Parser.process(hxpFile));
+    }
+
+    Builder.compile(config,target,fromLib);
   }
 }
+
 
 class Progress extends haxe.io.Output {
 

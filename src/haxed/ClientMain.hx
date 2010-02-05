@@ -142,7 +142,7 @@ class ClientMain {
       case NEW(interactive):
         client.newHxp(interactive);
       case BUILD(hxpFile,target):
-        client.build(hxpFile,target);
+        client.build(hxpFile,target,options);
       }
     
     case REMOTE(cmd,options):
