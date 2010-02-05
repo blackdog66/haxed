@@ -2,29 +2,38 @@ package haxed;
 
 import haxed.Common;
 import haxed.Os;
+import haxed.ClientCore;
+
 using Lambda;
 using StringTools;
 
 enum TargetType {
-	JS;
-	NEKO;
-	SWF;
+  JS;
+  NEKO;
+  SWF;
+  PHP;
+  CPP;
 }
 
 class Builder {
 
   static var libs:String;
-  
+
+  /*
+    Convert any library references to classpaths, so that when the haxe compiler is
+    called it's not called with -lib which will relies on executing haxelib -path which
+    could be the old exectutable
+  */
   static function
   getLibs(d:Array<PrjVer>) {
-    var sb = new StringBuf();
-    if (d != null){
-      for (l in d) {
-        sb.add(" -lib ");
-        sb.add(l.prj) ;
-      }
-    } else
-      sb.add("");
+    var
+      paths = ClientCore.internalPath(d),
+      sb = new StringBuf();
+
+    for (p in paths) {
+      sb.add(" -cp ");
+      sb.add(p) ;
+    }
     
     return sb.toString();
   }
@@ -46,6 +55,8 @@ class Builder {
     case JS: "js";
     case NEKO: "neko";
     case SWF: "swf";
+    case PHP: "php";
+    case CPP: "cpp";
     };
   }
 

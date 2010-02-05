@@ -123,7 +123,7 @@ class ClientCore {
     return repositoryDir;
   }
 
-  public function
+  public static function
   getRepository() {
     return getRepos();
   }
@@ -226,51 +226,61 @@ class ClientCore {
   }
 
   
-  function checkRec( prj : String, version : String, l : List<{ project : String, version : String }> ) {
+  static function
+  checkRec( prj : String, version : String, l : List<PrjVer> ) {
     var pdir = projectDir(prj);
     if( !Os.exists(pdir) )
       throw "Dependancy "+prj+" is not installed";
 
-    var version = if( version != null ) version else currentVersion(prj);
+    var version = ( version != null ) ? version : currentVersion(prj);
     var vdir = versionDir(prj,version);
 
     if(!Os.exists(vdir))
       throw "Project "+prj+" version "+version+" is not installed";
 
     for( p in l )
-      if( p.project == prj ) {
-        if( p.version == version )
+      if( p.prj == prj ) {
+        if( p.ver == version )
           return;
-        throw "Project "+prj+" has two version included "+version+" and "+p.version;
+        throw "Project "+prj+" has two version included "+version+" and "+p.ver;
       }
 
-    l.add({ project : prj, version : version });
+    l.add({ prj : prj, ver : version, op:null });
 
     var
       conf = configuration(prj),
-      deps = conf.build()[0].depends;
+      defaultBuild = conf.defaultBuild();
 
-    if (deps != null) {
-      for( d in conf.build()[0].depends )
+    if (defaultBuild != null) {
+      var deps = defaultBuild.depends;
+      if (deps != null) {
+      for( d in deps )
         checkRec(d.prj,if( d.ver == "" ) null else d.ver,l);
+      }
     }
   }
   
-  public function
-  path(projects:Array<{project:String,version:String}>) {
+  public static function
+  internalPath(projects:Array<PrjVer>) {
+    var out = new List();
+
+    if (projects == null) return out;
 
     var list = new List();
+
+    trace("PROJECTS "+projects);
+
     for (p in projects) {
-      checkRec(p.project,p.version,list);
+      checkRec(p.prj,p.ver,list);
     }
     
     var rep = getRepository();
     for( d in list) {
       var
-        pdir = Common.safe(d.project)+"/"+Common.safe(d.version)+"/",
+        pdir = Common.safe(d.prj)+"/"+Common.safe(d.ver)+"/",
         dir = rep + pdir;
       try {
-        dir = devVersion(d.project);
+        dir = devVersion(d.prj);
         if( dir.length == 0 || (dir.charAt(dir.length-1) != '/' && dir.charAt(dir.length-1) != '\\') )
           dir += "/";
         pdir = dir;
@@ -281,10 +291,18 @@ class ClientCore {
       if(Os.exists(ndir) ) {
         var sysdir = ndir+"/"+neko.Sys.systemName();
         if( !Os.exists(sysdir) )
-          throw "Project "+d.project+" version "+d.version+" does not have a neko dll for your system";
-        Os.print("-L "+pdir+"ndll/");
+          throw "Project "+d.prj+" version "+d.ver+" does not have a neko dll for your system";
+        out.add("-L "+pdir+"ndll/");
       }
-      Os.print(dir);
+      out.add(dir);
+    }
+    return out;
+  }
+
+  public function
+  path(projects:Array<PrjVer>) {
+    for (p in internalPath(projects)) {
+      Os.print(p);
     }
   }
 
@@ -364,11 +382,13 @@ class ClientCore {
     setCurrentVersion(prj,ver);
     Os.rm(filePath);
 
-    var deps = conf.build()[0].depends;
-
-    if (deps != null) {
-      for(d in conf.build()[0].depends)
-        install(new Options(),d.prj,d.ver);
+    var defaultBuild = conf.defaultBuild();
+    if (defaultBuild != null) {
+      var deps = defaultBuild.depends;
+      if (deps != null) {
+        for(d in deps)
+          install(new Options(),d.prj,d.ver);
+      }
     }
   }
     

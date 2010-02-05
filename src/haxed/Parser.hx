@@ -351,13 +351,13 @@ class Parser {
     Validate.forSection(Config.BUILD)
       .add("name",false,Validate.name)
       .add("depends",false,Validate.depends)
-      .add("class-path",true,Validate.toArray)
+      .add("class-path",true,Validate.directories)
       .add("main-class",true)
       .add("target",true,Validate.target)
       .add("target-file",true);
 
     Validate.forSection(Config.PACK)
-      .add("include",false,Validate.toArray);
+      .add("include",false,Validate.directories);
     
     Validate.applyAllTo(h);
 
