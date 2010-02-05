@@ -66,15 +66,11 @@ class Package {
     
     var
       include = Reflect.field(conf.pack(),"include"),
-      builds = conf.build();
-
-    /*
-      exclude = if (include != null)
-      	function(s:String) {
-          return !Lambda.exists(include,function(el)
-        	{ return StringTools.startsWith(s,el); });
-      	} else null;
-    */
+      builds = conf.build(),
+      exclude = function(s:String) {
+          return Lambda.exists([".git",".svn","CVS"],function(el)
+        	{ return s.startsWith("./"+el); });
+      } ;
     
       if (builds != null) {
         for (b in builds) {
@@ -90,7 +86,7 @@ class Package {
                 
                 // only copy a classpath tree if it's external to the package dir
                 if (!d.startsWith("./"))
-                  Os.copyTree(Common.slash(d),packDir);
+                  Os.copyTree(Common.slash(d),packDir,exclude);
               });
           }
         }
@@ -100,7 +96,7 @@ class Package {
         Lambda.iter(include,function(d) {
             if (!Os.exists(d))
               throw "include dir "+d+" does not exist";
-            Os.copyTree(Common.slash(d),packDir);
+            Os.copyTree(Common.slash(d),packDir,exclude);
           });
       }
 

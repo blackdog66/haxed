@@ -36,8 +36,7 @@ class Builder {
     var f = new StringBuf();
     if (classpaths != null) {
       for (c in classpaths) {
-        var cp = (c.startsWith("./")) ? libRoot + c.substr(2) : c;
-        f.add(" -cp " + cp);
+        f.add(" -cp " + ((c.startsWith("./")) ? libRoot + c.substr(2) : c));
       }
     } else
       f.add("");
