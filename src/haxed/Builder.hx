@@ -7,13 +7,6 @@ import haxed.ClientCore;
 using Lambda;
 using StringTools;
 
-enum TargetType {
-  JS;
-  NEKO;
-  SWF;
-  PHP;
-  CPP;
-}
 
 class Builder {
 
@@ -49,17 +42,6 @@ class Builder {
     } else
       f.add("");
     return f.toString();
-  }
-
-  static function
-  getTargetType(tt:TargetType) {
-    return switch (tt) {
-    case JS: "js";
-    case NEKO: "neko";
-    case SWF: "swf";
-    case PHP: "php";
-    case CPP: "cpp";
-    };
   }
 
   public static function
