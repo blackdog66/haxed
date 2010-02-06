@@ -257,6 +257,7 @@ typedef Build = {
 
 typedef Pack = {
   var include:Array<String>;
+  var exclude:Array<String>;
 }
   
 typedef Repo = {

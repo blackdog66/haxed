@@ -354,10 +354,12 @@ class Parser {
       .add("class-path",true,Validate.directories)
       .add("main-class",true)
       .add("target",true,Validate.target)
-      .add("target-file",true);
+      .add("target-file",true)
+      .add("options",false,Validate.splitOnComma);
 
     Validate.forSection(Config.PACK)
-      .add("include",false,Validate.directories);
+      .add("include",false,Validate.directories)
+      .add("exclude",false,Validate.directories);
     
     Validate.applyAllTo(h);
 

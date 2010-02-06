@@ -53,6 +53,11 @@ class Validate {
     return Lambda.map(reSplit.split(s),StringTools.trim).array();
   }
 
+  public static function
+  splitOnComma(s) {
+    return Lambda.map(~/,/g.split(s),StringTools.trim).array();
+  }
+  
   public static function directories(s:String):Array<String> {
     var f = function(el:String) {
       if (reDir.match(el.charAt(0)))

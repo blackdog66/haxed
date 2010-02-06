@@ -3,6 +3,7 @@ package haxed;
 import haxed.Os;
 import haxed.Common;
 using StringTools;
+using Lambda;
 
 class Package {
 
@@ -66,11 +67,7 @@ class Package {
     
     var
       include = Reflect.field(conf.pack(),"include"),
-      builds = conf.build(),
-      exclude = function(s:String) {
-          return Lambda.exists([".git",".svn","CVS"],function(el)
-        	{ return s.startsWith("./"+el); });
-      } ;
+      builds = conf.build();
     
       if (builds != null) {
         for (b in builds) {
@@ -86,17 +83,31 @@ class Package {
                 
                 // only copy a classpath tree if it's external to the package dir
                 if (!d.startsWith("./"))
-                  Os.copyTree(Common.slash(d),packDir,exclude);
+                  Os.copyTree(Common.slash(d),packDir);
               });
           }
         }
       }
       
       if (include != null) {
+        var
+          excludes = conf.pack().exclude
+          	.map(function(el) {
+              return (el.startsWith("./")) ? el.substr(2) : el ;
+            })
+          	.array().concat([".git",".svn","CVS"]),
+          
+          excluder = function(s:String) {
+          	 return Lambda.exists(excludes,
+                function(el) { return s.startsWith(el); });
+        	 } ;
+#if debug        
+trace("excludes are "+excludes);
+#end
         Lambda.iter(include,function(d) {
             if (!Os.exists(d))
               throw "include dir "+d+" does not exist";
-            Os.copyTree(Common.slash(d),packDir,exclude);
+            Os.copyTree(Common.slash(d),packDir,excluder);
           });
       }
 
@@ -124,7 +135,7 @@ class Package {
     var name = conf.globals().name+".zip";
     var outf = outFile(name,conf.file());
     trace("Zipping:"+outf);
-    Os.zip(outf,Os.files(packDir),packDir);
+    Os.zip(outf,Os.files(packDir,null),packDir);
     trace("Created "+outf);
     return outf;
   }

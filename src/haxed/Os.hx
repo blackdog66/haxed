@@ -168,11 +168,11 @@ class Os {
     var dirContent = FileSystem.readDirectory(dir);
     for (f in dirContent) {
       var d = Common.slash(dir) + f;
-      if (exclude != null)
-        if (exclude(d)) {
-          trace("excluding "+d);
+      if (exclude != null) {
+        if (exclude(f)) {
           continue;
         }
+      }
       try {
         if (FileSystem.isDirectory(d))
           readTree(d,files);
@@ -217,7 +217,6 @@ class Os {
       var fl = new List<{fileTime : Date, fileName : String, data : haxe.io.Bytes}>();
       for (f in files) {
         if (f == "." || f == "..") continue;
-        if (f.indexOf(".git") != -1) continue ;
         var dt = FileSystem.stat(f);
         fl.push({fileTime:dt.mtime,fileName:f.substr(rootLen),data:neko.io.File.getBytes(f)});
       }
