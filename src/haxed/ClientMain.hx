@@ -143,6 +143,9 @@ class ClientMain {
         client.newHxp(interactive);
       case BUILD(hxpFile,target):
         client.build(hxpFile,target,options);
+      case TASK(config,task,prms):
+        var t = new haxed.Tasks(config,task);
+        t.execute(prms,options);
       }
     
     case REMOTE(cmd,options):

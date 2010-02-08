@@ -55,7 +55,13 @@ class Builder {
         .internalPath([{prj:prj,ver:ClientCore.currentVersion(prj),op:null}])
         .first();
     }
-      
+
+    compileBuild(builds,target,libRoot);
+   
+  }
+  
+  public static function
+  compileBuild(builds:Array<Build>,target:String,?libRoot:String) {
     for (b in builds) {
       if (b.name == target || b.name == null || target == "all") {
         
@@ -74,8 +80,9 @@ class Builder {
         .array()
         .join("\n");
       
+      }
     }
-    }
+
   }
   
 }

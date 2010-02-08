@@ -576,6 +576,11 @@ project:
     }
   }
 
+  public static function
+  getConfig(hxpFile:String):Config {
+    return Parser.getConfig(Parser.process(hxpFile));
+  }
+  
   public function
   build(hxpFile:String,target:String,options:Options) {
     var

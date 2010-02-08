@@ -10,7 +10,7 @@ typedef Info = { line:Int,col:Int};
 enum Token {
   PROPERTY(name:String,value:String,info:Info);
   SECTION(name:String,info:Info);
-  ENDSECTION(info:Info);
+  //  ENDSECTION(info:Info);
 }
 
 private enum State {
@@ -325,8 +325,8 @@ class Parser {
           hbl.setProperty(name,val,info);
         case SECTION(name,info):
           hbl.setSection(name,info);
-        case ENDSECTION(info):
-          hbl.endSection(info);
+          //case ENDSECTION(info):
+          //hbl.endSection(info);
         }
         return hbl;
       },new Hxp(file));    
@@ -360,6 +360,12 @@ class Parser {
     Validate.forSection(Config.PACK)
       .add("include",false,Validate.directories)
       .add("exclude",false,Validate.directories);
+
+    Validate.forSection(Config.TASK)
+      .add("name",true,Validate.name)
+      .add("main-class",true,Validate.name)
+      .add("class-path",false,Validate.directories)
+      .add("params",false,Validate.toArray);
     
     Validate.applyAllTo(h);
 
@@ -378,13 +384,16 @@ class Hxp {
   public var hbl:Dynamic;
   var curSection:Dynamic;
   var builds:Array<Build>;
+  var tasks:Array<Task>;
   
   public function new(f:String) {
     file = f;
     hbl = {};
     curSection = {};
     builds = new Array<Build>();
+    tasks = new Array<Task>();
     Reflect.setField(hbl,Config.BUILD,builds);
+    Reflect.setField(hbl,Config.TASK,tasks);
   }
 
   public function
@@ -392,6 +401,8 @@ class Hxp {
     curSection = {};
     if (name == Config.BUILD) 
       builds.push(curSection);
+    else if (name == Config.TASK)
+      tasks.push(curSection);
     else
       Reflect.setField(hbl,Common.camelCase(name),curSection);
   }

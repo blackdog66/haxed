@@ -4,6 +4,8 @@ import haxed.Os;
 import haxed.Common;
 import haxed.ClientCore;
 
+using StringTools;
+
 class ClientCtrl {
   
   static var commands = new Hash<String>();
@@ -32,6 +34,7 @@ class ClientCtrl {
     commands.set("new","create a new Hxpfile in the current directory");
     commands.set("build","build your project");
     commands.set("toptags","most used tags");
+    commands.set("task","execute a task");
   }
 
   static var curArg = 0;
@@ -254,6 +257,35 @@ class ClientCtrl {
       if (file == "") file = "Hxpfile";
       if (target == "") target = "all";
       LOCAL(BUILD(file,target),options);
+
+    case "task":
+      var
+        file = param("Project (Hxpfile)"),
+        taskName = param("Task").trim(),
+        conf = ClientCore.getConfig(file),
+        tasks = conf.tasks(),
+        task:Task = null,
+        userPrms = [];
+
+      for (t in tasks) {
+        if (t.name == taskName)
+          task = t;
+      }
+        
+      if (task != null) {
+      
+        for (prm in task.params) {
+          var p = prm.split("=");
+          var a = param("Param:"+p[0] +" (" + p[1] +")");
+          userPrms.push((a == "") ? p[1] : a);
+        }
+      
+      } else {
+        Os.print("Can't find task "+taskName +" in file "+file);
+        neko.Sys.exit(0);
+      }
+      LOCAL(TASK(conf,task,userPrms),options);
+      
     case "projects":
       REMOTE(PROJECTS,options);
       

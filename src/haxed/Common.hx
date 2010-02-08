@@ -138,6 +138,7 @@ enum LocalCommand {
   UPGRADE;
   NEW(interactive:Global);
   BUILD(prj:String,target:String);
+  TASK(config:Config,task:Task,prms:Array<Dynamic>);
 }
 
 enum RemoteCommand {
@@ -246,7 +247,7 @@ typedef Global = {
   
 typedef Build = {
   var name:String;
-  var attrs:Array<String>;
+  //var attrs:Array<String>;
   var depends:Array<PrjVer>;
   var classPath:Array<String>;
   var target:String;
@@ -259,7 +260,11 @@ typedef Pack = {
   var include:Array<String>;
   var exclude:Array<String>;
 }
-  
+
+  typedef Task = { > Build,
+  var params:Array<Dynamic>;
+}
+
 typedef Repo = {
   var attrs:Array<String>;
   var type:String;
@@ -273,6 +278,7 @@ class Config {
   public static var BUILD = "build";
   public static var FILE = "file";
   public static var PACK = "pack";
+  public static var TASK = "task";
   public static var DEFAULT_BUILD = "default";
 
   public var data:Dynamic;
@@ -292,6 +298,11 @@ class Config {
   public function
   pack():Pack {
     return Reflect.field(data,PACK);
+  }
+
+  public function
+  tasks():Array<Task> {
+    return Reflect.field(data,TASK);
   }
   
   public function
