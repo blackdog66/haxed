@@ -392,18 +392,20 @@ class Hxp {
     curSection = {};
     builds = new Array<Build>();
     tasks = new Array<Task>();
-    Reflect.setField(hbl,Config.BUILD,builds);
-    Reflect.setField(hbl,Config.TASK,tasks);
   }
 
   public function
   setSection(name,info:Info) {
     curSection = {};
-    if (name == Config.BUILD) 
+    if (name == Config.BUILD) {
+      if (Reflect.field(hbl,Config.BUILD) == null)
+        Reflect.setField(hbl,Config.BUILD,builds);
       builds.push(curSection);
-    else if (name == Config.TASK)
+    } else if (name == Config.TASK) {
+      if (Reflect.field(hbl,Config.TASK) == null)
+        Reflect.setField(hbl,Config.TASK,tasks);
       tasks.push(curSection);
-    else
+    } else
       Reflect.setField(hbl,Common.camelCase(name),curSection);
   }
 
