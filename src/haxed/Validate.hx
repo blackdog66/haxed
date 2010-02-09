@@ -60,12 +60,13 @@ class Validate {
   
   public static function directories(s:String):Array<String> {
     var f = function(el:String) {
+      var trimmed = el.trim();
       if (reDir.match(el.charAt(0)))
-        return "./"+el;
-      if (el.trim() == ".")
+        return "./"+trimmed;
+      if (trimmed == ".")
         return "./";
       
-      return el;
+      return trimmed;
     };
     return Lambda.map(reSplit.split(s),f).array();
 
