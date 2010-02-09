@@ -72,15 +72,17 @@ class Builder {
                 TARGET: b.targetFile ,
                 OTHER: (b.options != null) ? b.options.join(" ") : ""};
 
-      neko.Lib.println("Building "+target);
+      neko.Lib.println("Building "+b.name);
     
-      var o = (Os.shell("haxe ::OTHER:: -main ::MAIN:: ::LIBS:: ::CPS:: -::TT:: ::TARGET::",true,ctx)),
+      var o = (Os.shell("haxe ::OTHER:: -main ::MAIN:: ::LIBS:: ::CPS:: -::TT:: ::TARGET::",false,ctx)),
         filtered = o.split("\n")
         .filter(function(l) {return l.trim() != ""; })
         .array()
         .join("\n");
       
+      neko.Lib.println(o);
       }
+      
     }
 
   }
