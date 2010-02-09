@@ -17,8 +17,8 @@ class ClientCtrl {
     commands.set("remove","remove a given project/version");
     commands.set("set","set the current version for a project");
     commands.set("search","list projects matching a word");
-    commands.set("info","list informations on a given project");
-    commands.set("user","list informations on a given user");
+    commands.set("info","list information about a given project");
+    commands.set("user","list information about a given user");
     commands.set("register","register yourself with a haxe repository");
     commands.set("submit","submit or update a project package");
     commands.set("setup","set the haxed repository path");
