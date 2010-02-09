@@ -27,7 +27,7 @@ class ClientCtrl {
     commands.set("test","install the specified package locally");
     commands.set("dev","set the development directory for a given project");
     commands.set("path","give paths to libraries");
-    commands.set("pack","package the project specified by the hbl file");
+    commands.set("pack","package the project");
     commands.set("projects","list all projects");
     commands.set("account","update your registered email address,password and name");
     commands.set("reminder","send password to your registered email address");
