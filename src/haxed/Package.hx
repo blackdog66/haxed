@@ -91,7 +91,7 @@ class Package {
       
       if (include != null) {
         var
-          excludes = conf.pack().exclude
+          excludes = ((conf.pack().exclude != null) ? conf.pack().exclude : [])
           	.map(function(el) {
               return (el.startsWith("./")) ? el.substr(2) : el ;
             })
