@@ -12,5 +12,5 @@
 -neko client.n
 -main haxed.ClientMain
 -resource client.json@clientConfig
--resource HxpTemplate@HxpTemplate
+-resource HaxedTemplate@HaxedTemplate
 
