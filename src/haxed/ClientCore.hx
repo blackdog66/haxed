@@ -548,9 +548,10 @@ class ClientCore {
   public function
   newHxp(interactive:Global) {
     if (interactive == null) {
-      var nf = getRepos() + Common.HXP_FILE;
+      // then copy the template - if it doesn't exist create it from the resource
+      var nf = getRepos() + Common.HXP_TEMPLATE;
       if (!Os.exists(nf)) {
-        Os.fileOut(nf,haxe.Resource.getString("HxpTemplate"));
+        Os.fileOut(nf,haxe.Resource.getString("HaxedTemplate"));
       }
 
       Os.cp(nf,Common.HXP_FILE);
@@ -571,7 +572,7 @@ project:
     tags:               ::foreach tags::::tag:: ::end::
     license:            ::license::
 ';
-      Os.fileOut(Common.HXP_FILE,tmpl,interactive);
+      Os.fileOut(interactive.name+".haxed",tmpl,interactive);
       
     }
   }

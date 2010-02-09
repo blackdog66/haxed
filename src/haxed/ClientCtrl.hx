@@ -31,7 +31,7 @@ class ClientCtrl {
     commands.set("projects","list all projects");
     commands.set("account","update your registered email address,password and name");
     commands.set("reminder","send password to your registered email address");
-    commands.set("new","create a new Hxpfile in the current directory");
+    commands.set("new","create a new project.haxed in the current directory");
     commands.set("build","build your project");
     commands.set("toptags","most used tags");
     commands.set("task","execute a task");
@@ -138,6 +138,45 @@ class ClientCtrl {
     return StringTools.trim(readLine(hidden));
   }
 
+  static function checkHaxedExt(s:String) {
+    var file = (s.endsWith(Common.HXP_EXT) ? s : s + "."+Common.HXP_EXT);
+    
+    if (!Os.exists(file)) {
+        Os.print(file +" does not exist");
+        neko.Sys.exit(0);
+      }
+    
+    return file; 
+  }
+
+  static function check(file:String,t:String,searchFor:String):Dynamic {
+    var
+      conf = ClientCore.getConfig(file),
+      items:Array<Dynamic> ;
+      if (t == "task")
+        items = conf.tasks();
+      else
+        items = conf.build();
+
+      var found:Dynamic = null;
+
+      for (i in items) {
+        if (i.name == searchFor)
+          found = i;
+      }
+        
+      if (found != null) {
+     
+        return found;
+      
+      } else {
+        Os.print("Can't find "+t+" "+searchFor);
+        neko.Sys.exit(0);
+      }
+      
+      return null;
+  }
+  
   static function getPW(prompt="Password",opt=false):String {
     var
       confirm,
@@ -222,7 +261,7 @@ class ClientCtrl {
       LOCAL(TEST(path),options);
       
     case "pack":
-      var hxp = param("Hxp File",Validate.path);
+      var hxp = checkHaxedExt(param("Project"));
       LOCAL(PACK(hxp),options);
       
     case "run":
@@ -241,50 +280,43 @@ class ClientCtrl {
       
       if (Os.ask("Interactive?") == Yes ) {
         vals=askAboutHxp();
+        if (Os.exists(vals.name))
+          if (Os.ask(vals.name+" exists, overwrite?") == No)
+            neko.Sys.exit(0);
       }
-
-      if (Os.exists("Hxpfile"))
-        if (Os.ask("Hxpfile exists, overwrite?") == No)
-          neko.Sys.exit(0);
 
       LOCAL(NEW(vals),options);
 
     case "build":
       var
-        file = param("Project (Hxpfile)"),
+        file = checkHaxedExt(param("Project")),
         target = param("Target (all)");
-
-      if (file == "") file = "Hxpfile";
-      if (target == "") target = "all";
+      
+      if (target == "")
+        target = "all";
+      else 
+        check(file,"build",target);
+      
       LOCAL(BUILD(file,target),options);
 
     case "task":
       var
-        file = param("Project (Hxpfile)"),
-        taskName = param("Task").trim(),
-        conf = ClientCore.getConfig(file),
-        tasks = conf.tasks(),
-        task:Task = null,
-        userPrms = [];
-
-      for (t in tasks) {
-        if (t.name == taskName)
-          task = t;
-      }
-        
-      if (task != null) {
-      
+        file = checkHaxedExt(param("Project")),
+        taskName = param("Task"),
+        userPrms = [],
+        task:Task = check(file,"task",taskName);
+    
+      if (task != null) {      
         for (prm in task.params) {
           var p = prm.split("=");
           var a = param("Param:"+p[0] +" (" + p[1] +")");
           userPrms.push((a == "") ? p[1] : a);
-        }
-      
+        }  
       } else {
         Os.print("Can't find task "+taskName +" in file "+file);
         neko.Sys.exit(0);
       }
-      LOCAL(TASK(conf,task,userPrms),options);
+      LOCAL(TASK(task,userPrms),options);
       
     case "projects":
       REMOTE(PROJECTS,options);
@@ -344,8 +376,12 @@ class ClientCtrl {
   public static
   function usage() {
     commandHelp();
-    Os.print("Haxe Library Manager "+ClientMain.VERSION+" - (c)2009 ");
+    Os.print("Haxe Library Manager "+ClientMain.VERSION+" - (c) 2010 ");
     Os.print(" Usage : haxed [command] [options]");
+    Os.print(" ---------------------------------------------");
+    Os.print(" by blackdog (http://blackdog66.wordpress.com)");
+    Os.print(" financial inspiration John De Goes");
+    Os.print(" ---------------------------------------------");
     Os.print(" Commands :");
     for(c in commands.keys())
       Os.print("  "+c+" : "+commands.get(c));
