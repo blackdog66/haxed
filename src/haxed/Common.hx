@@ -339,11 +339,6 @@ class Common {
   public static var HXP_TEMPLATE = "template." + HXP_EXT;
 
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
-
-  public static inline function
-  slash(d:String) {
-    return StringTools.endsWith(d,"/") ? d : (d + "/") ; }
-
   
   public static function
   safe( name : String ) {

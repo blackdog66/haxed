@@ -75,16 +75,21 @@ class ClientCore {
   public function install(options:Options,prj:String,ver:String) {}
   
   static function
-  getConfigFile() {
-    var config = neko.Sys.getEnv("HOME")+"/.haxelib";
-    if (Os.exists(config))
+  getConfigFile(create=false) {
+    var home = neko.Sys.getEnv("HOME");
+    if (home == null)
+      home = neko.Sys.getEnv("HOMEPATH");
+    
+    var config = Os.slash(home)+".haxelib";
+    if (create || Os.exists(config)) {
+      trace("config is "+config);
       return config;
+    }
 
     config = "/etc/.haxelib";
     if (Os.exists(config))
       return config;
 
-    throw "config file not found";
     return null;
   }
 
@@ -100,14 +105,14 @@ class ClientCore {
         throw "HAXEPATH environment variable not defined, please run haxesetup.exe first";
       var last = haxepath.charAt(haxepath.length - 1);
       if( last != "/" && last != "\\" )
-        haxepath += "/";
+        haxepath += Os.separator;
       var rep = haxepath+REPNAME;
       try {
         Os.safeDir(rep);
       } catch( e : Dynamic ) {
         throw "The directory defined by HAXEPATH does not exist, please run haxesetup.exe again";
       }
-      return rep+"\\";
+      return Os.slash(rep);
     }
 
     var rep = try {
@@ -119,7 +124,7 @@ class ClientCore {
     if( !Os.exists(rep) )
       throw "haxed Repository "+rep+" does not exists. Please run haxed setup again";
 
-    repositoryDir = rep +"/";
+    repositoryDir = Os.slash(rep);
     return repositoryDir;
   }
 
@@ -132,18 +137,18 @@ class ClientCore {
   
   static inline function
   projectDir(prj) {
-    return Common.slash(getRepos() + Common.safe(prj));
+    return Os.slash(getRepos() + Common.safe(prj));
   }
 
   static inline function
   versionDir(prj,ver) {
-    return Common.slash(projectDir(prj) + Common.safe(ver));
+    return Os.slash(projectDir(prj) + Common.safe(ver));
   }
 
   public static function
   currentVersion(prj) {
     try {
-    return Os.fileIn(projectDir(prj) + "/.current");
+      return Os.slash(Os.fileIn(projectDir(prj)) + ".current");
     } catch(exc:Dynamic) {
       return null;
     }
@@ -152,7 +157,7 @@ class ClientCore {
   static function
   devVersion(prj) {
     try {
-    return Os.fileIn(projectDir(prj) + "/.dev");
+      return Os.slash(Os.fileIn(projectDir(prj)) + ".dev");
     } catch (exc:Dynamic) {
       return null;
     }
@@ -284,16 +289,16 @@ class ClientCore {
         if( dir.length == 0 ||
             (dir.charAt(dir.length-1) != '/' &&
              dir.charAt(dir.length-1) != '\\'))
-          dir += "/";
+          dir += Os.separator;
         
         pdir = dir;
       } catch( e : Dynamic ) {
       }
       
-      var ndir = Common.slash(Common.slash(pdir) + "ndll");
+      var ndir = Os.slash(Os.slash(pdir) + "ndll");
 
       if(Os.exists(ndir) ) {
-        var sysdir = ndir+"/"+neko.Sys.systemName();
+        var sysdir = Os.slash(ndir)+neko.Sys.systemName();
         if( !Os.exists(sysdir) )
           throw "Project "+d.prj+" version "+d.ver+" does not have a neko dll for your system";
         out.add("-L "+ndir);
@@ -406,7 +411,7 @@ class ClientCore {
   dev(prj:String,dir:String) {
 	var
       rep = getRepository(),
-      devfile = rep + Common.safe(prj)+"/.dev";
+      devfile = rep + Os.slash(Common.safe(prj))+".dev";
     
     if( dir == null ) {
       if(Os.exists(devfile) )
@@ -453,8 +458,8 @@ class ClientCore {
         neko.Sys.exit(1);
       }
     }
-    
-    Os.fileOut(getConfigFile(),path) ;
+
+    Os.fileOut(getConfigFile(true),path) ;
   }
 
   public function
@@ -466,7 +471,7 @@ class ClientCore {
       update = false;
     
     for(prj in Os.dir(rep) ) {
-      if( prj.charAt(0) == "." || !Os.isDir(rep+"/"+prj) )
+      if( prj.charAt(0) == "." || !Os.isDir(Os.slash(rep)+prj) )
         continue;
       if (prj == Common.HXP_FILE)
         continue;
@@ -508,7 +513,7 @@ class ClientCore {
       ver = currentVersion(prj),
       devVer = devVersion(prj),
       vdir = (devVer != null) ? versionDir(prj,devVer) : versionDir(prj,ver),
-      runcmd = vdir + "/run.n";
+      runcmd = Os.slash(vdir) + "run.n";
 
     if(!Os.exists(runcmd) )
       throw "Project " + prj + " version " + ver + " does not have a run script";
@@ -592,7 +597,7 @@ project:
     if (fromLib) {
       var p = internalPath([{prj:hxpFile,ver:currentVersion(prj),op:null}]);
       trace("path =" +p.first());
-      config = new ConfigJson(Os.fileIn(p.first() + "/"+Common.CONFIG_FILE));
+      config = new ConfigJson(Os.slash(Os.fileIn(p.first()) + Common.CONFIG_FILE));
     } else {
       config = Parser.getConfig(Parser.process(hxpFile));
     }

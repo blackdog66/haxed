@@ -45,12 +45,12 @@ class ServerCore {
   var repo:String;
   
   public function new(dd) {
-    dataDir = Common.slash(dd);
+    dataDir = Os.slash(dd);
 
     if (!Os.exists(dataDir)) throw "Datadir " + dataDir + " does not exist";
     if (!Os.exists(dataDir + DB)) throw DB+" does not exist in data dir";
 
-    repo = dataDir + "repo/";
+    repo = dataDir + Os.slash("repo");
     Os.mkdir(repo);
       
     var db = Sqlite.open(dataDir + DB);
@@ -71,7 +71,7 @@ class ServerCore {
   public function
   submit(password:String):Status {
     var
-      TMP_DIR = "/tmp",
+      TMP_DIR = Os.separator + "tmp",
       file = null,
 	  sid = null,
       bytes = 0;
@@ -79,7 +79,7 @@ class ServerCore {
     Web.parseMultipart(function(p,filename) {
         if( p == "file" ) {
           sid = filename;
-          file = File.write(TMP_DIR+"/"+filename+".tmp",true);
+          file = File.write(Os.slash(TMP_DIR)+filename+".tmp",true);
         } else
           throw p+" not accepted";
       },function(data,pos,len) {
@@ -88,7 +88,7 @@ class ServerCore {
       });
     if( file != null ) {
       file.close();
-      return processUploaded(password,TMP_DIR+"/"+sid+".tmp");
+      return processUploaded(password,Os.slash(TMP_DIR)+sid+".tmp");
     }
     return ERR_UNKNOWN;
   }

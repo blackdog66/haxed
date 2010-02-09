@@ -24,6 +24,21 @@ enum Answer {
 
 class Os {
 
+  public static var separator:String;
+  
+  public static function __init__() {
+    #if neko
+    separator = (neko.Sys.systemName() == "Windows" ) ? "\\" : "/";
+    #else
+    separator = "\\";
+    #end
+  }
+
+  public static inline function
+  slash(d:String) {
+    return StringTools.endsWith(d,separator) ? d : (d + separator) ;
+  }
+  
   public static function
   print(s:String) {
     Lib.println(s);
@@ -56,11 +71,11 @@ class Os {
   mkdir(path:String) {
     if (FileSystem.exists(path)) return;
     
-    var p = path.split("/");
+    var p = path.split(separator);
     var cur = p.splice(0,2);
     try	{
       while(true) {
-        var dir = cur.join("/");
+        var dir = cur.join(separator);
         if (!FileSystem.exists(dir))
           FileSystem.createDirectory(dir);
         if (p.length == 0) break;
@@ -84,7 +99,7 @@ class Os {
   public static function
   rmdir(dir) {
     for( p in FileSystem.readDirectory(dir) ) {
-      var path = dir+"/"+p;
+      var path = slash(dir)+p;
       if( FileSystem.isDirectory(path) )
         rmdir(path);
       else
@@ -167,7 +182,7 @@ class Os {
   readTree(dir:String,files:List<String>,?exclude:String->Bool) {
     var dirContent = FileSystem.readDirectory(dir);
     for (f in dirContent) {
-      var d = Common.slash(dir) + f;
+      var d = slash(dir) + f;
       if (exclude != null) {
         if (exclude(f)) {
           continue;
@@ -177,10 +192,10 @@ class Os {
         if (FileSystem.isDirectory(d))
           readTree(d,files);
         else
-          files.push(Common.slash(dir)+f);
+          files.push(slash(dir)+f);
       } catch(e:Dynamic) {
         // it's probably a link, isDirectory throws on a link
-        files.push(Common.slash(dir)+f);
+        files.push(slash(dir)+f);
       }
     }
     return files;
@@ -193,7 +208,7 @@ class Os {
   
   public static function
   copyTree(src:String,dst:String,?exclude:String->Bool):Void {    
-    var stemLen = StringTools.endsWith(src,"/") ? src.length 
+    var stemLen = StringTools.endsWith(src,separator) ? src.length 
       :Path.directory(src).length,                    
       files = Os.files(src,exclude);
     
@@ -202,7 +217,7 @@ class Os {
           dFile = Path.withoutDirectory(f),
           dDir = dst + Path.directory(f.substr(stemLen));
         Os.mkdir(dDir);
-        File.copy(f,dDir + "/"+dFile) ;        
+        File.copy(f,slash(dDir) +dFile) ;        
       });
   }
 
@@ -241,7 +256,7 @@ class Os {
   unzip(zip:List<ZipEntry>,destination:String) {
     for( zipfile in zip ) {
       var n = zipfile.fileName;
-      if( n.charAt(0) == "/" || n.charAt(0) == "\\" || n.split("..").length > 1 )
+      if( n.charAt(0) == separator || n.charAt(0) == "\\" || n.split("..").length > 1 )
         throw "Invalid filename : "+n;
       var
         dirs = ~/[\/\\]/g.split(n),
@@ -251,7 +266,7 @@ class Os {
       for( d in dirs ) {
         path += d;
         Os.safeDir(destination+path);
-        path += "/";
+        path += separator;
       }
 
       if( file == "" ) {

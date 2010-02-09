@@ -13,7 +13,7 @@ class Package {
   confDir(confFile:String) {
     var p  = neko.io.Path.directory(confFile);
     if (p == "") p = Os.cwd();
-    return Common.slash(p);
+    return Os.slash(p);
   }
   
   public static function
@@ -83,7 +83,7 @@ class Package {
                 
                 // only copy a classpath tree if it's external to the package dir
                 if (!d.startsWith("./"))
-                  Os.copyTree(Common.slash(d),packDir);
+                  Os.copyTree(Os.slash(d),packDir);
               });
           }
         }
@@ -107,7 +107,7 @@ trace("excludes are "+excludes);
         Lambda.iter(include,function(d) {
             if (!Os.exists(d))
               throw "include dir "+d+" does not exist";
-            Os.copyTree(Common.slash(d),packDir,excluder);
+            Os.copyTree(Os.slash(d),packDir,excluder);
           });
       }
 
