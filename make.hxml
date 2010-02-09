@@ -9,7 +9,7 @@
 --next
 
 -cp ./src/
--neko client.n
+-neko haxed.n
 -main haxed.ClientMain
 -resource client.json@clientConfig
 -resource HaxedTemplate@HaxedTemplate
