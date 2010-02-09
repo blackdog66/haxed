@@ -143,8 +143,8 @@ class ClientMain {
         client.newHxp(interactive);
       case BUILD(hxpFile,target):
         client.build(hxpFile,target,options);
-      case TASK(config,task,prms):
-        var t = new haxed.Tasks(config,task);
+      case TASK(task,prms):
+        var t = new haxed.Tasks(task);
         t.execute(prms,options);
       }
     

@@ -323,8 +323,6 @@ class Os {
   public static function
   shell(command:String,throwOnError=true,?ctx:Dynamic):String {
     var a = getShellParameters(command,ctx);
-    trace("Executing "+a);
-    
     var p = new neko.io.Process(a.shift(),a);
     if( p.exitCode() != 0) {
       if (throwOnError)

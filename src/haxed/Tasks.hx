@@ -38,11 +38,9 @@ class TaskRunner {
 
 class Tasks {
 
-  var config:Config;
   var task:Task;
   
-  public function new(c:Config,t:Task) {
-    config = c;
+  public function new(t:Task) {
     task = t;
   }
 

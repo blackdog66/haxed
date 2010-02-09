@@ -138,7 +138,7 @@ enum LocalCommand {
   UPGRADE;
   NEW(interactive:Global);
   BUILD(prj:String,target:String);
-  TASK(config:Config,task:Task,prms:Array<Dynamic>);
+  TASK(task:Task,prms:Array<Dynamic>);
 }
 
 enum RemoteCommand {
@@ -334,7 +334,9 @@ class ConfigJson extends Config {
 
 class Common {
   public static var CONFIG_FILE = "haxed.json";
-  public static var HXP_FILE = "Hxpfile";
+  public static var HXP_EXT = "haxed";
+  public static var HXP_FILE = "default." + HXP_EXT;
+  public static var HXP_TEMPLATE = "template." + HXP_EXT;
 
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
 
