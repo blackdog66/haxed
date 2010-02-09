@@ -16,6 +16,8 @@ import neko.Lib;
 import neko.zip.Reader;
 #end
 
+using StringTools;
+
 enum Answer {
   Yes;
   No;
@@ -182,20 +184,27 @@ class Os {
   readTree(dir:String,files:List<String>,?exclude:String->Bool) {
     var dirContent = FileSystem.readDirectory(dir);
     for (f in dirContent) {
-      var d = slash(dir) + f;
       if (exclude != null) {
         if (exclude(f)) {
+          #if debug
+          trace("excluding:"+slash(dir)+f);
+          #end
           continue;
         }
       }
+      var d = slash(dir) + f;
       try {
         if (FileSystem.isDirectory(d))
-          readTree(d,files);
+          readTree(d,files,exclude);
         else
-          files.push(slash(dir)+f);
+          files.push(d);
       } catch(e:Dynamic) {
         // it's probably a link, isDirectory throws on a link
-        files.push(slash(dir)+f);
+        //files.push(d);
+        #if debug
+        trace("ok got a link "+d);
+        #end
+        readTree(d,files,exclude);
       }
     }
     return files;

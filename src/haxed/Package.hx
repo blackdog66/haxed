@@ -96,11 +96,14 @@ class Package {
               return (el.startsWith("./")) ? el.substr(2) : el ;
             })
           	.array().concat([".git",".svn","CVS"]),
-          
+          len = excludes.length,
           excluder = function(s:String) {
-          	 return Lambda.exists(excludes,
-                function(el) { return s.startsWith(el); });
-        	 } ;
+          	for (i in 0...len) {
+              if (s.startsWith(excludes[i]))
+                return true;
+            }
+            return false;
+          }
 #if debug        
 trace("excludes are "+excludes);
 #end
