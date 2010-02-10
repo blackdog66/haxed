@@ -1,3 +1,4 @@
+package haxed.compatible;
 
 import haxed.Common;
 import haxed.Os;
@@ -59,7 +60,7 @@ class Convert {
                       });
 
       Reflect.setField(data,"email",email);
-      Os.fileOut(tmpDir+"haxelib.json",toHxp(data));
+      Os.fileOut(tmpDir+"haxelib.json",toHxp(data,haxedFormat()));
       newPackage = packit(tmpDir+"haxelib.json");
 
       zf.close();
@@ -96,8 +97,17 @@ class Convert {
     return users;
   }
 */
+
   public static function
-  toHxp(x:XmlInfos) {
+  toHaxed(old:String,newfile:String) {
+    var
+      xml = Os.fileIn(old),
+      data = Datas.readData(xml);
+    Os.fileOut(newfile,toHxp(data,jsonFormat()));
+  }
+  
+  static function
+  toHxp(x:XmlInfos,tmpl:String) {
     var data: Dynamic = {}, d: Dynamic, t: Dynamic;
     for (field in Reflect.fields(x)) {
       t = Reflect.field(x, field);
@@ -121,8 +131,14 @@ class Convert {
       //if (d.length == 0) d = "null";
       Reflect.setField(data, field, StringTools.trim(d));
     }
-    var tmpl = '
-project:        ::project::
+  
+    return Os.template(tmpl,data);
+  }
+
+  static function haxedFormat() {
+    return '
+---
+name:           ::project::
 website:        ::website::
 version:        ::version::
 comments:       ::versionComments::
@@ -131,15 +147,26 @@ author-email:   ::email::
 license:        ::license::
 author:         ::developers::
 ';
-    if (Reflect.hasField(data, "tags") && data.tags.length > 0) {
-      tmpl += 'tags:           ::tags::
-';
-    }
-    return Os.template(tmpl,data);
-    //build-depends: ::foreach dependencies::::project:: >= ::version:: ::end::
 
+    //    if (Reflect.hasField(data, "tags") && data.tags.length > 0) {
+    //  tmpl += 'tags:           ::tags::
+//build-depends: ::foreach dependencies::::project:: >= ::version:: ::end::
   }
 
+  static function jsonFormat() {
+    return '{
+"name":           "::project::",
+"website":        "::website::",
+"version":        "::version::",
+"comments":       "::versionComments::",
+"description":    "::desc::",
+"author-email":   "::email::",
+"license":        "::license::",
+"author":         "::developers::"
+}
+';
+  }
+  
 	public static
 	function find(root:String,?options:Array<String>):Array<String> {
 		//var prms = [root,"-name",spec,"-type","f"];
@@ -161,13 +188,13 @@ author:         ::developers::
 		return ar;
 	}
 
-    public static function
+    static function
     packit(hxpFile:String) {
       var
         hxp = Parser.process(hxpFile),
         conf = Parser.getConfig(hxp);
 
-      return Package.createFrom(conf);
+      return Package.createFrom(Package.confDir(hxpFile),conf);
     }
-
+ 
 }
