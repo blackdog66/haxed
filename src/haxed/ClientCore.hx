@@ -6,6 +6,7 @@ import haxed.Package;
 import haxed.Common;
 import haxed.Os;
 import haxed.Builder;
+import haxed.compatible.Convert;
 
 using Lambda;
 
@@ -148,7 +149,7 @@ class ClientCore {
   public static function
   currentVersion(prj) {
     try {
-      return Os.slash(Os.fileIn(projectDir(prj)) + ".current");
+      return Os.fileIn(projectDir(prj) + ".current");
     } catch(exc:Dynamic) {
       return null;
     }
@@ -157,7 +158,7 @@ class ClientCore {
   static function
   devVersion(prj) {
     try {
-      return Os.slash(Os.fileIn(projectDir(prj)) + ".dev");
+      return Os.fileIn(projectDir(prj) + ".dev");
     } catch (exc:Dynamic) {
       return null;
     }
@@ -167,10 +168,22 @@ class ClientCore {
   configuration(prj:String,?ver:String):Config {
     var
       v = (ver == null) ? currentVersion(prj) : ver,
-      f = versionDir(prj,v) + Common.CONFIG_FILE;
+      vd = versionDir(prj,v) ,
+      haxedf =  vd + Common.CONFIG_FILE;
     
-    if (!Os.exists(f)) throw f+" does not exist!";
-    return new ConfigJson(Os.fileIn(f));
+    if (Os.exists(haxedf)) {
+      return new ConfigJson(Os.fileIn(haxedf));
+    }
+    
+    var haxelib = vd + "haxelib.xml";
+    if (Os.exists(haxelib)) {
+      Convert.toHaxed(haxelib,haxedf);
+      neko.Lib.println("Warning: Creating new haxed.json file for old haxelib package");
+      return new ConfigJson(Os.fileIn(haxedf));
+    }
+      
+    throw "neither " + haxedf + " or haxelib.xml exists!";
+
   }
   
   public function
@@ -240,6 +253,7 @@ class ClientCore {
       throw "Dependancy "+prj+" is not installed";
 
     var version = ( version != null ) ? version : currentVersion(prj);
+    trace("version :"+version);
     var vdir = versionDir(prj,version);
 
     if(!Os.exists(vdir))
