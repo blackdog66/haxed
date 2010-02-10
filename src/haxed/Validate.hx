@@ -54,6 +54,11 @@ class Validate {
   }
 
   public static function
+  splitOnNewline(s) {
+    return Lambda.map(~/\n/g.split(s),StringTools.trim).array();
+  }
+  
+  public static function
   splitOnComma(s) {
     return Lambda.map(~/,/g.split(s),StringTools.trim).array();
   }
@@ -97,7 +102,7 @@ class Validate {
   public static function
   target(v:String) {
     var z = v.toLowerCase();
-    if (z == "swf" || z == "neko" || z == "js" || z == "cpp" || z == "php" || z == "swf9")
+    if (z == "swf" || z == "neko" || z == "js" || z == "cpp" || z == "php" || z == "swf9" || z == "as3")
       return z;
     return null;
   }
