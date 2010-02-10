@@ -355,7 +355,9 @@ class Parser {
       .add("main-class",true)
       .add("target",true,Validate.target)
       .add("target-file",true)
-      .add("options",false,Validate.splitOnComma);
+      .add("options",false,Validate.splitOnComma)
+      .add("pre-task",false,Validate.toArray)
+      .add("post-task",false,Validate.toArray);
 
     Validate.forSection(Config.PACK)
       .add("include",false,Validate.directories)

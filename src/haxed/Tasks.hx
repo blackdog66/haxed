@@ -39,13 +39,19 @@ class TaskRunner {
 class Tasks {
 
   var task:Task;
+
+  public static function
+  run(task:Task,?prms:Array<Dynamic>) {
+    var t = new haxed.Tasks(task);
+    t.execute(prms);
+  }
   
   public function new(t:Task) {
     task = t;
   }
 
   public function
-  execute(prms:Array<Dynamic>,cliOptions:Options) {
+  execute(?prms:Array<Dynamic>,?cliOptions:Options) {
     var build:Build = {
     	name:task.name,
     	classPath:(task.classPath != null) ? task.classPath : ["."],
@@ -53,13 +59,16 @@ class Tasks {
     	targetFile:(task.targetFile == null) ? ".haxed.n" : task.targetFile,
     	mainClass:(task.mainClass == null) ? "Tasks" : task.mainClass,
     	depends:task.depends,
-    	options:task.options
+    	options:task.options,
+        preTask:null, // a task doesn't have a pre and post`
+        postTask:null
     };
 
     Builder.compileBuild([build],"all");
     
     var sb = new StringBuf();
-    for (p in prms) sb.add(p +" ");
+    if (prms != null)
+      for (p in prms) sb.add(p +" ");
     
     trace(Os.shell("neko .haxed.n "+ task.name + " "+sb.toString().trim()));
     

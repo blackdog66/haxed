@@ -254,6 +254,8 @@ typedef Build = {
   var targetFile:String;
   var mainClass:String;
   var options: Array<String>;
+  var preTask:Array<String>;
+  var postTask:Array<String>;
 }
 
 typedef Pack = {

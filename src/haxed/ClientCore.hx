@@ -616,9 +616,38 @@ project:
       config = Parser.getConfig(Parser.process(hxpFile));
     }
 
+    var b = config.build();
+
+    doTask(config,target,"pre");
+    
     Builder.compile(config,target,fromLib);
+
+    doTask(config,target,"post");
+    
+    
   }
+
+  static function doTask(c:Config,target,typ:String) {
+    for (b in c.build()) {
+      if (b.name == target || b.name == null || target == "all") {
+        var
+          prms =  (typ == "pre") ? b.preTask : b.postTask;
+
+        if (prms != null) {
+          var
+            name = prms.shift();
+          
+          for (task in c.tasks()) {
+            if (task.name == name)
+              Tasks.run(task,prms);
+          }
+        }
+      }
+    }
+  }
+
 }
+
 
 
 class Progress extends haxe.io.Output {
