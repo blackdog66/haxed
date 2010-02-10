@@ -150,10 +150,11 @@ class ClientCtrl {
     return file; 
   }
 
-  static function check(file:String,t:String,searchFor:String):Dynamic {
+
+  static function check(conf:Config,t:String,searchFor:String):Dynamic {
     var
-      conf = ClientCore.getConfig(file),
       items:Array<Dynamic> ;
+    
       if (t == "task")
         items = conf.tasks();
       else
@@ -296,7 +297,8 @@ class ClientCtrl {
       if (target == "")
         target = "all";
       else 
-        check(file,"build",target);
+        check(ClientCore.getConfig(file),"build",target);
+      
       
       LOCAL(BUILD(file,target),options);
 
@@ -305,12 +307,13 @@ class ClientCtrl {
         file = checkHaxedExt(param("Project")),
         taskName = param("Task"),
         userPrms = [],
-        task:Task = check(file,"task",taskName);
+        conf = ClientCore.getConfig(file),
+        task:Task = check(conf,"task",taskName);
     
       if (task != null) {
           if (task.params != null) {      
             for (prm in task.params) {
-              var p:Array<String> = Lambda.map(prm.split("="),StringTools.trim).array();
+              var p = Lambda.map(prm.split("="),StringTools.trim).array();
               var a = param("Param:"+p[0] +" (" + p[1] +")");
               userPrms.push((a == "") ? p[1] : a);
             }
@@ -320,7 +323,7 @@ class ClientCtrl {
         neko.Sys.exit(0);
       }
           
-      LOCAL(TASK(task,userPrms),options);
+      LOCAL(TASK(conf,task,userPrms),options);
       
     case "projects":
       REMOTE(PROJECTS,options);

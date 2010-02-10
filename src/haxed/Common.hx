@@ -138,7 +138,7 @@ enum LocalCommand {
   UPGRADE;
   NEW(interactive:Global);
   BUILD(prj:String,target:String);
-  TASK(task:Task,prms:Array<Dynamic>);
+  TASK(config:Config,task:Task,prms:Array<Dynamic>);
 }
 
 enum RemoteCommand {

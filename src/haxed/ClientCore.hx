@@ -623,8 +623,22 @@ project:
     Builder.compile(config,target,fromLib);
 
     doTask(config,target,"post");
+       
+  }
+
+  public function
+  task(config:Config,task:Task,prms:Array<Dynamic>,options:Options){ 
+    var
+      p = neko.io.Path,
+      taskID = p.withoutExtension(p.withoutDirectory(config.file()))+"-"+task.mainClass,
+      t = new haxed.Tasks(task,taskID),
+      forceCompile = Os.newer(config.file(),t.outputFile());
+
+    if (forceCompile) {
+      Os.print("Recompiling: " + config.file() + " is newer than "+ t.outputFile());
+    }
     
-    
+    t.execute(prms,options,forceCompile);
   }
 
   static function doTask(c:Config,target,typ:String) {
