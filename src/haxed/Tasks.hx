@@ -46,13 +46,13 @@ class Tasks {
 
   public function
   execute(prms:Array<Dynamic>,cliOptions:Options) {
-    var build = {
+    var build:Build = {
     	name:task.name,
     	classPath:(task.classPath != null) ? task.classPath : ["."],
     	target:(task.target == null) ? "neko" : task.target,
     	targetFile:(task.targetFile == null) ? ".haxed.n" : task.targetFile,
     	mainClass:(task.mainClass == null) ? "Tasks" : task.mainClass,
-    	depends:null,
+    	depends:task.depends,
     	options:task.options
     };
 
