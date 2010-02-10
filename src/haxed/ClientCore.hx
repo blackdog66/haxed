@@ -635,12 +635,18 @@ project:
 
         if (prms != null) {
           var
-            name = prms.shift();
-          
+            name = prms.shift(),
+            gotTask = false;
+
+        
           for (task in c.tasks()) {
-            if (task.name == name)
+            if (task.name == name) {
+              gotTask = true;
               Tasks.run(task,prms);
+            }
           }
+
+          if (!gotTask) Os.print("Warning: task "+ name + "  does not exist");
         }
       }
     }
