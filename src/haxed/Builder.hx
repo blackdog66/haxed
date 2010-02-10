@@ -28,7 +28,7 @@ class Builder {
       sb.add(p) ;
     }
     
-    return sb.toString();
+    return sb.toString().trim();
   }
 
   static function
@@ -36,11 +36,14 @@ class Builder {
     var f = new StringBuf();
     if (classpaths != null) {
       for (c in classpaths) {
-        f.add(" -cp " + ((c.startsWith("./")) ? libRoot + c.substr(2) : c));
+        if (libRoot.length > 0)
+          f.add(" -cp " + ((c.startsWith("./")) ? libRoot + c.substr(2) : c));
+        else
+          f.add(" -cp " + c);
       }
     } else
       f.add("");
-    return f.toString();
+    return f.toString().trim();
   }
 
   public static function
@@ -70,11 +73,11 @@ class Builder {
                 CPS:getCps(b.classPath,libRoot),
                 TT:b.target,
                 TARGET: b.targetFile ,
-                OTHER: (b.options != null) ? b.options.join(" ") : ""};
+                OTHER: (b.options != null) ? b.options.join(" ").trim() : ""};
 
       neko.Lib.println("Building "+b.name);
-    
-      var o = (Os.shell("haxe ::OTHER:: -main ::MAIN:: ::LIBS:: ::CPS:: -::TT:: ::TARGET::",false,ctx)),
+
+      var o = (Os.shell("haxe -main ::MAIN:: -::TT:: ::TARGET:: ::LIBS:: ::CPS:: ::OTHER::",false,ctx)),
         filtered = o.split("\n")
         .filter(function(l) {return l.trim() != ""; })
         .array()
