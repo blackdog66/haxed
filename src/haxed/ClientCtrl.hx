@@ -306,16 +306,19 @@ class ClientCtrl {
         userPrms = [],
         task:Task = check(file,"task",taskName);
     
-      if (task != null) {      
-        for (prm in task.params) {
-          var p = prm.split("=");
-          var a = param("Param:"+p[0] +" (" + p[1] +")");
-          userPrms.push((a == "") ? p[1] : a);
-        }  
+      if (task != null) {
+          if (task.params != null) {      
+            for (prm in task.params) {
+              var p = prm.split("=");
+              var a = param("Param:"+p[0] +" (" + p[1] +")");
+              userPrms.push((a == "") ? p[1] : a);
+            }
+          }
       } else {
         Os.print("Can't find task "+taskName +" in file "+file);
         neko.Sys.exit(0);
       }
+          
       LOCAL(TASK(task,userPrms),options);
       
     case "projects":
