@@ -46,6 +46,13 @@ class Os {
     Lib.println(s);
   }
 
+  #if neko
+  public static
+  function param(p:Int):String {
+    return neko.Sys.args()[p];
+  }
+  #end
+
   public static function
   safeDir( dir ) {
     if( FileSystem.exists(dir) ) {
@@ -347,6 +354,9 @@ class Os {
   public static function
   shell(command:String,throwOnError=true,?ctx:Dynamic):String {
     var a = getShellParameters(command,ctx);
+    #if debug
+    trace(a);
+    #end
     var p = new neko.io.Process(a.shift(),a);
     if( p.exitCode() != 0) {
       if (throwOnError)
@@ -386,7 +396,7 @@ class Os {
   static function
   getShellParameters(command:String,?ctx:Dynamic) {
     command = (ctx != null) ? template(command,ctx) : command;
-    command = replaceQuotedSpace(command);
+    command = replaceQuotedSpace(command.trim());
     // make sure there's only one space between all items
     var r = ~/\s+/g;
     command = r.replace(command," ") ;
