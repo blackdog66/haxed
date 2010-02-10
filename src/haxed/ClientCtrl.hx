@@ -5,6 +5,7 @@ import haxed.Common;
 import haxed.ClientCore;
 
 using StringTools;
+using Lambda;
 
 class ClientCtrl {
   
@@ -309,7 +310,7 @@ class ClientCtrl {
       if (task != null) {
           if (task.params != null) {      
             for (prm in task.params) {
-              var p = prm.split("=");
+              var p:Array<String> = Lambda.map(prm.split("="),StringTools.trim).array();
               var a = param("Param:"+p[0] +" (" + p[1] +")");
               userPrms.push((a == "") ? p[1] : a);
             }

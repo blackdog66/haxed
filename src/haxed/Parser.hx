@@ -367,7 +367,7 @@ class Parser {
       .add("name",true,Validate.name)
       .add("main-class",true,Validate.name)
       .add("class-path",false,Validate.directories)
-      .add("params",false,Validate.toArray)
+      .add("params",false,Validate.splitOnNewline)
       .add("depends",false,Validate.depends);
 
     
