@@ -7,6 +7,8 @@ import haxed.Common;
 import haxed.Os;
 import haxed.Builder;
 import haxed.compatible.Convert;
+import haxed.ConfigJson;
+import haxed.ClientTools;
 
 using Lambda;
 
@@ -66,129 +68,19 @@ class RemoteRepos {
 
 class ClientCore {
 
-  static var REPNAME = "lib";
-  static var repositoryDir;
-  
-  public function new() { }
+  public function new() {
+  }
 
   public function request(u:String,prms:Dynamic,fn:Dynamic->Void) { }
   public function url(url:String,command:String) { return ""; }
   public function install(options:Options,prj:String,ver:String) {}
   
-  static function
-  getConfigFile(create=false) {
-    var home = neko.Sys.getEnv("HOME");
-    if (home == null)
-      home = neko.Sys.getEnv("HOMEPATH");
-    
-    var config = Os.slash(home)+".haxelib";
-    if (create || Os.exists(config)) {
-      trace("config is "+config);
-      return config;
-    }
 
-    config = "/etc/.haxelib";
-    if (Os.exists(config))
-      return config;
-
-    return null;
-  }
-
-  public static function
-  getRepos() {
-    if (repositoryDir != null)
-      return repositoryDir;
-  
-    var sys = neko.Sys.systemName();
-    if( sys == "Windows" ) {
-      var haxepath = neko.Sys.getEnv("HAXEPATH");
-      if( haxepath == null )
-        throw "HAXEPATH environment variable not defined, please run haxesetup.exe first";
-      var last = haxepath.charAt(haxepath.length - 1);
-      if( last != "/" && last != "\\" )
-        haxepath += Os.separator;
-      var rep = haxepath+REPNAME;
-      try {
-        Os.safeDir(rep);
-      } catch( e : Dynamic ) {
-        throw "The directory defined by HAXEPATH does not exist, please run haxesetup.exe again";
-      }
-      return Os.slash(rep);
-    }
-
-    var rep = try {
-      Os.fileIn(getConfigFile());
-    } catch( e : Dynamic ) {
-      throw "This is the first time you are runing haxed. Please run haxed setup first";
-    }
-      
-    if( !Os.exists(rep) )
-      throw "haxed Repository "+rep+" does not exists. Please run haxed setup again";
-
-    repositoryDir = Os.slash(rep);
-    return repositoryDir;
-  }
-
-  public static function
-  getRepository() {
-    return getRepos();
-  }
-
-  public function getInfo(prj:String,inf:ProjectInfo->Void) {}
-  
-  static inline function
-  projectDir(prj) {
-    return Os.slash(getRepos() + Common.safe(prj));
-  }
-
-  static inline function
-  versionDir(prj,ver) {
-    return Os.slash(projectDir(prj) + Common.safe(ver));
-  }
-
-  public static function
-  currentVersion(prj) {
-    try {
-      return Os.fileIn(projectDir(prj) + ".current");
-    } catch(exc:Dynamic) {
-      return null;
-    }
-  }
-
-  static function
-  devVersion(prj) {
-    try {
-      return Os.fileIn(projectDir(prj) + ".dev");
-    } catch (exc:Dynamic) {
-      return null;
-    }
-  }
-
-  static function
-  configuration(prj:String,?ver:String):Config {
-    var
-      v = (ver == null) ? currentVersion(prj) : ver,
-      vd = versionDir(prj,v) ,
-      haxedf =  vd + Common.CONFIG_FILE;
-    
-    if (Os.exists(haxedf)) {
-      return new ConfigJson(Os.fileIn(haxedf));
-    }
-    
-    var haxelib = vd + "haxelib.xml";
-    if (Os.exists(haxelib)) {
-      Convert.toHaxed(haxelib,haxedf);
-      neko.Lib.println("Warning: Creating new haxed.json file for old haxelib package");
-      return new ConfigJson(Os.fileIn(haxedf));
-    }
-      
-    throw "neither " + haxedf + " or haxelib.xml exists!";
-
-  }
+  public function getInfo(prj:String,inf:ProjectInfo->Void) {}  
   
   public function
   list(options:Options) {
-    var rep = getRepository();
+    var rep = ClientTools.getRepository();
     for( p in Os.dir(rep) ) {
       
       if( p.charAt(0) == "." )
@@ -198,10 +90,10 @@ class ClientCore {
       
       var
         versions = new Array(),
-        current = currentVersion(p),
-        dev = try devVersion(p) catch( e : Dynamic ) null;
+        current = ClientTools.currentVersion(p),
+        dev = try ClientTools.devVersion(p) catch( e : Dynamic ) null;
 
-      for( v in Os.dir(projectDir(p)) ) {
+      for( v in Os.dir(ClientTools.projectDir(p)) ) {
         if( v.charAt(0) == "." )
           continue;
         
@@ -220,7 +112,7 @@ class ClientCore {
   
   public function
   remove(option:Options,prj:String,version:String) {
-    var pdir = projectDir(prj);
+    var pdir = ClientTools.projectDir(prj);
 
     if( version == null ) {
       if( !Os.exists(pdir) )
@@ -231,13 +123,13 @@ class ClientCore {
       return;
     }
 
-    var vdir = versionDir(prj,version);
+    var vdir =ClientTools.versionDir(prj,version);
     
 
     if( !Os.exists(vdir) )
       throw "Project "+prj+" does not have version "+version+" installed";
 
-    var cur = currentVersion(prj);
+    var cur = ClientTools.currentVersion(prj);
     if( cur == version )
       throw "Can't remove current version of project "+prj;
 
@@ -245,94 +137,16 @@ class ClientCore {
     Os.print("Project "+prj+" version "+version+" removed");
   }
 
-  
-  static function
-  checkRec( prj : String, version : String, l : List<PrjVer> ) {
-    var pdir = projectDir(prj);
-    if( !Os.exists(pdir) )
-      throw "Dependancy "+prj+" is not installed";
-
-    var version = ( version != null ) ? version : currentVersion(prj);
-    trace("version :"+version);
-    var vdir = versionDir(prj,version);
-
-    if(!Os.exists(vdir))
-      throw "Project "+prj+" version "+version+" is not installed";
-
-    for( p in l )
-      if( p.prj == prj ) {
-        if( p.ver == version )
-          return;
-        throw "Project "+prj+" has two version included "+version+" and "+p.ver;
-      }
-
-    l.add({ prj : prj, ver : version, op:null });
-
-    var
-      conf = configuration(prj),
-      defaultBuild = conf.defaultBuild();
-
-    if (defaultBuild != null) {
-      var deps = defaultBuild.depends;
-      if (deps != null) {
-      for( d in deps )
-        checkRec(d.prj,if( d.ver == "" ) null else d.ver,l);
-      }
-    }
-  }
-  
-  public static function
-  internalPath(projects:Array<PrjVer>) {
-    var out = new List();
-
-    if (projects == null) return out;
-
-    var list = new List();
-
-    for (p in projects) {
-      checkRec(p.prj,p.ver,list);
-    }
-    
-    for( d in list) {
-      var
-        pdir = versionDir(d.prj,d.ver);
-      
-      try {
-        var dir = devVersion(d.prj);
-
-        if( dir.length == 0 ||
-            (dir.charAt(dir.length-1) != '/' &&
-             dir.charAt(dir.length-1) != '\\'))
-          dir += Os.separator;
-        
-        pdir = dir;
-      } catch( e : Dynamic ) {
-      }
-      
-      var ndir = Os.slash(Os.slash(pdir) + "ndll");
-
-      if(Os.exists(ndir) ) {
-        var sysdir = Os.slash(ndir)+neko.Sys.systemName();
-        if( !Os.exists(sysdir) )
-          throw "Project "+d.prj+" version "+d.ver+" does not have a neko dll for your system";
-        out.add("-L "+ndir);
-      }
-      
-      out.add(pdir);
-    }
-    return out;
-  }
-
   public function
   path(projects:Array<PrjVer>) {
-    for (p in internalPath(projects)) {
+    for (p in ClientTools.internalPath(projects)) {
       Os.print(p);
     }
   }
 
   public function
   doInstall(options:Options,repoUrl,prj,ver,license) {
-    if (Os.exists(versionDir(prj,ver))) {
+    if (Os.exists(ClientTools.versionDir(prj,ver))) {
       Os.print("You already have "+prj+" version "+ver+" installed");
       setCurrentVersion(prj,ver);
       return true;
@@ -350,7 +164,7 @@ class ClientCore {
     
     var
       fileName = Common.pkgName(prj,ver),
-      filePath = getRepos() + fileName;
+      filePath = ClientTools.getRepos() + fileName;
 
     download(repoUrl,filePath,fileName);
     return true;
@@ -397,10 +211,10 @@ class ClientCore {
       glbs = conf.globals(),    
       prj = glbs.name,
       ver = glbs.version,
-      pdir = projectDir(prj);
+      pdir = ClientTools.projectDir(prj);
     
     Os.safeDir(pdir);
-    var target = versionDir(prj,ver);
+    var target = ClientTools.versionDir(prj,ver);
     Os.safeDir(target);
     Os.unzip(zip,target);
     setCurrentVersion(prj,ver);
@@ -418,13 +232,13 @@ class ClientCore {
     
   public function
   config(options:Options){
-	Os.print(getRepository());
+	Os.print(ClientTools.getRepository());
   }
 
   public function
   dev(prj:String,dir:String) {
 	var
-      rep = getRepository(),
+      rep = ClientTools.getRepository(),
       devfile = rep + Os.slash(Common.safe(prj))+".dev";
     
     if( dir == null ) {
@@ -439,7 +253,7 @@ class ClientCore {
 
   static function
   setCurrentVersion(prj:String,version:String) {
-    var pdir = projectDir(prj);
+    var pdir = ClientTools.projectDir(prj);
     if (!Os.exists(pdir)) throw "setCurrentVersion: "+pdir+" does not exist";
     Os.fileOut(pdir + ".current",version);
     Os.print("  Current version is now "+version);
@@ -448,12 +262,12 @@ class ClientCore {
   public function
   set(prj:String,version:String){
     var
-      vdir = versionDir(prj,version);
+      vdir = ClientTools.versionDir(prj,version);
 
     if( !Os.exists(vdir) )
       throw "Project "+prj+" version "+version+" is not installed";
 
-    if (currentVersion(prj) == version) {
+    if (ClientTools.currentVersion(prj) == version) {
       Os.print("Version is "+version);
       return ;
     }
@@ -473,14 +287,14 @@ class ClientCore {
       }
     }
 
-    Os.fileOut(getConfigFile(true),path) ;
+    Os.fileOut(ClientTools.getConfigFile(true),path) ;
   }
 
   public function
   upgrade() {
     var
       me = this,
-      rep = getRepos(),
+      rep = ClientTools.getRepos(),
       prompt = true,
       update = false;
     
@@ -494,7 +308,7 @@ class ClientCore {
       Os.print("Checking "+p);
 
       getInfo(p,function(inf) {
-          if(!Os.exists(versionDir(p,inf.curversion))) {
+          if(!Os.exists(ClientTools.versionDir(p,inf.curversion))) {
             /*
           if( prompt )
             switch ask("Upgrade "+p+" to "+inf.curversion) {
@@ -520,13 +334,13 @@ class ClientCore {
   public function
   run(prj:String,args:Array<String>) {
     
-    if( !Os.exists(projectDir(prj)))
+    if( !Os.exists(ClientTools.projectDir(prj)))
       throw "Project "+prj+" is not installed";
 
     var
-      ver = currentVersion(prj),
-      devVer = devVersion(prj),
-      vdir = (devVer != null) ? versionDir(prj,devVer) : versionDir(prj,ver),
+      ver = ClientTools.currentVersion(prj),
+      devVer = ClientTools.devVersion(prj),
+      vdir = (devVer != null) ? ClientTools.versionDir(prj,devVer) : ClientTools.versionDir(prj,ver),
       runcmd = Os.slash(vdir) + "run.n";
 
     if(!Os.exists(runcmd) )
@@ -568,7 +382,7 @@ class ClientCore {
   newHxp(interactive:Global) {
     if (interactive == null) {
       // then copy the template - if it doesn't exist create it from the resource
-      var nf = getRepos() + Common.HXP_TEMPLATE;
+      var nf = ClientTools.getRepos() + Common.HXP_TEMPLATE;
       if (!Os.exists(nf)) {
         Os.fileOut(nf,haxe.Resource.getString("HaxedTemplate"));
       }
@@ -609,7 +423,7 @@ project:
       fromLib = prj != null;
     
     if (fromLib) {
-      var p = internalPath([{prj:hxpFile,ver:currentVersion(prj),op:null}]);
+      var p = ClientTools.internalPath([{prj:hxpFile,ver:ClientTools.currentVersion(prj),op:null}]);
       trace("path =" +p.first());
       config = new ConfigJson(Os.slash(Os.fileIn(p.first()) + Common.CONFIG_FILE));
     } else {
