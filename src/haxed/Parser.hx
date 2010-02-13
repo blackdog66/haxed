@@ -4,8 +4,8 @@ import haxed.Common;
 using haxed.Validate;
 using Lambda;
 using StringTools;
-
-typedef Info = { line:Int,col:Int};
+import haxed.Tokenizer;
+import haxed.ChunkedFile;
 
 enum Token {
   PROPERTY(name:String,value:String,info:Info);
@@ -23,157 +23,6 @@ private enum State {
   MULTI_LINE;
 }
 
-class Tokenizer<T> {
-  var parseText:String;
-  var textLength:Int;
-  var curChar:Int;
-  var lineNo:Int;
-  var curState:T;
-  var retState:T;
-  var startState:T;
-  var lineStart:Int;
-  var reWnd:Bool;
-  
-  public function new(pt:String,ss:T) {
-    startState = curState = retState = ss;
-    parseText = pt;
-    textLength = parseText.length;
-    curChar = 0;
-    lineNo = 1;
-    reWnd = false;
-    lineStart = 0;
-  }
-  
-  public inline function
-  isAlpha(c:String) {
-    return ~/\S/.match(c);
-  }
-
-  public inline function
-  isWhite(c:String) {
-    return ~/\s/.match(c) ;
-  }
-
-  public inline function
-  isNL(c:String) {
-    return c == "\n";
-  }
-
-  public function
-  peek() {
-    if (curChar > textLength) {
-      return "EOF";
-    }
-    return parseText.charAt(curChar);
-  }
-  
-  public inline function
-  column() {
-    return (curChar-1) - lineStart;
-  }
-
-  public inline function
-  state() {
-    return curState;
-  }
-  
-  public function
-  nextState(newState:T,?rs:T,rw=false) {
-    if (rs != null)
-        retState = rs;
-
-    curState = newState;
-    if (rw) rewind();
-  }
-
-  public function
-  popState() {
-    if (retState == null || retState == curState /* guard against infinite loops */)
-      curState = startState;
-    else 
-      curState = retState;
-    
-    retState = null;
-    
-  }
-
-  public inline function
-  info():Info {
-    return {line:lineNo,col:column()};
-  }
-
-  public function
-  nextChar() {
-    if (curChar > textLength)
-      return "EOF";
-  
-    var nc = parseText.charAt(curChar);    
-  
-    if (nc == "\t") syntax("I don't like tabs!");
-
-    if (isNL(nc) && ! reWnd) {
-#if debug
-      neko.Lib.println(">>"+state()+":"+lineNo+"("+curChar+"): "+parseText.substr(lineStart,curChar-lineStart)+"<");
-#end
-      lineStart = curChar + 1;
-      lineNo++;
-    }
-    
-    curChar++;
-    reWnd = false;
-    return nc;
-  }
-
-  public function
-  rewind() {
-    reWnd = true;
-    curChar--;
-  }
-
-  public inline function
-  prevChar() {
-    return parseText.charAt(curChar-1);
-  }
-
-  public function
-  skipToNL(retState:T) {
-    var c;
-    while ((c = nextChar()) != "EOF") {
-      if (isNL(c)) {
-        nextState(retState,true);
-        break;
-      }
-    }
-  }
-
-  public function
-  skipToAlpha(retState:T) {
-    var c;
-    while ((c = nextChar()) != "EOF") {
-      if(isAlpha(c) || isNL(c) || c == "#") {
-        if (c == "#") {
-          skipToNL(retState);
-          nextState(retState,false);
-        } else {
-          nextState(retState,true);
-        }
-        break;
-      }
-    }
-  }
-  
-  public function
-  syntax(msg:String) {
-    #if debug
-    neko.Lib.print("State:" + state()+"  > ");
-    #end
-    if (column() > -1)
-      neko.Lib.println("At line "+lineNo+" col "+column()+": "+msg);
-    else 
-      neko.Lib.println("At line "+ (lineNo -1) +": "+msg);
-    neko.Sys.exit(1);
-  }
-}
 
 class Parser {
 
@@ -198,7 +47,7 @@ class Parser {
   }
   
   public static function
-  tokens(hf:String) {
+  tokens(hf:Reader) {
     var
       tk = new Tokenizer<State>(hf,START_KEY_OR_DOCUMENT),
       context = new Array<State>(),
@@ -213,6 +62,8 @@ class Parser {
       toks = new List<Token>();
     
     while ((c = tk.nextChar()) != "EOF") {
+
+      if (c == "\t") tk.syntax("I don't like tabs!");
       
       if (c == "#") {
         tk.skipToNL(tk.state());
@@ -315,8 +166,8 @@ class Parser {
 
   static function
   parse(file:String):Hxp {
-    var contents = neko.io.File.getContent(file);
-    return tokens(contents).fold(function(token,hbl:Hxp) {
+    //    var contents = neko.io.File.getContent(file);
+    return tokens(new ChunkedFile(file)).fold(function(token,hbl:Hxp) {
         #if debug
         trace(token);
         #end
