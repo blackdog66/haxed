@@ -63,7 +63,8 @@ class Validate {
     return Lambda.map(~/,/g.split(s),StringTools.trim).array();
   }
   
-  public static function directories(s:String):Array<String> {
+  public static function
+  directories(s:String):Array<String> {
     var f = function(el:String) {
       var trimmed = el.trim();
       if (reDir.match(el.charAt(0)))
