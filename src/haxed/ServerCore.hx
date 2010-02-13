@@ -5,6 +5,7 @@ import haxed.Common;
 import haxed.ServerData;
 import haxed.ZipReader;
 import haxed.License;
+import haxed.ConfigJson;
 
 using Lambda;
 
