@@ -161,6 +161,13 @@ class Os {
     return tmpl.execute(ctx);
   }
 
+  public static function
+  exit(c:Int) {
+    #if neko
+    neko.Sys.exit(c);
+	#end
+  }
+  
   public static inline function
   cd(path:String) {
     Sys.setCwd(path);
