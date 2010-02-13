@@ -3,6 +3,7 @@ package haxed;
 import haxed.Common;
 import haxed.ClientRestful;
 import haxed.ClientCtrl;
+import haxed.Tasks;
 
 class ClientMain {
   public static var VERSION = "0.1";
@@ -105,6 +106,8 @@ class ClientMain {
   main() {
 
     //haxe.Log.trace = myTrace;
+    Tasks.init();
+    
     var
       client = new ClientRestful(),
       commandCtx = ClientCtrl.process();

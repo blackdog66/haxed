@@ -3,6 +3,7 @@ package haxed;
 
 import haxed.Common;
 import haxed.Os;
+import haxed.Builder;
 
 using StringTools;
 
@@ -38,9 +39,30 @@ class TaskRunner {
 
 class Tasks {
 
-  static var TASK_DIR = "./haxed_tasks/";
+  static var HAXED_DIR = "./.haxed/";
+  static var TASK_DIR = HAXED_DIR+"tasks/";
+  static var CP_DIR = HAXED_DIR+"src/";
+  
   var task:Task;
   var exeName:String;
+
+  public static function init() {
+     if (!Os.exists(TASK_DIR))
+      Os.mkdir(TASK_DIR);
+
+     if (!Os.exists(CP_DIR+"haxed"))
+       Os.mkdir(CP_DIR+"haxed");
+
+     var tasksFile = CP_DIR+"haxed/Tasks.hx"; 
+     if(!Os.exists(tasksFile)) {
+       Os.fileOut(tasksFile,haxe.Resource.getString("tasks_hx"));
+       // if we need Tasks.hx need these too ...
+       Os.fileOut(CP_DIR+"haxed/Os.hx",haxe.Resource.getString("os_hx"));
+       Os.fileOut(CP_DIR+"haxed/Common.hx",haxe.Resource.getString("common_hx"));
+       Os.fileOut(CP_DIR+"haxed/Builder.hx",haxe.Resource.getString("builder_hx"));
+       Os.fileOut(CP_DIR+"haxed/ClientTools.hx",haxe.Resource.getString("tools_hx"));
+     }
+  }
   
   public static function
   run(task:Task,?prms:Array<Dynamic>) {
@@ -50,9 +72,6 @@ class Tasks {
   
   public function new(t:Task,?taskID:String) {
 
-    if (!Os.exists(TASK_DIR))
-      Os.mkdir(TASK_DIR);
-    
     task = t;
     
     if (taskID == null)
@@ -83,11 +102,22 @@ class Tasks {
         doBuild = true;
       }
     }
+
+    var
+      cp = task.classPath,
+      defaultClasspaths = [".",CP_DIR];
+
+    if (cp == null)
+      cp = defaultClasspaths;
+    else
+      cp = cp.concat(defaultClasspaths);
+    
+    trace("classpaths are "+cp);
     
     if (doBuild) {
       var build:Build = {
       name:task.name,
-      classPath:(task.classPath != null) ? task.classPath : ["."],
+      classPath:cp,
       target:(task.target == null) ? "neko" : task.target,
       targetFile:(task.targetFile == null) ? exeName : task.targetFile,
       mainClass:(task.mainClass == null) ? "Tasks" : task.mainClass,
