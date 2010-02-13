@@ -2,11 +2,10 @@ package haxed;
 
 import haxed.Common;
 import haxed.Os;
-import haxed.ClientCore;
+import haxed.ClientTools;
 
 using Lambda;
 using StringTools;
-
 
 class Builder {
 
@@ -20,7 +19,7 @@ class Builder {
   static function
   getLibs(d:Array<PrjVer>) {
     var
-      paths = ClientCore.internalPath(d),
+      paths = ClientTools.internalPath(d),
       sb = new StringBuf();
 
     for (p in paths) {
@@ -54,8 +53,8 @@ class Builder {
 
     if (fromLib) {
       var prj = c.globals().name;
-      libRoot = ClientCore
-        .internalPath([{prj:prj,ver:ClientCore.currentVersion(prj),op:null}])
+      libRoot = ClientTools
+        .internalPath([{prj:prj,ver:ClientTools.currentVersion(prj),op:null}])
         .first();
     }
 
