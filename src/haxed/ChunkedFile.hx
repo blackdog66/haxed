@@ -4,7 +4,7 @@ package haxed;
 import neko.io.File;
 
 class ChunkedFile implements Reader {
-  static var BUF_SIZE=512;
+  public static var BUF_SIZE=1024;
   var f:neko.io.FileInput;
   var buf:haxe.io.Bytes;
   var len:Int;
@@ -30,7 +30,7 @@ class ChunkedFile implements Reader {
       return -1;
     }
 
-    trace("getting chunk "+chunk);
+    //trace("getting chunk "+chunk);
     len = f.readBytes(buf,0,BUF_SIZE);
     
     totalRead += len;
@@ -39,6 +39,9 @@ class ChunkedFile implements Reader {
 
   public function
   charAt(i:Int) {
+
+    if (eof) return "EOF";
+    
     var
       pos = i % BUF_SIZE,
       chunk = Math.floor(i / BUF_SIZE);
@@ -54,7 +57,7 @@ class ChunkedFile implements Reader {
       eof = true;
       f.close();
     }
-    
+
     return "EOF";
   }
 
