@@ -5,25 +5,35 @@ import haxed.Reader;
 
 typedef Info = { line:Int,col:Int};
 
-typedef Converter<T> = String->EReg->T
+typedef Converter<T> = EReg->T;
 
 typedef Token<T> = {
 	var recogniser:EReg;
 	var converter:Converter<T>;
 }
 
+typedef IToken<T> = { > Token<T>,
+	var pushback:Int;
+}
+
 class Tokenizer<T> {
+  static var EOF = -1;
+  static var DEFAULT_CHUNK_SIZE = 512;
+  
   var reader:Reader;
   var curChar:Int;
   var lineNo:Int;
   var lineStart:Int;
   var reWnd:Bool;
   var curLine:StringBuf;
-  var recognisedTokens:Array<Token<T>>;
+  var recognisedTokens:Array<IToken<T>>;
   var eof:Bool;
   var totalLength:Int;
+  var leftOver:String;
+  var chunker:Void->String;
+  var charCodeAt:Int->Int;
   
-  public function new(rd:Reader) {
+  public function new(rd:Reader,useChunker=true) {
     recognisedTokens = new Array();
     reader = rd;
     curChar = 0;
@@ -32,14 +42,23 @@ class Tokenizer<T> {
     lineStart = 0;
     eof = false;
     curLine = new StringBuf();
+    leftOver = "";
+
+    if (rd.canChunk() && useChunker)
+      chunker = reader.nextChunk;
+    else {
+      chunker = nextChunk;
+    }
+      
+    charCodeAt = reader.charCodeAt;
   }
 
   public function
-  add(rec:EReg,read:Converter<T>) {
-    recognisedTokens.push({recogniser:rec,converter:read});
+  add(rec:EReg,pb:Int=0,conv:Converter<T>) {
+    recognisedTokens.push({recogniser:rec,converter:conv,pushback:pb});
     return this;
   }
-    
+  
   public inline function
   isAlpha(c:String) {
     return ~/\S/.match(c);
@@ -51,13 +70,13 @@ class Tokenizer<T> {
   }
 
   public inline function
-  isNL(c:String) {
-    return c == "\n";
+  isNL(c) {
+    return c == 10;
   }
 
   public function
   peek() {
-    return reader.charAt(curChar);
+    return reader.charCodeAt(curChar);
   }
   
   public inline function
@@ -70,94 +89,113 @@ class Tokenizer<T> {
     return {line:lineNo,col:column()};
   }
 
-  public function atEof() {
-    return eof;
+  public inline function atEof() {
+    return reader.atEof();
   }
   
   public function
   nextChar() {
-    var nc = reader.charAt(curChar);    
+    var nc = charCodeAt(curChar);    
 
-    if (nc == "EOF") {
-      eof = true;
-      return "EOF";
+    if (nc == EOF) {
+      return EOF;
     }
  
-    if (!reWnd) curLine.add(nc);
+    //    if (!reWnd) curLine.add(nc);
     
     if (isNL(nc) && ! reWnd) {
      
 #if debug
       Os.print(">>"+":"+lineNo+"("+curChar+"): "+curLine.toString()+"<");
 #end
-      curLine = new StringBuf();
+      // curLine = new StringBuf();
       lineStart = curChar + 1;
       lineNo++;
     }
     
     curChar++;
-    reWnd = false;
+    //reWnd = false;
     return nc;
   }
 
-  function fillChunk(size=40) {
+  function nextChunk() {
     var
       sb = new StringBuf(), 
       c,
       i = 0;
-    while ((c = nextChar()) != "EOF") {
-      sb.add(c);
-      if (i++ > size) break;
+    while ((c = nextChar()) != -1) {
+      sb.addChar(c);
+      if (i++ > DEFAULT_CHUNK_SIZE) break;
     }
 
     return sb.toString();
   }
-  
-  function withChunks(fn:String->Int) {
-    var
-      chunk = fillChunk();    
+
+  function withChunks(chunk:String,fn:String->Int) {
+
+    if(chunk == "")
+      chunk = chunker();
+    
     do {
       var np = fn(chunk);
-
-      if (np == -1) {
-
-        // don't have a match, so extend this chunk looking         
+      switch(np) {
+      case -1:
 
         if (atEof()) {          
-          trace("breaking here");
           break;
         }
         
-        chunk += fillChunk();
-      } else  {         
+        chunk += chunker();        
+
+      default:
         chunk = chunk.substr(np);
-        //    trace("reusing >"+chunk+"<");
+        break;
       }
-       
     } while (true);
+    return chunk;
   }
-  
+
   public function
-  tokens(fn:T->Void) {
+  nextToken() {
     var me =  this;
-    withChunks(function(chunk) {
-        var i = 0;
+    var tok = null;
+
+    leftOver = withChunks(leftOver,function(chunk) {
         for (rt in me.recognisedTokens) {
           if (rt.recogniser.match(chunk)) {
             var p = rt.recogniser.matchedPos();
+            #if debug
             try {
-              fn(rt.converter(rt.recogniser.matched(0),rt.recogniser));
+            #end
+              tok = rt.converter(rt.recogniser);
+            #if debug
             } catch(ex:Dynamic) {
               trace("converter failed with "+rt.recogniser.matched(0) +" in context "+chunk);
               trace(ex);
               Os.exit(1);
             }
-            return p.pos + p.len;
+            #end
+            return p.pos + p.len - rt.pushback;
           }
-          i++;
         }        
         return -1;
       });
+    //        trace(tok);    
+    return tok;
+  }
+
+  public function iterator():Iterator<T> {
+    var t = null,
+      me = this;
+    return {
+    hasNext: function() {
+        t = me.nextToken();
+        return t != null;
+      },
+    next: function() {
+        return t;
+      }
+    }
   }
   
   public function
@@ -168,44 +206,17 @@ class Tokenizer<T> {
 
   public inline function
   prevChar() {
-    return reader.charAt(curChar-1);
+    return reader.charCodeAt(curChar-1);
+  }
+  
+  public inline function
+  readAssert(expected:T) {
+    var tok = nextToken();
+    if (tok != expected) throw "expected:" + expected + " got "+tok;
+    return tok;
   }
 
-  public function
-  skipToNL(onFinish:Void->Void) {
-    var c;
-    while ((c = nextChar()) != "EOF") {
-      if (isNL(c)) {
-        onFinish();
-        break;
-      }
-    }
-  }
-
-  public function
-  skipToAlpha(onFinish:Void->Void) {
-    var c;
-    while ((c = nextChar()) != "EOF") {
-      if(isAlpha(c) || isNL(c) || c == "#") {
-        onFinish();
-        break;
-      }
-    }
-  }
-
-  public function
-  readString(tk:Tokenizer<T>,delimeter='"') {
-    var
-      c,
-      sb = new StringBuf();
-      
-    while ((c = tk.nextChar()) != "EOF" && c != delimeter) {
-        sb.add(c);
-    }
-
-    return sb.toString();
-  }
-
+  
   public function
   syntax(msg:String) {
     if (column() > -1)
@@ -217,18 +228,19 @@ class Tokenizer<T> {
   }
 }
 
-typedef Action:Void->Void;
+typedef Action = Dynamic->Void;
 
 class Parser<S,E> {
-  var funcs:Hash<Void->Void>;
+  var funcs:Hash<Action>;
+  var trans:Hash<S>;
   var curState:S;
   var retState:S;
   var startState:S;
-  var tokenizer:Tokenizer;
-  var pump:E->Void;
+  var tokenizer:Tokenizer<E>;
   
   public function new(ss:S,t:Tokenizer<E>) {
     funcs = new Hash<Action>();
+    trans = new Hash<S>();
     startState = curState = retState = ss;
     tokenizer = t;
   }
@@ -238,31 +250,56 @@ class Parser<S,E> {
     return curState;
   }
 
+  inline function actionID(s:S,?e:E) {
+    var s = Type.enumConstructor(s);
+    if (e != null) {
+      s += Type.enumConstructor(e);
+    }
+    return s;
+  }
+
   public function
-  on(s:S,e:E,f:Action) {
-    funcs.set(Type.enumConstructor(s)+Type.enumConstructor(e),f);
+  on(s:S,f:Action) {
+    funcs.set(actionID(s),f);
     return this;
   }
 
-  public
-  function execute(event:E) {
-    var
-      s = Type.enumConstructor(curState),
-      e = Type.enumConstructor(event);
-    
-    var f = funcs.get(s+e);
-    if (f != null)
-      f(agent);
-  }
-
-    
   public function
-  parse() {
-    tokenizer.tokens(pump);
+  tr(s:S,e:E,newState:S) {
+    trans.set(actionID(s,e),newState);
+    return this;
   }
   
   public function
-  nextState(newState:T,?rs:T,rw=false) {
+  parse(context:Dynamic) {
+    var t;
+    while((t = nextToken()) != null)
+      execute(t,context);
+    return context;
+  }
+  
+  public
+  function execute(event:E,context:Dynamic) {    
+    var f = funcs.get(actionID(curState,event));
+    if (f != null)
+      f(context);    
+  }
+
+    
+  public inline function
+  nextToken() {
+    return tokenizer.nextToken();
+  }
+
+  public function
+  readAssert(expected:E) {
+    var tok = nextToken();
+    if (tok != expected) throw "expected:" + expected + " got "+tok;
+    return tok;
+  }
+
+  public function
+  nextState(newState:S,?rs:S,rw=false) {
     if (rs != null)
         retState = rs;
 
