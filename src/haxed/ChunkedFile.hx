@@ -1,11 +1,18 @@
 
 package haxed;
 
+#if neko
 import neko.io.File;
+import neko.io.FileInput;
+#else
+import php.io.File;
+import php.io.FileInput;
+#end
 
 class ChunkedFile implements Reader {
   public static var BUF_SIZE=1024;
-  var f:neko.io.FileInput;
+  static var EOF = -1;
+  var f:FileInput;
   var buf:haxe.io.Bytes;
   var len:Int;
   var totalRead:Int;
@@ -13,7 +20,7 @@ class ChunkedFile implements Reader {
   var eof:Bool;
   
   public function new(file:String) {
-    f = neko.io.File.read(file,false);
+    f = File.read(file,false);
     eof = false;
     buf = haxe.io.Bytes.alloc(BUF_SIZE);
     totalRead = 0;
@@ -25,43 +32,64 @@ class ChunkedFile implements Reader {
     f.seek(chunk*BUF_SIZE,SeekBegin);
     curChunk = chunk;
 
+    #if neko
     if (f.eof()) {
       f.close();
       return -1;
     }
+    #end
+    
 
     //trace("getting chunk "+chunk);
-    len = f.readBytes(buf,0,BUF_SIZE);
+    try {
+      len = f.readBytes(buf,0,BUF_SIZE);
+    } catch(ex:Dynamic) {
+      //      trace("prob at "+chunk+" = "+chunk*1024+" but at "+f.tell());
+      eof = true;
+    }
     
     totalRead += len;
     return len;
   }
 
-  public function
-  charAt(i:Int) {
+  function
+  updateChunk(chunk:Int) {
+    if (chunk != curChunk) {
+      if (bufferChunk(chunk) == -1)
+        eof = true;
+    }
+  }
+  
+  public function canChunk() { return true; }
 
-    if (eof) return "EOF";
+  public function nextChunk():String {
+    var b = buf.toString().substr(0,len);
+    updateChunk(curChunk+1);
+    return b;
+  }
+  
+  public function
+  charCodeAt(i:Int):Int {
+
+    if (eof) return EOF;
     
     var
       pos = i % BUF_SIZE,
       chunk = Math.floor(i / BUF_SIZE);
 
-    if (chunk != curChunk) {
-      if (bufferChunk(chunk) == -1)
-        eof = true;
-    }
+    updateChunk(chunk);
     
     if (pos < len) {
-      return String.fromCharCode(buf.get(pos));
+      return buf.get(pos);
     } else {
       eof = true;
       f.close();
     }
 
-    return "EOF";
+    return EOF;
   }
 
-  public function
+  public inline function
   atEof() {
     return eof;
   }
