@@ -2,9 +2,12 @@
 package haxed;
 
 interface Reader {
-  function charAt(i:Int):String;
+  function charCodeAt(i:Int):Int;
   function atEof():Bool;
+  function canChunk():Bool;
+  function nextChunk():String;
 }
+
 
 class StringReader implements Reader {
 
@@ -17,14 +20,21 @@ class StringReader implements Reader {
     len = str.length;
   }
 
-  public function charAt(i:Int) {
+  public function charCodeAt(i:Int) {
     cur = i;
-    if (atEof()) return "EOF";
-    return str.charAt(i);
+    if (atEof()) return -1;
+    return str.charCodeAt(i);
   }
 
   public function atEof() {
     return cur + 1 > len;
   }
 
+  public function nextChunk():String {
+    return "";
+  }
+
+  public function canChunk() { return false ;}
+
 }
+
