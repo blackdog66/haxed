@@ -11,6 +11,6 @@ class ConfigJson extends Config {
   public
   function new (j:String) {
     super();
-    data = JSON.decodeString(j);
+    data = JSON.decode(j);
   }
 }
