@@ -3,6 +3,7 @@ package haxed;
 import haxed.Common;
 import haxed.ServerCore;
 import haxed.License;
+import haxed.JSON;
 
 #if php
 import php.Lib;
@@ -26,7 +27,7 @@ class ServerMain {
     var
       repo,
       dinfo = ServerCtrl.dispatch(),
-      config:ServerConf = hxjson2.JSON.decode(haxe.Resource.getString("serverConfig"));
+      config:ServerConf = JSON.decode(haxe.Resource.getString("serverConfig"));
 
     License.set(config.licenses);
     repo = new ServerCore(config.dataDir);

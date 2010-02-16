@@ -1,7 +1,7 @@
 package haxed;
 
 import haxed.Common;
-import hxjson2.JSON;
+import haxed.JSON;
 
 class Marshall {
   public static function

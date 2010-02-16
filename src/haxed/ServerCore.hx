@@ -337,11 +337,11 @@ class ServerCore {
          found = Project.manager.all()
             .map(function(p) {
                 var
-                  j = hxjson2.JSON.decode(p.version.meta),
+                  j = JSON.decode(p.version.meta),
                   obj = getObj(j,path.split("."));
 
                 if (obj != null) {
-                  var recode = hxjson2.JSON.encode(obj);
+                  var recode = JSON.encode(obj);
                   if (recode.indexOf(query) != -1) {
                     return getInfo(p);
                   }
