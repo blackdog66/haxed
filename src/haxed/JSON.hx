@@ -3,7 +3,13 @@ package haxed;
 
 import haxed.SyntaxTools;
 import haxed.Reader;
-  
+
+#if neko
+import neko.Utf8;
+#elseif php
+import php.Utf8;
+#end
+
 private enum TType {
   T_LBRACE;
   T_RBRACE;
@@ -43,14 +49,18 @@ class JSON {
           return T_NUMBER(Std.parseFloat(re.matched(1)));
         })
       .add(~/^\s*null/,function(re) { return T_NULL; });
+
     return tk; 
   }
 
-  // ~/^\s*([-+]?[0-9]*\.?[0-9]+)(?![0-9])
-  
   public static function
-  decodeString(hf:String) {
-    return decode(new StringReader(hf));
+  decode(hf:String) {
+    return parse(new StringReader(hf));
+  }
+
+  public static function
+  decodeFile(file:String) {
+    return parse(new ChunkedFile(file));
   }
   
   static function
@@ -59,14 +69,12 @@ class JSON {
       v:Dynamic;
     
     switch (t) {
-
     case T_LBRAK:		v = readArray();
     case T_LBRACE: 		v = readObject();
     case T_NUMBER(n): 	v = n;
     case T_STRING(s): 	v = s;
     case T_BOOL(b):		v = b;
     case T_NULL:		v = null;
-
     default:
       throw "Expected a value, got a "+t;
     }
@@ -86,7 +94,7 @@ class JSON {
   readArray():Array<Dynamic> {
     var a = [],
       t;
-    //    trace("reading array");
+
     t = nextToken();
 
     if (t == T_RBRAK) return a;
@@ -94,9 +102,7 @@ class JSON {
     do {
 
       a.push(readValue(t));
-
       t = nextToken();
-      
       if (t == T_RBRAK || t == null) break;
       expecting(T_COMMA,t);
       t = nextToken();
@@ -109,7 +115,6 @@ class JSON {
   static function
   readObject() {
     var o = {} ,t;
-    //trace("reading object");
     t = nextToken();
 
     if (t == T_RBRACE) return o;
@@ -118,9 +123,7 @@ class JSON {
       var key = readValue(t);
       readAssert(T_COLON);      
       var v = readValue(nextToken());
-      //      trace("set "+key+" to "+v);
       Reflect.setField(o,key,v);
-
       t = nextToken();
       if (t == T_RBRACE || t == null) break;
       expecting(T_COMMA,t);
@@ -130,21 +133,139 @@ class JSON {
     return o;
   }
   
+  static function
+  parse(r:Reader) {
+    
+    var tz = getTokenizer(r);
+    
+    nextToken = tz.nextToken;
+    readAssert = tz.readAssert;
+    
+    return readValue(nextToken());
+  }
+  
   public static function
-  decode(r:Reader) {
+  encode(d:Dynamic) {
+    return convertToString(d);	
+  }
+	
+  private static function
+  convertToString(value:Dynamic):String {
+    if (value == null) return null;
     
-   var tzer = getTokenizer(r);
-    
-    nextToken = tzer.nextToken;
-    readAssert = tzer.readAssert;
-    
-   return readValue(nextToken());
+    var t = Type.typeof(value) ;
+    return switch(t) {
+    case TUnknown,TFunction,TNull:
+      throw "Don't convert :"+value;
+    case TFloat:
+      Math.isFinite(value) ? Std.string(value) : "null";
+    case TInt:
+      Std.string(value);
+    case TBool:
+       value ? "true" : "false";
+    case TObject:
+      objectToString(value);
+    case TEnum(e):
+      Type.enumConstructor(value);
+    case TClass(c):      
+      switch( #if neko Type.getClassName(c) #else c #end ) {
+      case #if neko "String" #else cast String #end:
+        "\""+value+"\"";
+      case #if neko "Array" #else cast Array #end:
+        arrayToString(value);
+      case #if neko "List" #else cast List #end,#if neko "IntHash" #else cast IntHash #end:
+        arrayToString(Lambda.array(value));
 
+      case #if neko "Hash" #else cast Hash #end:
+        objectToString(mapHash(value));
+      default:
+        throw "Don't convert class:"+c+" of value:"+value;
+      }
+    }
+  }
+	
+  private static function
+  mapHash(value:Hash<Dynamic>):Dynamic{
+    var ret:Dynamic = { };
+    for (i in value.keys())
+      Reflect.setField(ret, i, value.get(i));
+    return ret;
   }
 
+  // escapeString simplified from hxJson2
+  private static function
+  escapeString( str:String ):String {
+    var
+      s = new StringBuf(),
+      ch:String,
+      len = str.length,
+      utf8len = Utf8.length(str),
+      utf8mode = utf8len != len;
+    
+    if (utf8mode)
+      len = utf8len;
 
-  public static function encode() {
+    for (i in 0...len) {
+      var ch = (utf8mode) ? Utf8.sub(str,i,1) : ch = str.charAt( i );
+          
+      switch ( ch ) {			
+      case '"':	// quotation mark
+        s.add("\\\"");					
+      case '\\':	// reverse solidus
+        s.add("\\\\");
+      case '\n':	// newline
+        s.add("\\n");
+      case '\r':	// carriage return
+        s.add("\\r");
+      case '\t':	// horizontal tab
+        s.add("\\t");						
+      default:
 
+        // check for a control character and escape as unicode
+        var code = (utf8mode) ? Utf8.charCodeAt(str,i) : ch.charCodeAt(0);
+
+        if ( ch < ' ' || code > 127) {
+#if (neko || php)
+        var hexCode:String = StringTools.hex(Utf8.charCodeAt(str,i));
+#else
+        var hexCode:String = StringTools.hex(ch.charCodeAt( 0 ));
+#end
+        // ensure that there are 4 digits by adjusting
+        // the # of zeros accordingly.
+        var zeroPad:String = "";
+        for (j in 0...4 - hexCode.length) {
+          zeroPad += "0" ;
+        }
+        //var zeroPad:String = hexCode.length == 2 ? "00" : "000";						
+        // create the unicode escape sequence with 4 hex digits
+        s.add( "\\u" + zeroPad + hexCode);
+            } else {					
+        // no need to do any special encoding, just pass-through
+        s.add(ch);						
+      }
+    }	
   }
+  return "\"" + s.toString() + "\"";
+}
 
+  private static function
+  arrayToString( a:Array < Dynamic > ):String {
+    var s = new Array<String>();
+    for (i in 0...a.length) {
+      s.push(convertToString(a[i]));	
+    }
+    return "[" + s.join(",") + "]";
+  }
+  
+  private static function
+  objectToString(o:Dynamic):String {
+    var s = new Array<String>();		
+    for ( key in Reflect.fields(o) ) {
+      var value = Reflect.field(o,key);			
+      if (!Reflect.isFunction(value))	{
+        s.push(escapeString(key) + ":" + convertToString(value));
+      }			
+    }		
+    return "{" + s.join(",") + "}";
+  }
 }
