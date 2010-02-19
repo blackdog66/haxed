@@ -1,12 +1,11 @@
 package haxed;
 
 import haxed.Common;
+import haxed.SyntaxTools;
+
 using haxed.Validate;
 using Lambda;
 using StringTools;
-import haxed.Reader;
-import haxed.SyntaxTools;
-import haxed.ChunkedFile;
 
 private enum TToks {
   TDoc;

@@ -2,13 +2,13 @@
 package haxed;
 
 import haxed.SyntaxTools;
-import haxed.Reader;
 
 #if neko
 import neko.Utf8;
 #elseif php
 import php.Utf8;
 #end
+
 
 private enum TType {
   T_LBRACE;
