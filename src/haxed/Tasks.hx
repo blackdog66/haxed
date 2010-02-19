@@ -61,6 +61,8 @@ class Tasks {
        Os.fileOut(CP_DIR+"haxed/Common.hx",haxe.Resource.getString("common_hx"));
        Os.fileOut(CP_DIR+"haxed/Builder.hx",haxe.Resource.getString("builder_hx"));
        Os.fileOut(CP_DIR+"haxed/ClientTools.hx",haxe.Resource.getString("tools_hx"));
+       Os.fileOut(CP_DIR+"haxed/SyntaxTools.hx",haxe.Resource.getString("syntax_hx"));
+       Os.fileOut(CP_DIR+"haxed/JSON.hx",haxe.Resource.getString("json_hx"));
      }
   }
   
