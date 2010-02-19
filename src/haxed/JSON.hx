@@ -33,7 +33,7 @@ class JSON {
     var
       tk = new Tokenizer<TType>(r);    
 
-    tk.add(~/^\s*([\[\]\{\},:])/,function(re) {
+    tk.match(~/^\s*([\[\]\{\},:])/,function(re) {
           return switch (re.matched(1)) {
           case "[": T_LBRAK;
           case "]": T_RBRAK;
@@ -43,12 +43,13 @@ class JSON {
           case ":": T_COLON;
           };
         })
-      .add(~/^\s*\"(.*?)(?<!\\)\"/s,function(re) { return T_STRING(re.matched(1));})
-      .add(~/^\s*(true|false)/,function(re) { return T_BOOL(re.matched(1) == "true"); })
-      .add(~/^\s*([-+]?[0-9]*\.?[0-9]+)[^0-9]/,1,function(re) {
+
+      .match(~/^\s*\"(.*?)(?<!\\)\"/s,function(re) { return T_STRING(re.matched(1));})
+      .match(~/^\s*(true|false)/,function(re) { return T_BOOL(re.matched(1) == "true"); })
+      .match(~/^\s*([-+]?[0-9]*\.?[0-9]+)[^0-9]/,function(re) {
           return T_NUMBER(Std.parseFloat(re.matched(1)));
-        })
-      .add(~/^\s*null/,function(re) { return T_NULL; });
+        },Pushback(1))
+      .match(~/^\s*null/,function(re) { return T_NULL; });
 
     return tk; 
   }
