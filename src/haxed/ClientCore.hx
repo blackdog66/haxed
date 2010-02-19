@@ -9,6 +9,7 @@ import haxed.Builder;
 import haxed.compatible.Convert;
 import haxed.ConfigJson;
 import haxed.ClientTools;
+import haxed.JSON;
 
 using Lambda;
 
@@ -27,7 +28,7 @@ class RemoteRepos {
   init(c:ClientCore) {
     client = c;
     var
-      conf:ClientConf = hxjson2.JSON.decode(haxe.Resource.getString("clientConfig"));
+      conf:ClientConf = JSON.decode(haxe.Resource.getString("clientConfig"));
 
     repos = conf.repos;    
   }
@@ -371,8 +372,8 @@ class ClientCore {
   public function
   packit(hxpFile:String):String {
     var
-      hxp = Parser.process(hxpFile),
-      conf = Parser.getConfig(hxp),
+      hxp = HxpParser.process(hxpFile),
+      conf = HxpParser.getConfig(hxp),
       confDir = Package.confDir(hxpFile);
     
     return Package.createFrom(confDir,conf);
@@ -412,7 +413,7 @@ project:
 
   public static function
   getConfig(hxpFile:String):Config {
-    return Parser.getConfig(Parser.process(hxpFile));
+    return HxpParser.getConfig(HxpParser.process(hxpFile));
   }
   
   public function
@@ -427,7 +428,7 @@ project:
       trace("path =" +p.first());
       config = new ConfigJson(Os.slash(Os.fileIn(p.first()) + Common.CONFIG_FILE));
     } else {
-      config = Parser.getConfig(Parser.process(hxpFile));
+      config = HxpParser.getConfig(HxpParser.process(hxpFile));
     }
 
     var b = config.build();

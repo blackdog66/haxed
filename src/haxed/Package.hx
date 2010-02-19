@@ -2,6 +2,8 @@ package haxed;
 
 import haxed.Os;
 import haxed.Common;
+import haxed.JSON;
+
 using StringTools;
 using Lambda;
 
@@ -57,7 +59,7 @@ class Package {
 
   public static function
   packageJson(conf:Config) {
-    return hxjson2.JSON.encode(conf.data) ;
+    return JSON.encode(conf.data) ;
   }
 
   public static function

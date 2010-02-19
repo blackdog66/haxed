@@ -4,6 +4,7 @@ import haxed.Common;
 import haxed.ClientRestful;
 import haxed.ClientCtrl;
 import haxed.Tasks;
+import haxed.JSON;
 
 class ClientMain {
   public static var VERSION = "0.1";
@@ -15,7 +16,7 @@ class ClientMain {
 
   static function
   toJson(obj:Dynamic,url:String) {
-    return neko.Lib.println(hxjson2.JSON.encode({repo:url,payload:obj}));
+    return neko.Lib.println(JSON.encode({repo:url,payload:obj}));
   }
 
   static function

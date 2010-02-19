@@ -2,6 +2,7 @@
 package haxed;
 import haxed.Common;
 import haxed.ClientCore;
+import haxed.JSON;
 
 class ClientRestful extends ClientCore {
 
@@ -38,7 +39,7 @@ class ClientRestful extends ClientCore {
     var h = new haxe.Http(r+"&"+parameters);
     if (fn != null) {
       h.onData = function(d) {
-        fn(hxjson2.JSON.decode(d));
+        fn(JSON.decode(d));
       };
     }
     h.onError = function(e:String) {
@@ -111,7 +112,7 @@ class ClientRestful extends ClientCore {
     var u = url(options.repo,"submit");
     Os.filePost(packagePath,u,true,{password:password},function(d) {
         trace(d);
-        var s = Marshall.fromJson(hxjson2.JSON.decode(d));
+        var s = Marshall.fromJson(JSON.decode(d));
         if (fn != null)
           fn(options.repo,s);
       }); 
