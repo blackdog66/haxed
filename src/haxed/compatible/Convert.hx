@@ -191,8 +191,8 @@ author:         ::developers::
     static function
     packit(hxpFile:String) {
       var
-        hxp = Parser.process(hxpFile),
-        conf = Parser.getConfig(hxp);
+        hxp = HxpParser.process(hxpFile),
+        conf = HxpParser.getConfig(hxp);
 
       return Package.createFrom(Package.confDir(hxpFile),conf);
     }

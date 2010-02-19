@@ -4,189 +4,188 @@ import haxed.Common;
 using haxed.Validate;
 using Lambda;
 using StringTools;
-import haxed.Tokenizer;
+import haxed.Reader;
+import haxed.SyntaxTools;
 import haxed.ChunkedFile;
 
-enum Token {
-  PROPERTY(name:String,value:String,info:Info);
-  SECTION(name:String,info:Info);
-  //  ENDSECTION(info:Info);
+private enum TToks {
+  TDoc;
+  TIndent(abs:Int);
+  TWhite;
+  TString(s:String);
+  TKey(k:String);
+  TComment;
+  TTab;
 }
 
 private enum State {
-  START_KEY_OR_DOCUMENT;
-  START_DOCUMENT;
-  START_KEY;
-  CAPTURE_KEY;
-  START_VAL;
-  CAPTURE_VAL;
-  MULTI_LINE;
+  SDoc;
+  SSection;
+  SKey;
+  SProp;
+  SVal;
+  SMulti;
+  SIndent;
+  SError(e:String);
 }
 
+class HxpParser {
 
-class Parser {
-
-  static inline function sectionTidy(sb:StringBuf) {
-    return sb.toString().substr(0,-1).trim();
-  }
-
-  static inline function tidy(sb:StringBuf) {
-    return sb.toString().trim();
-  }
+  var curProp:String;
+  var multiIndent:Int;
+  var multiVal:StringBuf;
+  var keyIndent:Int;
+  var hxp:Hxp;
   
-  public static function
-  makeProperty(tk,ck:StringBuf,cv:StringBuf) {
-    var
-      k = tidy(ck),
-      v = tidy(cv);
-
-    if (k.length == 0) tk.syntax("Need a key");
-    if (v.length == 0) tk.syntax("Need a value for "+k);
-    
-    return PROPERTY(k.substr(0,k.length-1),v,tk.info());
-  }
-  
-  public static function
-  tokens(hf:Reader) {
-    var
-      tk = new Tokenizer<State>(hf,START_KEY_OR_DOCUMENT),
-      context = new Array<State>(),
-      curKey = null,
-      curVal = null,
-      c = "",
-      indent = 0,
-      keyIndent=0,
-      valIndent=0,
-      capturingVal = false,
-      docCount = 0,
-      toks = new List<Token>();
-    
-    while ((c = tk.nextChar()) != "EOF") {
-
-      if (c == "\t") tk.syntax("I don't like tabs!");
-      
-      if (c == "#") {
-        tk.skipToNL(tk.state());
-        continue;
-      }
-      
-      switch(tk.state()) {
-        
-      case START_KEY_OR_DOCUMENT:
-        if (tk.isAlpha(c)) {
-          if (c == "-") {
-            docCount++;
-            tk.nextState(START_DOCUMENT);
-          } else {
-            tk.nextState(START_KEY,true);
-          }
-        }
-                   
-      case START_DOCUMENT:
-        if (c == "-") {
-          docCount++;
-          if (docCount == 3) {
-            docCount = 0;
-            context.push(START_DOCUMENT);
-            tk.nextState(START_KEY);
-          }
-        } else
-          tk.syntax("expecting 3 - tokens");
-
-      case START_KEY:
-        if (tk.isAlpha(c)) {
-          curKey = new StringBuf();
-          curKey.add(c);
-          
-          keyIndent = tk.column();
-          tk.nextState(CAPTURE_KEY);
-        }
-
-      case CAPTURE_KEY:
-        if (tk.isAlpha(c))
-          curKey.add(c);
-        else {
-          var k = tidy(curKey);
-          if (k.endsWith(":")) {
-            var ctx = context.pop();
-            if (ctx == START_DOCUMENT) {
-              if (keyIndent != 0)
-                tk.syntax("A section should start on column 0, is "+keyIndent);
-
-              var ss = SECTION(sectionTidy(curKey),tk.info());
-              toks.add(ss);
-         
-              tk.nextState(START_KEY);
-            } else {
-              if (keyIndent == 0) tk.syntax("A section key should be indented, maybe you forgot the --- to start a new section:");
-              tk.skipToAlpha(START_VAL);
-            }
-        
-          } else {
-            tk.syntax("Key "+k+" should end with :");
-          }
-        }
-        
-      case START_VAL:
-        if (tk.prevChar() == "\n") tk.syntax(tidy(curKey) +"key's value is empty");
-        valIndent = tk.column();
-        curVal = new StringBuf();
-        curVal.add(c);
-        tk.nextState(CAPTURE_VAL);
-        
-      case CAPTURE_VAL:
-        capturingVal = true;
-        if (!tk.isNL(c)) {
-          curVal.add(c); 
-        } else 
-          tk.skipToAlpha(MULTI_LINE);
-
-      case MULTI_LINE:
-        var col = tk.column();
-        if (col == valIndent) {
-          curVal.add("\n");
-          curVal.add(c);
-          tk.nextState(CAPTURE_VAL);
-        } else {
-          if (col == 0 || col == keyIndent || c == "\n") {
-            capturingVal = false;
-            toks.add(makeProperty(tk,curKey,curVal));
-            tk.nextState(START_KEY_OR_DOCUMENT,true);
-          } else
-            tk.syntax("expecting a new key at column " + keyIndent +
-                   " or a multi-line value at column "+valIndent);
-        }
-      }
-    }
-
-    if (capturingVal) toks.add(makeProperty(tk,curKey,curVal));
-    
-    return toks;
-  }
-
   static function
-  parse(file:String):Hxp {
-    //    var contents = neko.io.File.getContent(file);
-    return tokens(new ChunkedFile(file)).fold(function(token,hbl:Hxp) {
-        #if debug
-        trace(token);
-        #end
-        switch(token) {
-        case PROPERTY(name,val,info):
-          hbl.setProperty(name,val,info);
-        case SECTION(name,info):
-          hbl.setSection(name,info);
-          //case ENDSECTION(info):
-          //hbl.endSection(info);
-        }
-        return hbl;
-      },new Hxp(file));    
+  getTokenizer(r) {
+    var
+      tk = new Tokenizer<TToks>(r,LINE);    
+    
+    tk.match(~/\t/,function(re) { return TTab; })
+      .match(~/^\s+(?=\S)/,function(re) {
+        return TIndent(re.matchedPos().len);})
+      .match(~/^\s+\n/,function (re) { return TWhite; })
+      .match(~/^---.*?\n/,function(re) { return TDoc; })
+      .match(~/^#.*\n/,function(re) { return TComment; })
+      .match(~/^([a-zA-Z-]+):(?=\s)/,function(re) {
+          return TKey(re.matched(1)); })
+      .match(~/^([^#]+?)\n/,function(re) {
+            return TString(re.matched(1));
+        });
+     
+    return tk; 
   }
-  
+
+  public function new() {}
+
+  function newProperty(p) {
+    curProp = p;
+    multiVal = new StringBuf();
+    multiIndent = -1;
+  }
+
+  function saveProperty() {
+    hxp.setProperty(curProp,multiVal.toString().trim());
+  }
+
+  public function
+  parse(f:String) {
+    var
+      me = this,
+      tk = getTokenizer(new ChunkedFile(f)),
+      p = new Parser<State,TToks>(SDoc,tk),
+      curProp = null,
+      Key = TKey(""),
+      Str = TString(""),
+      Indent = TIndent(0),
+      Error = SError("");
+
+    hxp = new Hxp(f);
+      
+    p.define([
+     ONTRAN(SDoc,TDoc,function() {
+         return SSection;
+       }),
+       
+     ONTRAN(SSection,Key,function(k:String) {
+         me.hxp.setSection(k);
+         return SIndent;
+       }),
+     
+     ONTRAN(SIndent,Indent,function(size:Int) {
+         me.keyIndent = size;
+         return SProp;
+       }),
+     
+     ONTRAN(SProp,Key,function(k:String) {
+         var pos = tk.fromBOL();
+         if (pos != me.keyIndent) {
+           return SError("bad indent for key \""+k+"\", expecting "+me.keyIndent+" got "+pos);
+         }
+
+         me.newProperty(k);
+         return SVal;
+       }),
+     
+     ONTRAN(SVal,TWhite,function() {
+         return SError("key "+curProp+" value is empty");
+       }),
+     
+     ONTRAN(SVal,Indent,function(size:Int) {          
+         me.multiIndent = tk.fromBOL() + size;
+         return SMulti;  
+       }),
+     
+     ONTRAN(SMulti,Str,function(s:String) {
+         var pos = tk.fromBOL();
+         return switch(pos) {
+         case me.multiIndent:
+           me.multiVal.add("\n"+s);
+           SMulti;
+         case me.keyIndent:
+           me.saveProperty();
+           SProp;        
+         default:
+            if (tk.fromBOL() == 0 && s != "---")
+              SError("Expecting ---");
+            else
+              SError("bad indent, expecting "+me.multiIndent+" got "+pos);
+         }
+       }),
+       
+     ONTRAN(SMulti,[Indent,TWhite,TDoc],function(t:TToks) {
+         return switch(t) {
+         case TIndent(size):
+           switch(size) {
+           case me.keyIndent:
+             me.saveProperty();
+             SProp;
+             
+           case me.multiIndent:
+             SMulti;
+      
+           default:
+             SError("bad indent, expecting "+me.keyIndent+" or "+me.multiIndent+" got "+size);
+           }           
+         case TDoc:
+           me.saveProperty();
+           SSection;
+         
+         default:
+           SMulti;
+         }          
+       }),
+
+     ONSTATE(Error,function(e:String) {
+         p.syntax(e);
+       })
+     
+    ]);
+
+    p.allow([TWhite,TComment]);
+
+    p.tokenString(function(e:TToks) {
+        return switch(e) {
+        case TKey(k): k;
+        case TDoc: "---";
+        default:
+          Std.string(e);
+        }
+      });
+
+    
+    p.parse();
+    
+    return hxp;
+  }
+
   public static function
   process(file:String):Hxp {
 
-    var h = parse(file);
+    var
+      p = new HxpParser(),
+      h = p.parse(file);
 
     Validate.forSection(Config.GLOBAL)
       .add("name",true,Validate.name)
@@ -231,6 +230,7 @@ class Parser {
   getConfig(hbl:Hxp):Config {
     return new ConfigHxp(hbl);
   }
+
 }
 
 class Hxp {
@@ -250,7 +250,7 @@ class Hxp {
   }
 
   public function
-  setSection(name,info:Info) {
+  setSection(name) {
     curSection = {};
     if (name == Config.BUILD) {
       if (Reflect.field(hbl,Config.BUILD) == null)
@@ -263,14 +263,9 @@ class Hxp {
     } else
       Reflect.setField(hbl,Common.camelCase(name),curSection);
   }
-
-  public function
-  endSection(info:Info) {
-    curSection = Config.GLOBAL;
-  }
   
   public function
-  setProperty(name,values,info:Info) {
+  setProperty(name,values) {
     var fld = Common.camelCase(name);
     Reflect.setField(curSection,fld,values);
   }
@@ -282,6 +277,7 @@ class Hxp {
   }
 }
 
+
 class ConfigHxp extends Config  {
   public
   function new(h:Hxp) {
@@ -290,5 +286,4 @@ class ConfigHxp extends Config  {
     Reflect.setField(data,Config.FILE,Reflect.field(h,Config.FILE));
   }
 }
-
 
