@@ -1,5 +1,7 @@
 package haxed;
 
+import haxed.JSON;
+
 /*
   Used across neko, php and js
 */
@@ -281,6 +283,14 @@ class Config {
     return null;
   }
 }  
+
+class ConfigJson extends Config {
+  public
+  function new (j:String) {
+    super();
+    data = JSON.decode(j);
+  }
+}
 
 class Common {
   public static var CONFIG_FILE = "haxed.json";

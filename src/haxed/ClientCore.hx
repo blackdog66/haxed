@@ -7,7 +7,6 @@ import haxed.Common;
 import haxed.Os;
 import haxed.Builder;
 import haxed.compatible.Convert;
-import haxed.ConfigJson;
 import haxed.ClientTools;
 import haxed.JSON;
 
