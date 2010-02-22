@@ -47,6 +47,10 @@ class Tasks {
   var exeName:String;
 
   public static function init() {
+
+    if (Os.exists(HAXED_DIR))
+      Os.rmdir(HAXED_DIR);
+    
      if (!Os.exists(TASK_DIR))
       Os.mkdir(TASK_DIR);
 

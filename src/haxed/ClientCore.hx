@@ -444,7 +444,6 @@ project:
   task(config:Config,task:Task,prms:Array<Dynamic>,options:Options){    
 
     if (options.flag("-clean")) {
-      Os.rmdir(".haxed");
       Tasks.init();
       Os.print("Cleaning - reinitialised .haxed dir");
     }
