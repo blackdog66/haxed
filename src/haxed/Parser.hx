@@ -175,6 +175,7 @@ class HxpParser {
 
     
     p.parse();
+    saveProperty();
     
     return hxp;
   }
