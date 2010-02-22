@@ -441,7 +441,12 @@ project:
   }
 
   public function
-  task(config:Config,task:Task,prms:Array<Dynamic>,options:Options){    
+  task(config:Config,task:Task,prms:Array<Dynamic>,options:Options) {
+    runTask(config,task,prms,options);
+  }
+
+  public static function
+  runTask(config:Config,task:Task,prms:Array<Dynamic>,options:Options){    
 
     if (options.flag("-clean")) {
       Tasks.init();
@@ -472,11 +477,10 @@ project:
             name = prms.shift(),
             gotTask = false;
 
-        
-          for (task in c.tasks()) {
-            if (task.name == name) {
+          for (tsk in c.tasks()) {
+            if (tsk.name == name) {
               gotTask = true;
-              Tasks.run(task,prms);
+              runTask(c,tsk,prms,new Options());
             }
           }
 
