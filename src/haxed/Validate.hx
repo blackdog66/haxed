@@ -19,7 +19,8 @@ class Validate {
   static var reSplit = ~/\s/g;
   static var reAlphanum = ~/^[A-Za-z0-9_.-]+$/;
   static var reDir = ~/^[A-Za-z_0-9]/;
-
+  static var referencePrefix = "!*";
+  
   public static function
   forSection(s:String):Hash<Valid> {
     if (!sections.exists(s)) {
@@ -145,6 +146,29 @@ class Validate {
   zip(v) {
     return (StringTools.endsWith(v,".zip") && Os.exists(v)) ? v : null; 
   }
+
+  public static function
+  reference(v:String,hxp) {
+    try{
+    if (v.startsWith(referencePrefix)) {
+      var
+        referencePath =
+        	v.substr(referencePrefix.length).split(".")
+        	.map(StringTools.trim)
+        	.array(),
+        shared = Reflect.field(hxp.hbl,referencePath[0]),
+        ref = Reflect.field(shared,referencePath[1]);
+      
+      if (ref != null) {
+        return ref;
+      } 
+    }
+    } catch(ex:Dynamic){
+      trace("reference error on "+v);
+      trace(ex);
+    }
+    return v;
+  }
   
   public static function
   applyAllTo(hxp:Hxp) {
@@ -152,7 +176,7 @@ class Validate {
     for (section in sections.keys()) {
       var
         vds = sections.get(section),
-        mf = Reflect.field(hxp.hbl,section),
+        mf:Dynamic = Reflect.field(hxp.hbl,section),
         ma:Array<Dynamic>;
 
       if (mf == null) continue; // don't bother checking a section which is not defined
@@ -162,6 +186,7 @@ class Validate {
       neko.Lib.println("Validating "+section);
 #end
       // just make every element an array even if it isn't to make life easier
+
       if (Std.is(mf,Array))
         ma = mf;
       else
@@ -172,6 +197,7 @@ class Validate {
 #end
       for (s in ma) {
 
+        
 #if debug    
         if (Reflect.field(s,"name") != null)
           neko.Lib.println("    checking "+s.name);
@@ -184,7 +210,7 @@ class Validate {
         for (fld in vds.keys()){
           var
             constraint = vds.get(fld),
-            givenVal = Reflect.field(s,fld);
+            givenVal:String = Reflect.field(s,fld);
           
           if (constraint.required && givenVal == null)
             err(" is required",section,fld);
@@ -192,6 +218,8 @@ class Validate {
           if (givenVal == null)
             continue;
           
+          givenVal = reference(givenVal,hxp);
+
           if (constraint.valid != null) {
             givenVal = constraint.valid(givenVal);
             if (givenVal == null) err("",section,fld);
