@@ -71,9 +71,15 @@ class Os {
   public static function
   newer(src:String,dst:String) {
     if (!exists(dst)) return true;
-    var s = FileSystem.stat(src),
-      d = FileSystem.stat(dst);
-    return (s.mtime.getTime() > d.mtime.getTime()) ;
+    try {
+      var s = FileSystem.stat(src),
+        d = FileSystem.stat(dst);
+      return (s.mtime.getTime() > d.mtime.getTime()) ;
+    } catch(ex:Dynamic) {
+      trace("Src:"+src);
+      throw ex;
+    }
+    return null;
   }
 
   public static function
