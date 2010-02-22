@@ -441,7 +441,14 @@ project:
   }
 
   public function
-  task(config:Config,task:Task,prms:Array<Dynamic>,options:Options){ 
+  task(config:Config,task:Task,prms:Array<Dynamic>,options:Options){    
+
+    if (options.flag("-clean")) {
+      Os.rmdir(".haxed");
+      Tasks.init();
+      Os.print("Cleaning - reinitialised .haxed dir");
+    }
+
     var
       p = neko.io.Path,
       taskID = p.withoutExtension(p.withoutDirectory(config.file()))+"-"+task.mainClass,
