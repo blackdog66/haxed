@@ -73,9 +73,7 @@ class Tasks {
   }
   
   public function new(t:Task,?taskID:String) {
-
     task = t;
-    
     if (taskID == null)
       exeName = TASK_DIR+task.name+".n";
     else
@@ -99,7 +97,7 @@ class Tasks {
     }
 
     if (Os.exists(exeName)) {
-      if (Os.newer(task.mainClass+".hx",exeName)) {
+      if (Os.newer(task.mainClass.replace(".","/")+".hx",exeName)) {
         Os.print("Recompiling: " + task.mainClass+ ".hx is newer than "+ exeName);
         doBuild = true;
       }
