@@ -49,7 +49,7 @@ class HxpParser {
       .match(~/^---.*?\n/,function(re) { return TDoc; })
       .match(~/^([a-zA-Z-]+):(?=\s)/,function(re) {
           return TKey(re.matched(1)); })
-      .match(~/^([^#]+?)\n/,function(re) {
+      .match(~/^(.+?)\n/,function(re) {
             return TString(re.matched(1));
         });
      
