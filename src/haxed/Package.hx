@@ -97,7 +97,7 @@ class Package {
           	.map(function(el) {
               return (el.startsWith("./")) ? el.substr(2) : el ;
             })
-          	.array().concat([".git",".svn","CVS"]),
+          .array().concat([".git",".svn","CVS",".haxed"]),
           len = excludes.length,
           excluder = function(s:String) {
           	for (i in 0...len) {
