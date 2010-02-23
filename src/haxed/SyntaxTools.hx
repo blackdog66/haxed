@@ -49,7 +49,6 @@ class StringReader implements Reader {
 
 }
 
-
 class ChunkedFile implements Reader {
   public static var BUF_SIZE=1024;
   static var EOF = -1;
@@ -194,9 +193,9 @@ class Tokenizer<T> {
     leftOver = "";
     style = (s == null) ? CHUNK : s;
 
-    if (rd.canChunk() && style == CHUNK)
+    if (rd.canChunk() && style == CHUNK) {
       chunker = reader.nextChunk;
-    else {
+    } else {
       chunker = lineChunk;
     }
       
@@ -276,7 +275,6 @@ class Tokenizer<T> {
     curChar++;
     return nc;
   }
-
   
   function lineChunk() {
     var
@@ -302,21 +300,24 @@ class Tokenizer<T> {
     
     do {
       var np = fn(chunk);
-      switch(np) {
-      case -1:
-
+      if (np == 0) {
         if (atEof()) {          
           break;
         }
-
-        if (style == LINE) {
+        if (style == LINE) 
           chunk = chunker(); // no match, get new line
-        } else
+        else
           chunk += chunker(); // extend chunk until match
-
-      default:
-        startCh = chunk.length;
-        chunk = chunk.substr(np);
+      } else {
+        if (np > 0) {
+          startCh = chunk.length;
+          chunk = chunk.substr(np); // discard the beginning of chunk (default)
+        } else {
+          if (np < 0) { // discard the end of the chunk - only with Discard option
+            chunk = chunk.substr(0,-np);
+          }
+        }
+        
         break;
       }
     } while (true);
@@ -340,11 +341,11 @@ class Tokenizer<T> {
             tok = rt.converter(rt.recogniser);
             if (tok != null) {
               me.inChunk = p.pos;
-              return (rt.discard) ? chunk.length : p.pos + p.len - rt.pushback;
+              return (rt.discard) ? -p.pos : p.pos + p.len - rt.pushback;
             }
           }
         }
-        return -1;
+        return 0;
       });
     return tok;
   }
@@ -488,7 +489,6 @@ class Parser<S,E> {
     return this;
   }
   
-
   public function
   define(trans:Array<ActionDef<S>>) {
     for (t in trans) {

@@ -42,11 +42,11 @@ class HxpParser {
       tk = new Tokenizer<TToks>(r,LINE);    
     
     tk.match(~/\t/,function(re) { return TTab; })
+      .match(~/#/,function(re) {return TComment; },Discard)
       .match(~/^\s+(?=\S)/,function(re) {
         return TIndent(re.matchedPos().len);})
       .match(~/^\s+\n/,function (re) { return TWhite; })
       .match(~/^---.*?\n/,function(re) { return TDoc; })
-      .match(~/^#.*\n/,function(re) { return TComment; })
       .match(~/^([a-zA-Z-]+):(?=\s)/,function(re) {
           return TKey(re.matched(1)); })
       .match(~/^([^#]+?)\n/,function(re) {
