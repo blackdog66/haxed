@@ -155,7 +155,14 @@ class Validate {
         referencePath =
         	v.substr(referencePrefix.length).split(".")
         	.map(StringTools.trim)
-        	.array(),
+        .array();
+
+      if (referencePath.length != 2) {
+        Os.print("Your reference must be of section.key format");
+        Os.exit(1);
+      }
+      
+      var 
         shared = Reflect.field(hxp.hbl,referencePath[0]),
         ref = Reflect.field(shared,referencePath[1]);
       
