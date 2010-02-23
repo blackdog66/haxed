@@ -307,14 +307,18 @@ class Tokenizer<T> {
         if (style == LINE) 
           chunk = chunker(); // no match, get new line
         else
-          chunk += chunker(); // extend chunk until match
+          chunk += chunker(); // no match, extend chunk 
       } else {
         if (np > 0) {
+          // discard the beginning of chunk (default)
           startCh = chunk.length;
-          chunk = chunk.substr(np); // discard the beginning of chunk (default)
+          chunk = chunk.substr(np); 
         } else {
-          if (np < 0) { // discard the end of the chunk - only with Discard option
+          if (np < 0) {
+            // discard the end of the chunk - only with Discard option
             chunk = chunk.substr(0,-np);
+            trace("new chunk is "+chunk);
+            lineLen = chunk.length;
           }
         }
         
