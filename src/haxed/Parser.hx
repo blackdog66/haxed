@@ -15,6 +15,8 @@ private enum TToks {
   TKey(k:String);
   TComment;
   TTab;
+  THereDoc;
+  THereEnd;
 }
 
 private enum State {
@@ -26,6 +28,8 @@ private enum State {
   SMulti;
   SIndent;
   SError(e:String);
+  SHereDoc;
+  SHereNext;
 }
 
 class HxpParser {
@@ -35,7 +39,31 @@ class HxpParser {
   var multiVal:StringBuf;
   var keyIndent:Int;
   var hxp:Hxp;
-  
+  static var parser = new hscript.Parser();
+  static var interp = new hscript.Interp();
+
+  public static function
+  script(v:String,sectionName:String) {
+    if (v == null) return null;
+    var reScript = ~/(.*?)::$/s;
+    if (reScript.match(v)) {
+      try {
+        var
+          s = reScript.matched(1),
+          script = parser.parseString(s); //s.endsWith(";")) ? s : s + ";"
+        return interp.execute(script);
+        
+      } catch(ex:Dynamic) {
+        trace("Script Exception:"+ex);
+        trace("script "+v+" in "+sectionName);
+        if (reScript.match(v))
+        trace("matched:" + reScript.matched(1));
+      }
+    } 
+    
+    return v;
+  }
+
   static function
   getTokenizer(r) {
     var
@@ -45,12 +73,13 @@ class HxpParser {
       .match(~/#/,function(re) {return TComment; },Discard)
       .match(~/^\s+(?=\S)/,function(re) {
         return TIndent(re.matchedPos().len);})
-      .match(~/^\s+\n/,function (re) { return TWhite; })
+      .match(~/^\s+/,function (re) { return TWhite; })
       .match(~/^---.*?\n/,function(re) { return TDoc; })
       .match(~/^([a-zA-Z-]+):(?=\s)/,function(re) {
           return TKey(re.matched(1)); })
-      .match(~/^(.+?)\n/,function(re) {
-            return TString(re.matched(1));
+      .match(~/^::/,function(re) {return THereDoc; })
+      .match(~/^[^:{2}]+/,function(re) {
+          return TString(re.matched(0));
         });
      
     return tk; 
@@ -65,6 +94,7 @@ class HxpParser {
   }
 
   function saveProperty() {
+    trace("saving :"+curProp+" = "+multiVal.toString().trim());
     hxp.setProperty(curProp,multiVal.toString().trim());
   }
 
@@ -81,6 +111,12 @@ class HxpParser {
       Error = SError("");
 
     hxp = new Hxp(f);
+    var config = new Config(hxp.hbl);
+    
+    interp.variables.set("Os",Os);
+    interp.variables.set("section",config.section);
+    interp.variables.set("task",config.getTask);
+    interp.variables.set("build",config.getBuild);
       
     p.define([
      ONTRAN(SDoc,TDoc,function() {
@@ -115,7 +151,40 @@ class HxpParser {
          me.multiIndent = tk.fromBOL() + size;
          return SMulti;  
        }),
-     
+
+     ONTRAN(SMulti,THereDoc,function() {
+         tk.mark();
+         tk.group("script").match(~/::/,function(re) { return THereEnd;});
+         return SHereDoc;
+       }),
+
+     ONTRAN(SHereDoc,THereEnd,function() {
+         var output = script(tk.yank(),"");
+         me.multiVal.add(output);
+         tk.removeGroup("script");
+         tk.group("default");
+         return SHereNext;
+       }),
+
+     ONTRAN(SHereNext,[Indent,TWhite,TDoc],function(t:TToks) {
+         me.saveProperty();
+           return switch(t) {
+           case TIndent(size):
+             switch(size) {
+             case me.keyIndent:
+               SProp;
+               
+             default:
+               SError("After script - bad indent, expecting "+me.keyIndent+" got "+size);
+             }           
+         case TDoc:
+           SSection;
+           
+           default:
+             SMulti;
+           }           
+       }),
+            
      ONTRAN(SMulti,Str,function(s:String) {
          var pos = tk.fromBOL();
          return switch(pos) {
@@ -240,6 +309,8 @@ class Hxp {
   var curSection:Dynamic;
   var builds:Array<Build>;
   var tasks:Array<Task>;
+  public var sectionOrder:Array<String>;
+  var sectionType:String;
   
   public function new(f:String) {
     file = f;
@@ -247,6 +318,8 @@ class Hxp {
     curSection = {};
     builds = new Array<Build>();
     tasks = new Array<Task>();
+    sectionOrder = new Array<String>();
+    sectionType = "";
   }
 
   public function
@@ -256,18 +329,28 @@ class Hxp {
       if (Reflect.field(hbl,Config.BUILD) == null)
         Reflect.setField(hbl,Config.BUILD,builds);
       builds.push(curSection);
+      sectionType = Config.BUILD;
     } else if (name == Config.TASK) {
       if (Reflect.field(hbl,Config.TASK) == null)
         Reflect.setField(hbl,Config.TASK,tasks);
       tasks.push(curSection);
-    } else
+      sectionType = Config.TASK;
+    } else {
       Reflect.setField(hbl,Common.camelCase(name),curSection);
+      sectionOrder.push(name);
+      sectionType = "";
+    }
   }
   
   public function
   setProperty(name,values) {
     var fld = Common.camelCase(name);
     Reflect.setField(curSection,fld,values);
+    if (name == "name") {
+      if (sectionType == Config.BUILD || sectionType == Config.TASK) {   
+        sectionOrder.push(sectionType+"___"+values);
+      }
+    }
   }
 
   function
@@ -281,8 +364,7 @@ class Hxp {
 class ConfigHxp extends Config  {
   public
   function new(h:Hxp) {
-    super();
-    data = h.hbl;
+    super(h.hbl);
     Reflect.setField(data,Config.FILE,Reflect.field(h,Config.FILE));
   }
 }

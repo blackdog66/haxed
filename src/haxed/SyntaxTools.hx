@@ -151,7 +151,7 @@ private typedef IToken<T> = {> Token<T> ,
 }
 
 enum SynOptions {
-  Pushback(i:Int);
+  Push(i:Int);
   Discard;
 }
 
@@ -179,9 +179,13 @@ class Tokenizer<T> {
   var chunker:Void->String;
   var charCodeAt:Int->Int;
   var inChunk:Int;
+  var tokenGroups:Hash<Array<IToken<T>>>;
+  var markBuffer:StringBuf;
   
   public function new(rd:Reader,?s:SynStyle) {
     recognisedTokens = new Array();
+    tokenGroups = new Hash();
+    tokenGroups.set("default",recognisedTokens);
     reader = rd;
     curChar = 0;
     lineNo = 0;
@@ -209,7 +213,7 @@ class Tokenizer<T> {
       var opts:Array<SynOptions> = (!Std.is(options,Array)) ? [options] : options;
       for (o in opts) {
         switch(o) {
-        case Pushback(pb): matcher.pushback = pb;
+        case Push(pb): matcher.pushback = pb;
         case Discard: matcher.discard = true;
         }
       }
@@ -218,6 +222,39 @@ class Tokenizer<T> {
     recognisedTokens.push(matcher);
     return this;
   }
+
+  public function group(name:String) {
+    var
+      rt  = tokenGroups.get(name);
+    
+    if (rt == null) {
+      rt = new Array();
+      tokenGroups.set(name,rt);
+    }
+
+    trace("group now "+name);
+    recognisedTokens = rt;
+
+    return this;
+  }
+
+  public function removeGroup(name:String) {
+    tokenGroups.remove(name);
+    return this;
+  }
+
+  public function
+  mark() {
+    markBuffer = new StringBuf();
+  }
+
+  public function
+  yank() {
+    var y = markBuffer.toString();
+    markBuffer = null;
+    return y;
+  }
+  
   
   public inline function
   isAlpha(c:String) {
@@ -304,6 +341,11 @@ class Tokenizer<T> {
         if (atEof()) {          
           break;
         }
+        
+        if (markBuffer != null) {
+            markBuffer.add(chunk);
+        }
+        
         if (style == LINE) 
           chunk = chunker(); // no match, get new line
         else
@@ -312,14 +354,14 @@ class Tokenizer<T> {
         if (np > 0) {
           // discard the beginning of chunk (default)
           startCh = chunk.length;
+          if (markBuffer != null) {
+            markBuffer.add(chunk.substr(0,np));
+          }
           chunk = chunk.substr(np); 
         } else {
-          if (np < 0) {
             // discard the end of the chunk - only with Discard option
             chunk = chunk.substr(0,-np);
-            trace("new chunk is "+chunk);
             lineLen = chunk.length;
-          }
         }
         
         break;
@@ -345,7 +387,7 @@ class Tokenizer<T> {
             tok = rt.converter(rt.recogniser);
             if (tok != null) {
               me.inChunk = p.pos;
-              return (rt.discard) ? -p.pos : p.pos + p.len - rt.pushback;
+              return (rt.discard) ? -p.pos : p.pos + p.len + rt.pushback;
             }
           }
         }
@@ -565,7 +607,7 @@ class Parser<S,E> {
           }
 
           var unexpected = (eventStr != null) ? eventStr(event) : eID;
-          syntax("!! Unexpected "+unexpected+", expected "+expected.join(","));
+          syntax("From "+curState +" unexpected "+unexpected+", expected "+expected.join(","));
         }
       }
     }

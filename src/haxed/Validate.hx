@@ -3,7 +3,7 @@ package haxed;
 
 import haxed.Parser;
 import haxed.Common;
-
+import haxed.Os;
 using Lambda;
 using StringTools;
 
@@ -19,8 +19,7 @@ class Validate {
   static var reSplit = ~/\s/g;
   static var reAlphanum = ~/^[A-Za-z0-9_.-]+$/;
   static var reDir = ~/^[A-Za-z_0-9]/;
-  static var referencePrefix = "!*";
-  
+
   public static function
   forSection(s:String):Hash<Valid> {
     if (!sections.exists(s)) {
@@ -146,115 +145,113 @@ class Validate {
   zip(v) {
     return (StringTools.endsWith(v,".zip") && Os.exists(v)) ? v : null; 
   }
-
-  public static function
-  reference(v:String,hxp) {
-    try{
-    if (v.startsWith(referencePrefix)) {
-      var
-        referencePath =
-        	v.substr(referencePrefix.length).split(".")
-        	.map(StringTools.trim)
-        .array();
-
-      if (referencePath.length != 2) {
-        Os.print("Your reference must be of section.key format");
-        Os.exit(1);
+  
+  static function
+  getSection(c:Config,type:String,name:String):Dynamic {
+    if (name == null) {
+      return c.section(type);
+    } else {
+      if (type == Config.BUILD) {
+        for (b in c.build()) {
+          if (b.name == name)
+            return b;
+        }
       }
-      
-      var 
-        shared = Reflect.field(hxp.hbl,referencePath[0]),
-        ref = Reflect.field(shared,referencePath[1]);
-      
-      if (ref != null) {
-        return ref;
-      } 
+      if (type == Config.TASK) {
+        for (tsk in c.tasks()) {
+          if (tsk.name == name)
+            return tsk;
+        }
+
+      }
     }
-    } catch(ex:Dynamic){
-      trace("reference error on "+v);
-      trace(ex);
-    }
-    return v;
+      
+    return null;
   }
   
   public static function
   applyAllTo(hxp:Hxp) {
+    var config = new Config(hxp.hbl);
+    
+    trace("section order is "+hxp.sectionOrder);
     var sectionCopy = Reflect.copy(hxp.hbl);
-    for (section in sections.keys()) {
+    for (sectionID in hxp.sectionOrder) {
       var
-        vds = sections.get(section),
-        mf:Dynamic = Reflect.field(hxp.hbl,section),
-        ma:Array<Dynamic>;
+        comp = sectionID.split("___"),
+        sectionType,
+        sectionName;
 
-      if (mf == null) continue; // don't bother checking a section which is not defined
+      if (comp.length == 1) {
+        sectionName = null;
+        sectionType = sectionID;
+      } else {
+        sectionType = comp[0];
+        sectionName = comp[1];
+      }
+
+      var 
+        vds = sections.get(sectionType),
+        section:Dynamic = getSection(config,sectionType,sectionName);
+
+      if (section == null) continue; // don't bother checking a section which is not defined
 
 
 #if debug
-      neko.Lib.println("Validating "+section);
+      neko.Lib.println("Validating "+sectionID);
 #end
-      // just make every element an array even if it isn't to make life easier
-
-      if (Std.is(mf,Array))
-        ma = mf;
-      else
-        ma = [mf];
-
- #if debug
-      var i = 0;
-#end
-      for (s in ma) {
-
-        
-#if debug    
-        if (Reflect.field(s,"name") != null)
-          neko.Lib.println("    checking "+s.name);
-        else
-          neko.Lib.println("    checking element "+i++);
-#end
-        
-        var fldCopy = Reflect.copy(s);
       
+      var fldCopy = Reflect.copy(section);
+      
+      // for fields with validations attached ...
+      if (vds != null) {
         for (fld in vds.keys()){
           var
             constraint = vds.get(fld),
-            givenVal:String = Reflect.field(s,fld);
+            givenVal:String = Reflect.field(section,fld);
           
           if (constraint.required && givenVal == null)
-            err(" is required",section,fld);
+            err(" is required",sectionID,fld);
           
           if (givenVal == null)
             continue;
           
-          givenVal = reference(givenVal,hxp);
-
+          //          givenVal = script(givenVal,sectionID);
+          
           if (constraint.valid != null) {
             givenVal = constraint.valid(givenVal);
-            if (givenVal == null) err("",section,fld);
+            if (givenVal == null) err("",sectionID,fld);
           }
           
           // remove validated field from all fields 
           Reflect.deleteField(fldCopy,fld);
           
           // update field with the validated value
-          Reflect.setField(s,fld,givenVal);            
-        }
-      
 
+          //trace("validated update: "+fld + " with "+givenVal);
+          Reflect.setField(section,fld,givenVal);
+          
+        }
+      }
+      
       // find which fields are left which have not been validated
       for (w in Reflect.fields(fldCopy)) {
-        warn("is not a validated key",section,w); 
+        //var f = Reflect.field(section,w);
+        //var newVal = script(f,sectionID);
+        //Reflect.setField(section,w,newVal);
+        //                trace("unValidated update: "+f + " with "+newVal);
+        //warn("is not a validated key",section,w); 
       }
+      
       // remove validated section from all sections
-      Reflect.deleteField(sectionCopy,section);
-      }
-
+      Reflect.deleteField(sectionCopy,sectionID);
+      
     }
-
+    
     // find which sections are left which have not been validated
     for (sw in Reflect.fields(sectionCopy)) {
       warn("is not a validated section",sw); 
     }
-   
+    
   }
   
 }

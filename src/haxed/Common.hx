@@ -243,7 +243,9 @@ class Config {
 
   public var data:Dynamic;
 
-  public function new() {}
+  public function new(d:Dynamic) {
+    data = d;
+  }
   
   public function
   globals():Global {
@@ -271,6 +273,30 @@ class Config {
   }
 
   public function
+  section(n:String) {
+    var s = Reflect.field(data,n);
+    if (s == null) trace("Warning section:"+n+" does not exist!");
+    return s;
+  }
+
+  public function
+  getBuild(n:String) {
+    for (b in build())
+      if (b.name == n)
+        return b;
+    return null;
+  }
+
+  public function
+  getTask(n:String) {
+    for (t in tasks())
+      if (t.name == n)
+        return t;
+    return null;
+  }
+  
+  
+  public function
   defaultBuild() {
     var builds = build();
     if (builds != null) {
@@ -287,8 +313,7 @@ class Config {
 class ConfigJson extends Config {
   public
   function new (j:String) {
-    super();
-    data = JSON.decode(j);
+    super(JSON.decode(j));
   }
 }
 
