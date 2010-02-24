@@ -48,7 +48,7 @@ class JSON {
       .match(~/^\s*(true|false)/,function(re) { return T_BOOL(re.matched(1) == "true"); })
       .match(~/^\s*([-+]?[0-9]*\.?[0-9]+)[^0-9]/,function(re) {
           return T_NUMBER(Std.parseFloat(re.matched(1)));
-        },Pushback(1))
+        },Push(-1))
       .match(~/^\s*null/,function(re) { return T_NULL; });
 
     return tk; 
