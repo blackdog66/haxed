@@ -51,6 +51,12 @@ class Os {
   function param(p:Int):String {
     return neko.Sys.args()[p];
   }
+
+  public static function
+  env(n:String) {
+    return neko.Sys.getEnv(n);
+  }
+  
   #end
 
   public static function
@@ -67,7 +73,7 @@ class Os {
     }
     return true;
   }
-
+ 
   public static function
   newer(src:String,dst:String) {
     if (!exists(dst)) return true;
