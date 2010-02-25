@@ -51,6 +51,8 @@ class HxpParser {
         var
           s = reScript.matched(1),
           script = parser.parseString(s); //s.endsWith(";")) ? s : s + ";"
+        trace("executing "+s);
+        
         return interp.execute(script);
         
       } catch(ex:Dynamic) {
@@ -78,8 +80,8 @@ class HxpParser {
       .match(~/^([a-zA-Z-]+):(?=\s)/,function(re) {
           return TKey(re.matched(1)); })
       .match(~/^::/,function(re) {return THereDoc; })
-      .match(~/^[^:{2}]+/,function(re) {
-          return TString(re.matched(0));
+      .match(~/^(.+?)(?=:{2}|\n)/,function(re) {
+          return TString(re.matched(1));
         });
      
     return tk; 
@@ -94,7 +96,6 @@ class HxpParser {
   }
 
   function saveProperty() {
-    trace("saving :"+curProp+" = "+multiVal.toString().trim());
     hxp.setProperty(curProp,multiVal.toString().trim());
   }
 
