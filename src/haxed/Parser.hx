@@ -41,11 +41,31 @@ class HxpParser {
   var hxp:Hxp;
   static var parser = new hscript.Parser();
   static var interp = new hscript.Interp();
-
+  static var reScript = ~/(.*?)::$/s;
+  
   static function
-  script(v:String) {
-    if (v == null) return null;
-    var reScript = ~/(.*?)::$/s;
+  script(v:String,c:Config) {
+
+    var imports = c.section("import");
+    if (imports != null) {
+      var classes = Reflect.field(imports,"classes");
+      if (classes != null) {
+        var cl:Array<String> = Validate.toArray(classes);
+        for (c in cl) {
+          var
+            t = c.split("."),
+            kls ;
+          if (t.length == 1)
+            kls = t[0];
+          else
+            kls = t.pop();
+          
+          interp.variables.set(kls,Type.resolveClass(c));
+        }
+      }
+    }
+    
+    
     if (reScript.match(v)) {
       try {
         var
@@ -136,12 +156,7 @@ class HxpParser {
 
     hxp = new Hxp(f);
     var config = new Config(hxp.hbl);
-    
-    interp.variables.set("Os",Os);
-    interp.variables.set("section",config.section);
-    interp.variables.set("task",config.getTask);
-    interp.variables.set("build",config.getBuild);
-      
+          
     p.define([
      ONTRAN(SDoc,TDoc,function() {
          return SSection;
@@ -187,7 +202,7 @@ class HxpParser {
            output = tk.yank(),
            prefix = output.charAt(0),
            result = switch(prefix) {
-         	case "=": script(output.substr(1));
+	         case "=": script(output.substr(1),config);
 	         case "!": try { Os.shell(output.trim().substr(1,output.length-3)); }
             			catch (ex:Dynamic) { ex; }
          	default:reference(output,config);
