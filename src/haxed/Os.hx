@@ -48,7 +48,7 @@ class Os {
 
   #if neko
   public static
-  function param(p:Int):String {
+  function args(p:Int):String {
     return neko.Sys.args()[p];
   }
 
