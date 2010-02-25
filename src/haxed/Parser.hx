@@ -85,7 +85,10 @@ class HxpParser {
       .match(~/^::/,function(re) {return THereDoc; })
       .match(~/^(.+?)(?=:{2}|\n)/,function(re) {
           return TString(re.matched(1));
-        });
+        })
+      .group("script")
+      .match(~/::/,function(re) { return THereEnd;})
+      .use("default");
      
     return tk; 
   }
@@ -158,15 +161,14 @@ class HxpParser {
 
      ONTRAN(SMulti,THereDoc,function() {
          tk.mark();
-         tk.group("script").match(~/::/,function(re) { return THereEnd;});
+         tk.use("script");
          return SHereDoc;
        }),
 
      ONTRAN(SHereDoc,THereEnd,function() {
          var output = script(tk.yank(),"");
          me.multiVal.add(output);
-         tk.removeGroup("script");
-         tk.group("default");
+         tk.use("default");
          return SHereNext;
        }),
 

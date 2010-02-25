@@ -223,7 +223,8 @@ class Tokenizer<T> {
     return this;
   }
 
-  public function group(name:String) {
+  public function
+  group(name:String) {
     var
       rt  = tokenGroups.get(name);
     
@@ -232,13 +233,23 @@ class Tokenizer<T> {
       tokenGroups.set(name,rt);
     }
 
-    trace("group now "+name);
     recognisedTokens = rt;
 
     return this;
   }
 
-  public function removeGroup(name:String) {
+  public function
+  use(name:String) {
+    var rt = tokenGroups.get(name);
+    if (rt == null)
+      throw "Token group :"+name+" does not exist";
+
+    recognisedTokens = rt;
+    return this;
+  }
+  
+  public function
+  removeGroup(name:String) {
     tokenGroups.remove(name);
     return this;
   }
