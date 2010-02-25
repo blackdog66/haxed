@@ -260,7 +260,7 @@ class Tokenizer<T> {
   }
 
   public function
-  yank() {
+  yank():String {
     var y = markBuffer.toString();
     markBuffer = null;
     return y;

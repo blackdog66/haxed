@@ -42,33 +42,50 @@ class HxpParser {
   static var parser = new hscript.Parser();
   static var interp = new hscript.Interp();
 
-  public static function
-  script(v:String,sectionName:String) {
+  static function
+  script(v:String) {
     if (v == null) return null;
     var reScript = ~/(.*?)::$/s;
     if (reScript.match(v)) {
       try {
         var
           s = reScript.matched(1),
-          script = parser.parseString(s);
+          script = parser.parseString(s),
+          result;
+        
+        result = interp.execute(script);
 
         #if TRACESTATES
-        trace("executing "+s);
+        trace("executed "+s+" result is "+result);
         #end
         
-        return interp.execute(script);
+        return result;
         
-      } catch(ex:Dynamic) {
-        trace("Script Exception:"+ex);
-        trace("script "+v+" in "+sectionName);
-        if (reScript.match(v))
-        trace("matched:" + reScript.matched(1));
+      } catch(ex:Dynamic) {        
+        throw "Script Exception:"+ex+"\n in script\n"+v;
       }
     } 
     
     return v;
   }
 
+  static function
+  reference(v:String,c:Config) {
+    var
+      parts = v.substr(0,v.length-2).trim().split("."),
+      sectionName = parts[0],
+      val = switch(sectionName) {
+      case "build": Reflect.field(c.getBuild(parts[1]),parts[2]);
+      case "task": Reflect.field(c.getTask(parts[1]),parts[2]);
+      default: Reflect.field(c.section(sectionName),parts[1]);
+      }
+    
+    if (val == null)
+      throw "Can't find "+parts;
+    
+    return val;
+  }
+  
   static function
   getTokenizer(r) {
     var
@@ -166,8 +183,18 @@ class HxpParser {
        }),
 
      ONTRAN(SHereDoc,THereEnd,function() {
-         var output = script(tk.yank(),"");
-         me.multiVal.add(output);
+         var
+           output = tk.yank(),
+           prefix = output.charAt(0),
+           result = switch(prefix) {
+         	case "=": script(output.substr(1));
+	         case "!": try { Os.shell(output.trim().substr(1,output.length-3)); }
+            			catch (ex:Dynamic) { ex; }
+         	default:reference(output,config);
+         	}
+
+         me.multiVal.add(result);
+         
          tk.use("default");
          return SHereNext;
        }),
