@@ -50,8 +50,11 @@ class HxpParser {
       try {
         var
           s = reScript.matched(1),
-          script = parser.parseString(s); //s.endsWith(";")) ? s : s + ";"
+          script = parser.parseString(s);
+
+        #if TRACESTATES
         trace("executing "+s);
+        #end
         
         return interp.execute(script);
         
