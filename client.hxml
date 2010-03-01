@@ -5,10 +5,17 @@
 -main haxed.ClientMain
 -resource client.json@clientConfig
 -resource HaxedTemplate@HaxedTemplate
+
 -resource src/haxed/Tasks.hx@tasks_hx
--resource src/haxed/Os.hx@os_hx
 -resource src/haxed/Common.hx@common_hx
 -resource src/haxed/Builder.hx@builder_hx
 -resource src/haxed/ClientTools.hx@tools_hx
--resource src/haxed/JSON.hx@json_hx
--resource src/haxed/SyntaxTools.hx@syntax_hx
+
+-resource submodules/core/bdog/Os.hx@os_hx
+-resource submodules/core/bdog/JSON.hx@json_hx
+-resource submodules/core/bdog/Reader.hx@reader_hx
+-resource submodules/core/bdog/ChunkedFile.hx@chunked_hx
+-resource submodules/core/bdog/Tokenizer.hx@toks_hx
+-resource submodules/core/bdog/SMachine.hx@smachine_hx
+
+
