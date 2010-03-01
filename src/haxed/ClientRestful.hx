@@ -1,8 +1,10 @@
 
 package haxed;
+
+import bdog.JSON;
+import bdog.Os;
 import haxed.Common;
 import haxed.ClientCore;
-import haxed.JSON;
 
 class ClientRestful extends ClientCore {
 
@@ -61,14 +63,16 @@ class ClientRestful extends ClientCore {
     if (options.repo != null) {
       request(url(options.repo,cmd),prms,function(d) {
           options.removeSwitch("-R"); // don't want it passed to remote - this needs to be looked at
-          if (d != null)
+          if (d != null) {
             fn(options.repo,Marshall.fromJson(d)) ;
+          }
             
       });
     } else {
       RemoteRepos.each(cmd,prms,function(repo:String,d:Dynamic) {
-          if (d != null)
+          if (d != null) {
             return fn(repo,Marshall.fromJson(d)) ;
+          }
           return false ;// take next repo
         });
     }
@@ -111,7 +115,7 @@ class ClientRestful extends ClientCore {
   submit(options:Options,password:String,packagePath:String,fn:String->Status->Bool) {
     var u = url(options.repo,"submit");
     Os.filePost(packagePath,u,true,{password:password},function(d) {
-        trace(d);
+        trace("submission return is --"+d+"--");
         var s = Marshall.fromJson(JSON.decode(d));
         if (fn != null)
           fn(options.repo,s);

@@ -1,6 +1,6 @@
 package haxed;
 
-import haxed.Os;
+import bdog.Os;
 import haxed.Common;
 import haxed.ClientCore;
 

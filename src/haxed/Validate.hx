@@ -3,7 +3,7 @@ package haxed;
 
 import haxed.Parser;
 import haxed.Common;
-import haxed.Os;
+import bdog.Os;
 using Lambda;
 using StringTools;
 

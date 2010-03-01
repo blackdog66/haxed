@@ -1,6 +1,8 @@
 
 package haxed;
 
+import bdog.Os;
+import bdog.JSON;
 import haxed.Common;
 import haxed.ServerData;
 import haxed.ZipReader;
@@ -38,7 +40,7 @@ class Mail {
   }
 }
 
-class ServerCore {
+class ServerCore implements ServerStore {
   static var DB = "haxed.db";
   
   var dataDir:String;

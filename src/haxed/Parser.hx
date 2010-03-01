@@ -1,7 +1,12 @@
 package haxed;
 
 import haxed.Common;
-import haxed.SyntaxTools;
+
+import bdog.Reader;
+import bdog.ChunkedFile;
+import bdog.Tokenizer;
+import bdog.SMachine;
+import bdog.Os;
 
 using haxed.Validate;
 using Lambda;
@@ -147,7 +152,7 @@ class HxpParser {
     var
       me = this,
       tk = getTokenizer(new ChunkedFile(f)),
-      p = new Parser<State,TToks>(SDoc,tk),
+      p = new SMachine<State,TToks>(SDoc,tk),
       curProp = null,
       Key = TKey(""),
       Str = TString(""),
@@ -203,7 +208,7 @@ class HxpParser {
            prefix = output.charAt(0),
            result = switch(prefix) {
 	         case "=": script(output.substr(1),config);
-	         case "!": try { Os.shell(output.trim().substr(1,output.length-3)); }
+	         case "!": try { Os.process(output.trim().substr(1,output.length-3)); }
             			catch (ex:Dynamic) { ex; }
          	default:reference(output,config);
          	}

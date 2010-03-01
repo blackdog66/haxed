@@ -1,6 +1,6 @@
 package haxed;
 
-import haxed.JSON;
+import bdog.JSON;
 
 /*
   Used across neko, php and js
@@ -10,6 +10,22 @@ import haxed.JSON;
   Data structures used in marshalling between targets
 
 */
+
+interface ServerStore {
+  function cleanup():Void;
+  function submit(password:String):Status;
+  function register(email:String,pass:String,fullName:String):Status;
+  function user(email:String):Status;
+  function topTags(n:Int):Status;
+  function info(prj:String):Status;
+  function search(query:String,opts:Options):Status;
+  function license():Status;
+  function account(cemail:String,cpass:String,nemail:String,npass:String,
+                            nName:String):Status;
+  function projects(options:Options):Status;
+  function reminder(email:String):Status;
+}
+
 
 typedef UserInfo = {
   var fullname : String;

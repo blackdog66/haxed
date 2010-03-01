@@ -1,8 +1,8 @@
 
 package haxed;
 
+import bdog.Os;
 import haxed.Common;
-import haxed.Os;
 import haxed.Builder;
 
 using StringTools;
@@ -57,16 +57,24 @@ class Tasks {
      if (!Os.exists(CP_DIR+"haxed"))
        Os.mkdir(CP_DIR+"haxed");
 
+     if (!Os.exists(CP_DIR+"bdog"))
+       Os.mkdir(CP_DIR+"bdog");
+     
+
      var tasksFile = CP_DIR+"haxed/Tasks.hx"; 
      if(!Os.exists(tasksFile)) {
        Os.fileOut(tasksFile,haxe.Resource.getString("tasks_hx"));
        // if we need Tasks.hx need these too ...
-       Os.fileOut(CP_DIR+"haxed/Os.hx",haxe.Resource.getString("os_hx"));
        Os.fileOut(CP_DIR+"haxed/Common.hx",haxe.Resource.getString("common_hx"));
        Os.fileOut(CP_DIR+"haxed/Builder.hx",haxe.Resource.getString("builder_hx"));
        Os.fileOut(CP_DIR+"haxed/ClientTools.hx",haxe.Resource.getString("tools_hx"));
-       Os.fileOut(CP_DIR+"haxed/SyntaxTools.hx",haxe.Resource.getString("syntax_hx"));
-       Os.fileOut(CP_DIR+"haxed/JSON.hx",haxe.Resource.getString("json_hx"));
+       Os.fileOut(CP_DIR+"bdog/JSON.hx",haxe.Resource.getString("json_hx"));
+       Os.fileOut(CP_DIR+"bdog/Os.hx",haxe.Resource.getString("os_hx"));
+       Os.fileOut(CP_DIR+"bdog/Reader.hx",haxe.Resource.getString("reader_hx"));
+       Os.fileOut(CP_DIR+"bdog/ChunkedFile.hx",haxe.Resource.getString("chunked_hx"));
+       Os.fileOut(CP_DIR+"bdog/Tokenizer.hx",haxe.Resource.getString("toks_hx"));
+       Os.fileOut(CP_DIR+"bdog/SMachine.hx",haxe.Resource.getString("smachine_hx"));
+       
      }
   }
   
@@ -138,7 +146,7 @@ class Tasks {
     if (prms != null)
       for (p in prms) sb.add(p +" ");
     
-    trace(Os.shell("neko "+exeName + " "+task.name+" "+sb.toString().trim()));
+    trace(Os.process("neko "+exeName + " "+task.name+" "+sb.toString().trim()));
     
   }
     

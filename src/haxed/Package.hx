@@ -1,8 +1,8 @@
 package haxed;
 
-import haxed.Os;
+import bdog.Os;
 import haxed.Common;
-import haxed.JSON;
+import bdog.JSON;
 
 using StringTools;
 using Lambda;

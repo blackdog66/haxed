@@ -1,7 +1,7 @@
 package haxed.compatible;
 
 import haxed.Common;
-import haxed.Os;
+import bdog.Os;
 import haxed.Package;
 import haxed.Parser;
 import haxed.ClientRestful;

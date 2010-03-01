@@ -1,7 +1,7 @@
 package haxed;
 
+import bdog.Os;
 import haxed.Common;
-import haxed.Os;
 import haxed.ClientTools;
 
 using Lambda;
@@ -76,7 +76,7 @@ class Builder {
 
       neko.Lib.println("Building "+b.name);
 
-      var o = (Os.shell("haxe -main ::MAIN:: -::TT:: ::TARGET:: ::LIBS:: ::CPS:: ::OTHER::",false,ctx)),
+      var o = (Os.process("haxe -main ::MAIN:: -::TT:: ::TARGET:: ::LIBS:: ::CPS:: ::OTHER::",false,ctx)),
         filtered = o.split("\n")
         .filter(function(l) {return l.trim() != ""; })
         .array()

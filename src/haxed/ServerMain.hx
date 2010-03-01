@@ -1,14 +1,19 @@
 package haxed;
 
 import haxed.Common;
-import haxed.ServerCore;
 import haxed.License;
-import haxed.JSON;
+import bdog.JSON;
 
 #if php
 import php.Lib;
 #elseif neko
 import neko.Lib;
+#end
+
+#if GITSTORE
+import haxed.ServerGit;
+#else
+import haxed.ServerCore;
 #end
 
 private typedef ServerConf =  {
@@ -25,13 +30,18 @@ class ServerMain {
   public static
   function main() {
     var
-      repo,
+      repo:ServerStore,
       dinfo = ServerCtrl.dispatch(),
       config:ServerConf = JSON.decode(haxe.Resource.getString("serverConfig"));
 
     License.set(config.licenses);
-    repo = new ServerCore(config.dataDir);
 
+    #if GITSTORE
+    repo = new ServerGit(config.dataDir);
+    #else
+    repo = new ServerCore(config.dataDir);
+    #end
+    
     Lib.print(Marshall.toJson(
       switch(dinfo.cmdCtx) {
       case REMOTE(cmd,options):

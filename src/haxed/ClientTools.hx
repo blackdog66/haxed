@@ -1,6 +1,7 @@
 
 package haxed;
 
+import bdog.Os;
 import haxed.Common;
 
 class ClientTools {

@@ -1,7 +1,7 @@
 package haxed;
 
 import haxed.Common;
-import haxed.JSON;
+import bdog.JSON;
 
 class Marshall {
   public static function
@@ -40,7 +40,6 @@ class Marshall {
     default:
       JSON.encode({ERR:m});
     }
-
     return (jsonp != null) ? (jsonp +"("+j+");") : j;
   }
 }

@@ -1,14 +1,14 @@
 
 package haxed;
 
+import bdog.Os;
+import bdog.JSON;
 import haxed.Parser;
 import haxed.Package;
 import haxed.Common;
-import haxed.Os;
 import haxed.Builder;
 import haxed.compatible.Convert;
 import haxed.ClientTools;
-import haxed.JSON;
 
 using Lambda;
 
@@ -74,8 +74,6 @@ class ClientCore {
   public function request(u:String,prms:Dynamic,fn:Dynamic->Void) { }
   public function url(url:String,command:String) { return ""; }
   public function install(options:Options,prj:String,ver:String) {}
-  
-
   public function getInfo(prj:String,inf:ProjectInfo->Void) {}  
   
   public function

@@ -4,7 +4,8 @@ import haxed.Common;
 import haxed.ClientRestful;
 import haxed.ClientCtrl;
 import haxed.Tasks;
-import haxed.JSON;
+import bdog.JSON;
+import bdog.Os;
 
 class ClientMain {
   public static var VERSION = "0.1";
