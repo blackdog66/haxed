@@ -1,5 +1,0 @@
- ruby -ryaml -e 'File.open( "HxpTemplate") do |yf|
-    YAML.parse_documents( yf ) do |ydoc|
-    YAML::dump ydoc                   
-    end
-  end'
