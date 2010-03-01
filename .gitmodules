@@ -1,0 +1,12 @@
+[submodule "src/bdog"]
+	path = src/bdog
+	url = git@github.com:blackdog66/bdog.git
+[submodule "submodules/bdog"]
+	path = submodules/bdog
+	url = git@github.com:blackdog66/bdog.git
+[submodule "submodules"]
+	path = submodules
+	url = git@github.com:blackdog66/bdog.git
+[submodule "submodules/core"]
+	path = submodules/core
+	url = git@github.com:blackdog66/bdog.git

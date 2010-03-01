@@ -1,0 +1,7 @@
+
+-cp ./src/
+-cp ./submodules/core/
+-php ./www
+--php-front repo.php 
+-main haxed.ServerMain
+-resource server.json@serverConfig
