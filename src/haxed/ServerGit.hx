@@ -3,6 +3,7 @@ package haxed;
 import bdog.Os;
 import bdog.Git;
 import haxed.Common;
+using Lambda;
 
 #if php
 import php.io.File;
@@ -21,9 +22,13 @@ class ServerGit implements ServerStore {
   
   static var TMP_DIR = Os.separator + Os.slash("tmp");
   var repoTop:String;
+  var fileDir:String;
   
   public function new(dd) {
-    repoTop = dd;
+    repoTop = Os.slash(dd);
+    fileDir = repoTop+"__files__";
+    if (!Os.exists(fileDir))
+      Os.mkdir(fileDir);
   }
 
   public function
@@ -131,32 +136,48 @@ class ServerGit implements ServerStore {
     return OK_TOPTAGS({tags: null });
   }
 
-  static function
+  public function
+  info(p:String,options:Options):Status {
+    var pd = projectDir(p);
+    
+    if(!Os.exists(pd))
+      return ERR_PROJECTNOTFOUND;
+
+    var
+      info = getInfo(new ConfigJson(Os.fileIn(pd+Common.CONFIG_FILE))),
+      commit = options.getSwitch("-archive"),
+      git = new Git(pd);
+
+    if (commit != null) 
+      git.archive(info.name,commit,fileDir);
+    else
+      git.archive(info.name,info.versions[0].commit,fileDir);
+    
+    return OK_PROJECT(info);   
+  }
+  
+  public function
   getInfo(p:Project):ProjectInfo {
-    var g = p.globals();
+    var
+      g = p.globals(),
+      versions = getVersions(g.name);
      return {
      	name: g.name,
         desc:g.description ,
       	website:g.website,
-      	owner: g.authorName,
+      	owner: g.author,
       	license:g.license,
-        curversion:g.version,
-         tags:[{tag:"dummy"}],
-         versions:null
+        curversion:versions[0].commit,
+        tags:[{tag:"dummy"}],
+        versions:versions
       };    
   }
 
-  static function getVersions(p:Project) {
-        
-  }
-  
-  public function
-  info(p:String):Status {
-    var pd = projectDir(p);
-    if(!Os.exists(pd))
-      return ERR_PROJECTNOTFOUND;
-   
-    return OK_PROJECT(getInfo(new ConfigJson(Os.fileIn(pd+Common.CONFIG_FILE))));   
+  function getVersions(p:String):Array<VersionInfo> {
+    var git = new Git(projectDir(p));
+    return git.log().map(function(le) {
+        return { date: le.date, name:le.author,comments:le.comment,commit:le.commit };
+      }).array();
   }
 
   public function
@@ -173,7 +194,6 @@ class ServerGit implements ServerStore {
   public function
   account(cemail:String,cpass:String,nemail:String,npass:String,
           nName:String):Status {
-
     
     return OK_ACCOUNT;
   }
