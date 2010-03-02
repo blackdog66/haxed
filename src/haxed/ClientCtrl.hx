@@ -386,9 +386,6 @@ class ClientCtrl {
     Os.print("Haxe Library Manager "+ClientMain.VERSION+" - (c) 2010 ");
     Os.print(" Usage : haxed [command] [options]");
     Os.print(" ---------------------------------------------");
-    Os.print(" by blackdog (http://blackdog66.wordpress.com)");
-    Os.print(" financial inspiration John De Goes");
-    Os.print(" ---------------------------------------------");
     Os.print(" Commands :");
     for(c in commands.keys())
       Os.print("  "+c+" : "+commands.get(c));
@@ -399,7 +396,7 @@ class ClientCtrl {
   askAboutHxp():Global {
     return {
     	name:param("Project name"),
-        authorName:param("Author name"),
+        author:param("Author name"),
         authorEmail:param("Author email",Validate.email),
         version:param("Version"),
         comments:param("Version comments"),
