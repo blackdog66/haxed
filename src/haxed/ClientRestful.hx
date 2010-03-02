@@ -81,6 +81,11 @@ class ClientRestful extends ClientCore {
   override public function
   install(options:Options,prj:String,ver:String) {
     var me = this;
+
+    #if GITSTORE
+    options.addSwitch("-archive",(ver == null) ? "HEAD" : ver);
+    #end
+    
     info(options,prj,function(repoUrl:String,s:Status) {
         return switch(s) {
         case OK_PROJECT(j):
