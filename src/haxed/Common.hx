@@ -17,7 +17,7 @@ interface ServerStore {
   function register(email:String,pass:String,fullName:String):Status;
   function user(email:String):Status;
   function topTags(n:Int):Status;
-  function info(prj:String):Status;
+  function info(prj:String,options:Options):Status;
   function search(query:String,opts:Options):Status;
   function license():Status;
   function account(cemail:String,cpass:String,nemail:String,npass:String,
@@ -34,6 +34,9 @@ typedef UserInfo = {
 }
 
 typedef VersionInfo = {
+  #if GITSTORE
+  var commit:String;
+  #end
   var date : String;
   var name : String;
   var comments : String;
@@ -164,7 +167,8 @@ class Options {
     return switches.get(s);
   }
 
-  public function removeSwitch(k:String) {
+  public function
+  removeSwitch(k:String) {
     switches.remove(k);
   }
   
@@ -208,7 +212,7 @@ typedef PrjVer = {
 
 typedef Global = {
   var name:String;
-  var authorName:String;
+  var author:String;
   var authorEmail:String;
   var version:String;
   var comments:String;

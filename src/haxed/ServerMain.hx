@@ -53,7 +53,7 @@ class ServerMain {
         case SUBMIT(password):
           repo.submit(password);
         case INFO(pkg):
-          repo.info(pkg);
+          repo.info(pkg,options);
         case SEARCH(query):
           repo.search(query,options);
         case ACCOUNT(cemail,cpass,nemail,npass,nname):

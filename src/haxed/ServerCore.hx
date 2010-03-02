@@ -288,7 +288,7 @@ class ServerCore implements ServerStore {
   }
   
   public function
-  info(prj:String):Status {
+  info(prj:String,options:Options):Status {
     var p = Project.manager.search({ name : prj }).first();
     
     if (p == null)
