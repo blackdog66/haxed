@@ -3,6 +3,7 @@ package haxed;
 
 import bdog.Os;
 import haxed.Common;
+import haxed.Parser;
 
 class ClientTools {
 
@@ -14,10 +15,10 @@ class ClientTools {
     var
       v = (ver == null) ? currentVersion(prj) : ver,
       vd = versionDir(prj,v) ,
-      haxedf =  vd + Common.CONFIG_FILE;
+      haxedf =  vd + prj+".haxed";
     
     if (Os.exists(haxedf)) {
-      return new ConfigJson(Os.fileIn(haxedf));
+      return Parser.configuration(haxedf);
     }
 
     /*
@@ -77,7 +78,7 @@ class ClientTools {
     var rep = try {
       Os.fileIn(getConfigFile());
     } catch( e : Dynamic ) {
-      throw "This is the first time you are runing haxed. Please run haxed setup first";
+      throw "This is the first time you are running haxed. Please run haxed setup first";
     }
       
     if( !Os.exists(rep) )
@@ -98,7 +99,8 @@ class ClientTools {
   }
 
   public static inline function
-  versionDir(prj,ver) {
+  versionDir(prj,?ver) {
+    if (ver == null) ver = currentVersion(prj);
     return Os.slash(projectDir(prj) + Common.safe(ver));
   }
 
@@ -127,7 +129,6 @@ class ClientTools {
       throw "Dependancy "+prj+" is not installed";
 
     var version = ( version != null ) ? version : currentVersion(prj);
-    trace("version :"+version);
     var vdir = versionDir(prj,version);
 
     if(!Os.exists(vdir))

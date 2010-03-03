@@ -1,0 +1,34 @@
+
+---
+
+import:
+        classes:        bdog.Os
+
+---
+project:
+    name:               haxed-server
+    website:            http://blackdog66.wordpress.com
+    version:            0.5
+    comments:           first
+    description:        Creates a haxed server downloadable lib
+    author:             null
+    author-email:       blackdog@ipowerhouse.com
+    tags:               haxed server 
+    license:            GPL
+
+---
+
+pack:
+        include:        ./
+                        ../src-server
+---
+
+build: 
+      name:             php
+      class-path:       ./   
+      target:           php
+      target-file:      www
+      main-class:       haxed.server.ServerMain
+      depends:          haxed
+
+        

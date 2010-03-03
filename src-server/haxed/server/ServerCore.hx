@@ -1,11 +1,11 @@
 
-package haxed;
+package haxed.server;
 
 import bdog.Os;
 import bdog.JSON;
 import haxed.Common;
-import haxed.ServerData;
-import haxed.ZipReader;
+import haxed.server.ServerData;
+import haxed.server.ZipReader;
 import haxed.License;
 
 using Lambda;

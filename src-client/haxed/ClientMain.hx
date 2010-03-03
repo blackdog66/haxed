@@ -103,11 +103,47 @@ class ClientMain {
       return false;
     }
   }
-  
+
+  static function
+  createDefaultHaxedLib() {
+    var
+      hrs = haxe.Resource.getString,
+      localRepo = ClientTools.getRepository(),
+      hd = ClientTools.projectDir("haxed");
+     
+    if (!Os.exists(hd)) {
+      var dd = hd+"1,0/";
+      Os.mkdir(dd);
+      Os.fileOut(hd+".current","1.0");
+      Os.mkdir(dd+"haxed");
+      Os.mkdir(dd+"bdog");
+
+      Os.fileOut(dd+"haxed.haxed",hrs("haxed_hx"));
+      
+      Os.fileOut(dd+"haxed/Tasks.hx",hrs("tasks_hx"));
+      Os.fileOut(dd+"haxed/Common.hx",hrs("common_hx"));
+      Os.fileOut(dd+"haxed/Builder.hx",hrs("builder_hx"));
+      Os.fileOut(dd+"haxed/ClientTools.hx",hrs("tools_hx"));
+      Os.fileOut(dd+"haxed/Marshall.hx",hrs("marshall_hx"));
+      Os.fileOut(dd+"haxed/License.hx",hrs("license_hx"));
+      Os.fileOut(dd+"bdog/JSON.hx",hrs("json_hx"));
+      Os.fileOut(dd+"bdog/Os.hx",hrs("os_hx"));
+      Os.fileOut(dd+"bdog/Reader.hx",hrs("reader_hx"));
+      Os.fileOut(dd+"bdog/ChunkedFile.hx",hrs("chunked_hx"));
+      Os.fileOut(dd+"bdog/Tokenizer.hx",hrs("toks_hx"));
+      Os.fileOut(dd+"bdog/SMachine.hx",hrs("smachine_hx"));
+      Os.fileOut(dd+"bdog/Git.hx",hrs("git_hx"));
+      
+    }
+  }  
+
   static function
   main() {
 
     //haxe.Log.trace = myTrace;
+
+    createDefaultHaxedLib();
+    
     Tasks.init();
     
     var
@@ -146,8 +182,8 @@ class ClientMain {
         client.upgrade();
       case NEW(interactive):
         client.newHxp(interactive);
-      case BUILD(hxpFile,target):
-        client.build(hxpFile,target,options);
+      case BUILD(config,target):
+        client.build(config,target,options);
       case TASK(config,task,prms):
         client.task(config,task,prms,options);
    

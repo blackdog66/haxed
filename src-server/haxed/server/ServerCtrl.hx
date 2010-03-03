@@ -1,5 +1,5 @@
 
-package haxed;
+package haxed.server;
 
 import haxed.Common;
 

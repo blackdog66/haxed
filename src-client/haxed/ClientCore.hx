@@ -68,9 +68,7 @@ class RemoteRepos {
 
 class ClientCore {
 
-  public function new() {
-  }
-
+  public function new() {}
   public function request(u:String,prms:Dynamic,fn:Dynamic->Void) { }
   public function url(url:String,command:String) { return ""; }
   public function install(options:Options,prj:String,ver:String) {}
@@ -121,8 +119,7 @@ class ClientCore {
       return;
     }
 
-    var vdir =ClientTools.versionDir(prj,version);
-    
+    var vdir = ClientTools.versionDir(prj,version);
 
     if( !Os.exists(vdir) )
       throw "Project "+prj+" does not have version "+version+" installed";
@@ -369,8 +366,8 @@ class ClientCore {
   public function
   packit(hxpFile:String):String {
     var
-      hxp = HxpParser.process(hxpFile),
-      conf = HxpParser.getConfig(hxp),
+      hxp = Parser.process(hxpFile),
+      conf = Parser.getConfig(hxp),
       confDir = Package.confDir(hxpFile);
     
     return Package.createFrom(confDir,conf);
@@ -408,28 +405,33 @@ project:
     }
   }
 
+  /*
   public static function
   getConfig(hxpFile:String):Config {
-    return HxpParser.getConfig(HxpParser.process(hxpFile));
-  }
+    return Parser.getConfig(Parser.process(hxpFile));
+    }*/
+
   
   public function
-  build(hxpFile:String,target:String,options:Options) {
+  build(config:Config,target:String,options:Options) {
     var
       prj = options.getSwitch("-lib"),
-      config:Config,
       fromLib = prj != null;
     
     if (fromLib) {
-      var p = ClientTools.internalPath([{prj:hxpFile,ver:ClientTools.currentVersion(prj),op:null}]);
-      trace("path =" +p.first());
-      config = new ConfigJson(Os.slash(Os.fileIn(p.first()) + Common.CONFIG_FILE));
-    } else {
-      config = HxpParser.getConfig(HxpParser.process(hxpFile));
+      trace("getting lib path for "+prj);
+      var p = ClientTools.internalPath([
+        {prj:prj,ver:ClientTools.currentVersion(prj),op:null}
+       ]),
+       path = p.first();
+
+      if (path != null){
+        config = Parser.configuration(path+prj+".haxed");
+      } else {
+        throw "Can't find "+prj +".haxed or installed library "+prj;
+      }
     }
-
-    var b = config.build();
-
+   
     doTask(config,target,"pre");
     
     Builder.compile(config,target,fromLib);
@@ -452,8 +454,7 @@ project:
     }
 
     var
-      p = neko.io.Path,
-      taskID = p.withoutExtension(p.withoutDirectory(config.file()))+"-"+task.mainClass,
+      taskID = Os.path(config.file(),NAME)+"-"+task.mainClass,
       t = new haxed.Tasks(task,taskID),
       forceCompile = Os.newer(config.file(),t.outputFile());
 
@@ -464,7 +465,8 @@ project:
     t.execute(prms,options,forceCompile);
   }
 
-  static function doTask(c:Config,target,typ:String) {
+  static function
+  doTask(c:Config,target,typ:String) {
     for (b in c.build()) {
       if (b.name == target || b.name == null || target == "all") {
         var

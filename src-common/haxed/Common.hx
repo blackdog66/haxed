@@ -114,7 +114,7 @@ enum LocalCommand {
   INSTALL(prj:String,ver:String);
   UPGRADE;
   NEW(interactive:Global);
-  BUILD(prj:String,target:String);
+  BUILD(config:Config,target:String);
   TASK(config:Config,task:Task,prms:Array<Dynamic>);
 }
 
@@ -225,7 +225,6 @@ typedef Global = {
   
 typedef Build = {
   var name:String;
-  //var attrs:Array<String>;
   var depends:Array<PrjVer>;
   var classPath:Array<String>;
   var target:String;

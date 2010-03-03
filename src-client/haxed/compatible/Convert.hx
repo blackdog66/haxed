@@ -189,12 +189,8 @@ author:         ::developers::
 	}
 
     static function
-    packit(hxpFile:String) {
-      var
-        hxp = HxpParser.process(hxpFile),
-        conf = HxpParser.getConfig(hxp);
-
-      return Package.createFrom(Package.confDir(hxpFile),conf);
+    packit(f:String) {
+      return Package.createFrom(Package.confDir(f),Parser.configuration(f));
     }
  
 }

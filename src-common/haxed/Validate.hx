@@ -16,7 +16,7 @@ private typedef Valid = {
 
 class Validate {
   static var sections = new Hash<Hash<Valid>>();
-  static var reSplit = ~/\s/g;
+  static var reSplit = ~/\s+/g;
   static var reAlphanum = ~/^[A-Za-z0-9_.-]+$/;
   static var reDir = ~/^[A-Za-z_0-9]/;
 
@@ -162,7 +162,6 @@ class Validate {
           if (tsk.name == name)
             return tsk;
         }
-
       }
     }
       
@@ -172,8 +171,11 @@ class Validate {
   public static function
   applyAllTo(hxp:Hxp) {
     var config = new Config(hxp.hbl);
-    
+
+    #if debug
     trace("section order is "+hxp.sectionOrder);
+    #end
+    
     var sectionCopy = Reflect.copy(hxp.hbl);
     for (sectionID in hxp.sectionOrder) {
       var
@@ -248,9 +250,9 @@ class Validate {
     }
     
     // find which sections are left which have not been validated
-    for (sw in Reflect.fields(sectionCopy)) {
-      warn("is not a validated section",sw); 
-    }
+    //    for (sw in Reflect.fields(sectionCopy)) {
+    //  warn("is not a validated section",sw); 
+    //}
     
   }
   

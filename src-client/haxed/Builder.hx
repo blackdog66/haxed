@@ -66,6 +66,8 @@ class Builder {
   compileBuild(builds:Array<Build>,target:String,?libRoot:String) {
     for (b in builds) {
       if (b.name == target || b.name == null || target == "all") {
+
+        b.classPath.push(ClientTools.versionDir("haxed"));
         
         var ctx = { MAIN:b.mainClass,
                 LIBS:getLibs(b.depends),

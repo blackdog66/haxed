@@ -3,6 +3,7 @@ package haxed;
 import bdog.Os;
 import haxed.Common;
 import haxed.ClientCore;
+import haxed.Parser;
 
 using StringTools;
 using Lambda;
@@ -139,19 +140,22 @@ class ClientCtrl {
     return StringTools.trim(readLine(hidden));
   }
 
-  static function checkHaxedExt(s:String) {
+  static function
+  checkHaxedExt(s:String,exists=true) {
     var file = (s.endsWith(Common.HXP_EXT) ? s : s + "."+Common.HXP_EXT);
-    
-    if (!Os.exists(file)) {
+
+    if (exists) {
+      if (!Os.exists(file)) {
         Os.print(file +" does not exist");
         neko.Sys.exit(0);
       }
+    }
     
     return file; 
   }
 
-
-  static function check(conf:Config,t:String,searchFor:String):Dynamic {
+  static function
+  check(conf:Config,t:String,searchFor:String):Dynamic {
     var
       items:Array<Dynamic> ;
     
@@ -179,7 +183,8 @@ class ClientCtrl {
       return null;
   }
   
-  static function getPW(prompt="Password",opt=false):String {
+  static function
+  getPW(prompt="Password",opt=false):String {
     var
       confirm,
       optionalValidation = (opt) ? Validate.optPassword : Validate.password, 
@@ -195,8 +200,8 @@ class ClientCtrl {
     return npass;
   }
   
-  public static
-  function process():CmdContext {
+  public static function
+  process():CmdContext {
     var
       command = getCommand(),
       options = getOptions();
@@ -291,23 +296,31 @@ class ClientCtrl {
 
     case "build":
       var
-        file = checkHaxedExt(param("Project")),
-        target = param("Target (all)");
+        file = checkHaxedExt(param("Project"),false),
+        target = param("Target (all)"),
+        config;
       
       if (target == "")
         target = "all";
-      else 
-        check(ClientCore.getConfig(file),"build",target);
-      
-      
-      LOCAL(BUILD(file,target),options);
+
+      if (Os.exists(file)) {
+        config = Parser.configuration(file);
+        check(config,"build",target);
+      } else {
+        // defer config getting until we can determine if it's from
+        // an already installed library
+        config = null;
+        options.addSwitch("-lib",Os.path(file,NAME));
+      }
+            
+      LOCAL(BUILD(config,target),options);
 
     case "task":
       var
         file = checkHaxedExt(param("Project")),
         taskName = param("Task"),
         userPrms = [],
-        conf = ClientCore.getConfig(file),
+        conf = Parser.configuration(file),
         task:Task = check(conf,"task",taskName);
     
       if (task != null) {
@@ -383,8 +396,8 @@ class ClientCtrl {
   public static
   function usage() {
     commandHelp();
-    Os.print("Haxe Library Manager "+ClientMain.VERSION+" - (c) 2010 ");
-    Os.print(" Usage : haxed [command] [options]");
+    Os.print("Library Manager for Haxe "+ClientMain.VERSION+" - (c) 2010 ");
+    Os.print(" Usage : haxed command [options]");
     Os.print(" ---------------------------------------------");
     Os.print(" Commands :");
     for(c in commands.keys())

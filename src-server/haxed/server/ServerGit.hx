@@ -1,4 +1,4 @@
-package haxed;
+package haxed.server;
 
 import bdog.Os;
 import bdog.Git;
@@ -16,7 +16,6 @@ import neko.Lib;
 #end
 
 typedef Project = Config;
-
 
 class ServerGit implements ServerStore {
   

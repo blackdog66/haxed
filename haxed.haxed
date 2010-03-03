@@ -1,0 +1,12 @@
+
+---
+project:
+    website:            http://blackdog66.wordpress.com
+    version:            -
+    comments:           comment
+    description:        haxed client
+    author:             blackdog
+    author-email:       blackdog66@gmail.com
+    tags:               haxed
+    license:            GPL
+

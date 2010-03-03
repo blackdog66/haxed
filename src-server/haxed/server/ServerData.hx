@@ -1,4 +1,4 @@
-package haxed;
+package haxed.server;
 
 #if php
 import php.db.Object;

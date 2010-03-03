@@ -1,6 +1,7 @@
-package haxed;
+package haxed.server;
 
 import haxed.Common;
+import haxed.Marshall;
 import haxed.License;
 import bdog.JSON;
 
@@ -11,9 +12,9 @@ import neko.Lib;
 #end
 
 #if GITSTORE
-import haxed.ServerGit;
+import haxed.server.ServerGit;
 #else
-import haxed.ServerCore;
+import haxed.server.ServerCore;
 #end
 
 private typedef ServerConf =  {

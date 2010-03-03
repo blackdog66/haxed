@@ -112,7 +112,18 @@ trace("excludes are "+excludes);
         Lambda.iter(include,function(d) {
             if (!Os.exists(d))
               throw "include dir "+d+" does not exist";
-            Os.copyTree(Os.slash(d),packDir,excluder);
+            
+            if (Os.isDir(d)) {
+              trace("TRYING "+d);
+              Os.copyTree(Os.slash(d),packDir,excluder);
+            } else {
+              var norelatives = ~/(\.{1,2}\/)/g.replace(d,"");
+              trace("norels "+norelatives);
+              var p = Os.path(norelatives,DIR);
+              if (p != null)
+                Os.mkdir(packDir+p);
+              Os.cp(d,packDir+norelatives);
+            }
           });
       }
 
@@ -151,6 +162,10 @@ trace("excludes are "+excludes);
     sources(confDir,config);
     xml(config);
     json(config);
+    var cf = toPackDir(config.file());
+    if (!Os.exists(cf))
+      Os.cp(config.file(),cf);
+    
     return zip(config);
   }
 }

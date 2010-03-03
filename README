@@ -1,296 +1,34 @@
 haxed
+------
+ 
+A build, package, deploy and install tool for haxe.
+
+Changes
 -------
 
-NOTE: This is _not_ for general usage, just for feedback. Still in
-development and changing rapidly. It's now in the tightening up stage
-where it's feature complete, but rough around the edges,e.g i haven't
-tested client on windows yet.
+The client drives the entire process. Once downloaded the client
+creates a library called 'haxed' for itself in the haxed repository.
+This library contains all the basic .hx files to allow the compilation
+of tasks and for the compilation of the haxed server.
 
+Thus to create a haxed server, 
 
-* Overview
+haxed install haxed-server
 
-  Please find for review a new version of haxelib called haxed, based on initial
-  ideas from John De Goes. Comfortingly the existing haxelib semantics
-  are intact - and a lot of the old code.
+will download and install the library from your neared haxed server.
+To create a server from the library, move to where you want it installed,
+then,
 
-  Please have a look at the Tweaks section below for stuff that still
-  needs to be added. Please have a look at the Open Questions section
-  for stuff that I'm not sure of. Right now the biggest question for
-  me is how much backward compatibility is required. There is a
-  haxed convert command which creates a new package from an old, but
-  if this new version needs to coexist for some time with the old then
-  I will need to implement a bit more client compatibility.
-  
-  The project is at http://www.github.com/blackdog66. I'm very happy
-  to hand this over to Nicolas if he would prefer to host it on google
-  etc and continue to post patches myself, but I very much prefer if
-  the community (if it so desires) picks this up.
+haxed build haxed-server
 
-  Cheers
+will create a www directory.
 
-  bd
+If you are building directly from source and you don't have a haxed server to connect
+to - to download a haxed server - then you can do this in the source directory
 
-* Features
+cd haxed-server 
+haxed pack haxed-server
+haxed test haxed-server
 
-   1. Server can be deployed to php and neko.
-   2. Is based on urls rather than haxe remoting, server interaction
-      is via JSON.
-   3. Is command line compatible with haxelib but adds new commands and
-      switches, importantly for the haxe compiler "haxelib path" is
-      intact.
-   4. Uses a very limited subset of YAML as a file format 
-      The hxp format is more like a makefile which you
-      include in your project directory, and can build the package
-      from, e.g.  haxed pack prj.hxp, or haxed build nekobuild 
-   5. There is a default list of repositories, which clients can be
-      compiled to search with, -R on command line operates on an arbitrary
-      repository.
-   6. All commands search multiple repositories, e.g. project
-      dependencies are searched in each repository until the dependency
-      is met.
-   7. Can search all meta data contained in the hxp original file.
-   8. Servers can specify at compilation which licenses they accept
-   9. haxe/jQuery ajax based web page, using the JSON returning URLs.
-   10. Based on email/pw rather than username/pw
-   11. Conversion utility of packages from current haxelib.xml format to
-       new format where an email should be supplied.
-   12. Client data can be returned in the normal manner or as
-       JSON with the -j switch, e.g. haxed search -j blah, good for scripting
-
-* The Hxp File
-  
-  The client side system revolves around the Hxp file (haxe
-  package). The Hxp file is a unifcation of build (hxml) and packaging
-  (haxed.hxml). The Hxp file will typically be found in your project
-  directory and reference other libraries and class-paths as required.
-
-  To facilitate the use of an Hxp file the "haxed new" command is
-  available ...
-
-  haxed new
-
-  creates a file called Hxpfile in your current directory. Tweak the
-  default descriptions for your project. You can save a template
-  Hxpfile into your local repository directory (i.e. haxed config),
-  which will be used next time you issue an "haxed new" command. 
-
-** Example Hxp
-
-START >>>>>
-
-
-# this is an example hxp, note comments are specified with #
-# these are global keys and are all required ...
-
----
-
-project:            hxGtk
-website:            http://www.ipowerhouse.com
-description:        A set of wrappers for Gtk-server
-                    that provide a fantastic gui
-                    experience.
-author:             Ritchie Turner
-author-email:       woot@woot.com
-tags:               gui gtk
-license:            GPL
-version:            0.5
-comments:           comments for 0.5
-                    over multiple lines
-
-# the build section is equivalent to an hxml file
-# note, I haven't done all the options yet ...
-
----
-build: 
-      class-path:       ./
-                        /home/blackdog/Projects/hxNode # on multiple lines
-      depends:          myproject > 1.0
-      target:           neko
-      target-file:      main.n
-      main-class:       test.Test
-
----
-pack:
-        include:        ./gtk
-                        ./ui
-                        /home/blackdog/Projects/hxNode/
-
-# arbitrary keys .... good for new functionality in the future or adding
-# any new search criteria or meta data
-
----
-another:   this is another global key
-           
----
-newSection::
-        path:   this is a path
-        woot:   and
-                why
-                not
-       
-<<<< END
-
-
-** Client Flavor
-
-   Once you have an hxp, you can do the following:
-
-   haxed build Hxpfile build-target
-
-   Runs the haxe compiler with the given build information.
-
-   haxed pack Hxpfile
-
-   Packs your project into a zip file using the name of the project
-   key as the name of the file, e.g. hxGtk.zip.
-
-   haxed submit -R lib.ipowerhouse.com hxGtk.zip
-
-   Submits the file to a given repository. Note, that based on your
-   license a repository may decline to accept you file.
-
-** Syntax
-   
-   As you can see the Hxp file is divided into an implicit global
-   section with keys beginning in the first column and an arbitrary
-   number of other sections, specified by a key with no : suffix. The
-   global section has required keys, as shown above.
-
-   Indentation is significant and tabs are disallowed. The indent is
-   however based on the first column of the value. So if you require
-   multi line values then they must start on the same column.
-* New Client Commands
-
-
-Here's a list of the new/modified commands.
-
-** new
-   
-   haxed new
-
-   Creates an Hxpfile in your current working directory. The file
-   created is based on a template within your local haxed
-   repository, given by "haxed config". If you update your template it
-   will be used in subsequent hxp new operations. 
-   
-** pack
-
-   haxed pack <hxpfile>
-
-   This command requires you provide an hxp specification file. Rather
-   than you laying out the files into a package directory and then
-   zipping it up, this command does it for you.
-
-   Pack takes the class-paths given in the *build* section and copies
-   them to the root of the new package file.
-
-   Pack includes other directories listed in the *pack* include section
-
-** build
-
-   haxed build <hxpfile>
-
-   Runs the haxe compiler with input from the *build* section of the
-   hxpfile.
-
-   Note, not all options haxe compiler options have been implemented.
-   
-** install
-
-   haxed install <project>
-
-   Checks all repositories compiled into the client for the
-   project. If the project has dependencies, checks all repositories
-   for the dependency, first repository wins.
-
-** search
-
-   haxed search <word>
-
-   Same semantics as existing haxed. Checks description and project
-   name. Returns project names.
-
-   haxed search -Sm build.target neko
-
-   You can specify a search into any section/key/value of the original
-   hxpfile. (See Discarding Sections/Keys in Open Questions)
-   
-** account
-
-   haxed account <curEmail> <curPass> <newEmail> <newPass> <newName>
-
-   Updates your account information.
-
-** reminder
-
-   haxed reminder <curEmail>
-
-   Sends a password reminder to your email address.
-
-* Building and Environment
-
-  haxe make.hxml 
-
-  will make a client.n and a php server in www.
-
-  For testing I've been using an alias to client.n so as not to
-  disrupt my existing haxed, e.g. on linux
-
-  alias hxp='neko /path/to/client.n'
-
-  then i can
-
-  hxp pack etc.
-
-  Now, the haxe compiler uses the haxed path <package> command to
-  get the paths of a lib during compilation, for compatibility right
-  now, I'm generating a haxed.xml in the zip file as normal so that
-  that process still works with the old haxed being called IF you
-  didn't rename the old one.
-
-** PHP 5.2.11 
-   
-   Is what I'm testing with, I have troubles with the PHP target for
-   newer versions of PHP, this may be fixed by now.
-  
-* Open Questions/Issues
-
-** Hxp Syntax
-
-   I am not attached to key names, or the semantics of what's there,
-   so let me know better ways of doing things OR just patch it!
-
-** Discarding Sections/Keys
-
-   Some sections/keys may be relevant only in the client
-   context. Right now all information is being stored in the
-   haxed.json, how to specify discarding info, e.g. class-paths from
-   build can be discarded as they are local paths and copied directly
-   into the root of the package.
-  
-* Tweaks
-** Server
-*** Windows Testing
-*** Neko Testing
-*** Web Site
-    The web site can be very functional being a client in it's own
-    right. So far there's just a skeleton there, but I think you can
-    see how I envision it. A haxe js controller, using jQuery/UI as a
-    front end.   
-*** Upgrade Global fields if changed.
-*** Haven't done a neko reminder.
-** Client
-*** Need to add convert command, so take existing util and integrate it.
-*** Operator < > etc for version #s
-*** Numeric fields
-
-    Need to make sure that fields are converted correctly to db types. For example, version
-    1.2.3 is converted by json to a 
-  
-*** MD5 on passwords 
-*** Defaults for command line options, e.g. Hxpfile should be the default for pack and build
-*** Multiple template files for new, specified by name.
-*** I haven't done recent change of including docs yet.
-   
-   
-    
+this will create a zip file, and then install it in your haxed
+repository, then you can return to the haxed build step.

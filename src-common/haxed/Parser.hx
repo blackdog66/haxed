@@ -37,7 +37,7 @@ private enum State {
   SHereNext;
 }
 
-class HxpParser {
+class Parser {
 
   var curProp:String;
   var multiIndent:Int;
@@ -69,7 +69,6 @@ class HxpParser {
         }
       }
     }
-    
     
     if (reScript.match(v)) {
       try {
@@ -106,7 +105,7 @@ class HxpParser {
       }
     
     if (val == null)
-      throw "Can't find "+parts;
+      throw "Can't find "+parts+" in reference "+v;
     
     return val;
   }
@@ -294,7 +293,6 @@ class HxpParser {
           Std.string(e);
         }
       });
-
     
     p.parse();
     saveProperty();
@@ -306,11 +304,10 @@ class HxpParser {
   process(file:String):Hxp {
 
     var
-      p = new HxpParser(),
+      p = new Parser(),
       h = p.parse(file);
 
     Validate.forSection(Config.GLOBAL)
-      .add("name",true,Validate.name)
       .add("author",true)
       .add("author-email",true,Validate.email)
       .add("version",true)
@@ -341,18 +338,27 @@ class HxpParser {
       .add("class-path",false,Validate.directories)
       .add("params",false,Validate.splitOnNewline)
       .add("depends",false,Validate.depends);
-
     
     Validate.applyAllTo(h);
 
+    // set the name of the project to be the name of the file, two names are
+    // confusing
+    var c = new Config(h.hbl),
+      p = neko.io.Path;
+    Reflect.setField(c.globals(),"name",Os.path(file,NAME));
+        
     return h;
   }
   
   public static function
-  getConfig(hbl:Hxp):Config {
-    return new ConfigHxp(hbl);
+  getConfig(h:Hxp):Config {
+    return new ConfigHxp(h);
   }
 
+  public static function
+  configuration(s:String):Config {
+    return getConfig(process(s));
+  }
 }
 
 class Hxp {
@@ -378,17 +384,18 @@ class Hxp {
   public function
   setSection(name) {
     curSection = {};
-    if (name == Config.BUILD) {
+    switch(name) {
+    case Config.BUILD:
       if (Reflect.field(hbl,Config.BUILD) == null)
         Reflect.setField(hbl,Config.BUILD,builds);
       builds.push(curSection);
       sectionType = Config.BUILD;
-    } else if (name == Config.TASK) {
+    case Config.TASK:
       if (Reflect.field(hbl,Config.TASK) == null)
         Reflect.setField(hbl,Config.TASK,tasks);
       tasks.push(curSection);
       sectionType = Config.TASK;
-    } else {
+    default:
       Reflect.setField(hbl,Common.camelCase(name),curSection);
       sectionOrder.push(name);
       sectionType = "";
@@ -406,11 +413,6 @@ class Hxp {
     }
   }
 
-  function
-  syntax(msg,info:Info) {
-    neko.Lib.println("At line "+info.line+" col "+info.col+": "+msg);
-    neko.Sys.exit(1);
-  }
 }
 
 
