@@ -110,13 +110,13 @@ class Validate {
 
   public static function
   err(msg,section,fld) {
-    neko.Lib.println("Failed validation for "+section+":"+fld+" "+msg);
-    neko.Sys.exit(1);
+    Os.print("Failed validation for "+section+":"+fld+" "+msg);
+    Os.exit(1);
   }
 
   public static function
   warn(msg:String,section:String,?fld:String) {
-    neko.Lib.println("Warning: "+section + ((fld != null) ? ":"+ fld : "") +" "+msg);
+    Os.print("Warning: "+section + ((fld != null) ? ":"+ fld : "") +" "+msg);
   }
 
   public static function
@@ -199,7 +199,7 @@ class Validate {
 
 
 #if debug
-      neko.Lib.println("Validating "+sectionID);
+      Os.println("Validating "+sectionID);
 #end
       
       var fldCopy = Reflect.copy(section);

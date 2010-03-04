@@ -44,7 +44,7 @@ class ClientCtrl {
 
   public
   static function println(str:String) {
-    neko.Lib.println(str);
+    Os.print(str);
   }
   
   static
@@ -90,7 +90,7 @@ class ClientCtrl {
 
   static function
   err(fld,msg) {
-    neko.Lib.println(((msg == null) ? " ! bad value for "+ fld : msg));
+    Os.print(((msg == null) ? " ! bad value for "+ fld : msg));
   }
 
   static function
@@ -333,7 +333,7 @@ class ClientCtrl {
           }
       } else {
         Os.print("Can't find task "+taskName +" in file "+file);
-        neko.Sys.exit(0);
+        Os.exit(0);
       }
           
       LOCAL(TASK(conf,task,userPrms),options);
