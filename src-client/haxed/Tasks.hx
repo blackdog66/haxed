@@ -47,13 +47,11 @@ class Tasks {
   var exeName:String;
 
   public static function init() {
-
     if (Os.exists(HAXED_DIR))
       Os.rmdir(HAXED_DIR);
     
      if (!Os.exists(TASK_DIR))
       Os.mkdir(TASK_DIR);
-   
   }
   
   public static function
@@ -63,6 +61,7 @@ class Tasks {
   }
   
   public function new(t:Task,?taskID:String) {
+    init();
     task = t;
     if (taskID == null)
       exeName = TASK_DIR+task.name+".n";
@@ -97,10 +96,7 @@ class Tasks {
       cp = task.classPath,
       defaultClasspaths = [".",ClientTools.projectDir("haxed")];
 
-    if (cp == null)
-      cp = defaultClasspaths;
-    else
-      cp = cp.concat(defaultClasspaths);
+    cp = (cp == null) ? defaultClasspaths : cp.concat(defaultClasspaths);
     
     trace("classpaths are "+cp);
     
