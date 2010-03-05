@@ -5,7 +5,6 @@
 -neko haxed.n
 -main haxed.ClientMain
 
--resource client.json@clientConfig
 -resource HaxedTemplate@HaxedTemplate
 -resource haxed.haxed@haxed_hx
 

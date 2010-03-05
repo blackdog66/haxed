@@ -10,3 +10,9 @@ project:
     tags:               haxed
     license:            GPL
 
+
+---
+
+haxed:
+        repos:  localhost:8200
+

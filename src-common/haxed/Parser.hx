@@ -146,11 +146,29 @@ class Parser {
     hxp.setProperty(curProp,multiVal.toString().trim());
   }
 
+  public static function
+  fromString(s:String,asHaxed=true):Config {
+    var
+      p = new Parser(),
+      hxp = p.fromReader(new StringReader(s));
+
+    return (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
+  }
+
+  public static function
+  fromFile(f:String,asHaxed=true) {
+    var
+      p = new Parser(),
+      hxp = p.fromReader(new ChunkedFile(f));
+    
+    return (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
+  }
+  
   public function
-  parse(f:String) {
+  fromReader(reader:Reader) {
     var
       me = this,
-      tk = getTokenizer(new ChunkedFile(f)),
+      tk = getTokenizer(reader),
       p = new SMachine<State,TToks>(SDoc,tk),
       curProp = null,
       Key = TKey(""),
@@ -158,7 +176,7 @@ class Parser {
       Indent = TIndent(0),
       Error = SError("");
 
-    hxp = new Hxp(f);
+    hxp = new Hxp();
     var config = new Config(hxp.hbl);
           
     p.define([
@@ -300,12 +318,8 @@ class Parser {
     return hxp;
   }
 
-  public static function
-  process(file:String):Hxp {
-
-    var
-      p = new Parser(),
-      h = p.parse(file);
+  static function
+  validate(hxp):Config {
 
     Validate.forSection(Config.GLOBAL)
       .add("author",true)
@@ -339,31 +353,18 @@ class Parser {
       .add("params",false,Validate.splitOnNewline)
       .add("depends",false,Validate.depends);
     
-    Validate.applyAllTo(h);
+    Validate.applyAllTo(hxp);
 
-    // set the name of the project to be the name of the file, two names are
-    // confusing
-    var c = new Config(h.hbl),
-      p = neko.io.Path;
-    Reflect.setField(c.globals(),"name",Os.path(file,NAME));
-        
-    return h;
-  }
-  
-  public static function
-  getConfig(h:Hxp):Config {
-    return new ConfigHxp(h);
+    return new Config(hxp.hbl);
   }
 
   public static function
   configuration(s:String):Config {
-    return getConfig(process(s));
+    return fromFile(s);
   }
 }
 
 class Hxp {
-
-  public var file:String;
   public var hbl:Dynamic;
   var curSection:Dynamic;
   var builds:Array<Build>;
@@ -371,8 +372,7 @@ class Hxp {
   public var sectionOrder:Array<String>;
   var sectionType:String;
   
-  public function new(f:String) {
-    file = f;
+  public function new() {
     hbl = {};
     curSection = {};
     builds = new Array<Build>();
@@ -413,14 +413,5 @@ class Hxp {
     }
   }
 
-}
-
-
-class ConfigHxp extends Config  {
-  public
-  function new(h:Hxp) {
-    super(h.hbl);
-    Reflect.setField(data,Config.FILE,Reflect.field(h,Config.FILE));
-  }
 }
 

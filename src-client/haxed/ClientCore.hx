@@ -27,7 +27,8 @@ class RemoteRepos {
   init(c:ClientCore) {
     client = c;
     var
-      conf:ClientConf = JSON.decode(haxe.Resource.getString("clientConfig"));
+      section = ClientMain.config.section("haxed"),
+      conf:ClientConf = { repos : Validate.toArray(section.repos) };
 
     repos = conf.repos;    
   }
@@ -366,8 +367,7 @@ class ClientCore {
   public function
   packit(hxpFile:String):String {
     var
-      hxp = Parser.process(hxpFile),
-      conf = Parser.getConfig(hxp),
+      conf = Parser.fromFile(hxpFile),
       confDir = Package.confDir(hxpFile);
     
     return Package.createFrom(confDir,conf);

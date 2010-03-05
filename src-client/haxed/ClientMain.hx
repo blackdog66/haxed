@@ -4,12 +4,14 @@ import haxed.Common;
 import haxed.ClientRestful;
 import haxed.ClientCtrl;
 import haxed.Tasks;
+import haxed.Parser;
 import bdog.JSON;
 import bdog.Os;
 
 class ClientMain {
   public static var VERSION = "0.1";
-
+  public static var config:Config;
+  
   private static function
   myTrace( v : Dynamic, ?inf : haxe.PosInfos ) {
     Os.log(v);
@@ -109,16 +111,15 @@ class ClientMain {
     var
       hrs = haxe.Resource.getString,
       localRepo = ClientTools.getRepository(),
-      hd = ClientTools.projectDir("haxed");
+      hd = ClientTools.projectDir("haxed"),
+      dd = hd+"1,0/";
      
     if (!Os.exists(hd)) {
-      var dd = hd+"1,0/";
+    
       Os.mkdir(dd);
       Os.fileOut(hd+".current","1.0");
       Os.mkdir(dd+"haxed");
       Os.mkdir(dd+"bdog");
-
-      Os.fileOut(dd+"haxed.haxed",hrs("haxed_hx"));
       
       Os.fileOut(dd+"haxed/Tasks.hx",hrs("tasks_hx"));
       Os.fileOut(dd+"haxed/Common.hx",hrs("common_hx"));
@@ -135,6 +136,18 @@ class ClientMain {
       Os.fileOut(dd+"bdog/Git.hx",hrs("git_hx"));
       
     }
+
+    var
+      hf = dd + "haxed.haxed",
+      haxed_haxed;
+      
+    if (!Os.exists(hf)) {
+      haxed_haxed = hrs("haxed_hx");
+      Os.fileOut(hf,haxed_haxed);
+    } else
+      haxed_haxed = Os.fileIn(hf);
+    
+    return Parser.fromString(haxed_haxed);
   }  
 
   static function
@@ -142,8 +155,9 @@ class ClientMain {
 
     //haxe.Log.trace = myTrace;
 
-    createDefaultHaxedLib();
-    
+    config = createDefaultHaxedLib();
+
+    trace(config);
     Tasks.init();
     
     var
