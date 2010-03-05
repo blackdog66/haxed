@@ -147,12 +147,14 @@ class Parser {
   }
 
   public static function
-  fromString(s:String,asHaxed=true):Config {
+  fromString(s:String,asHaxed=true,name="UNKNOWN"):Config {
     var
       p = new Parser(),
       hxp = p.fromReader(new StringReader(s));
 
-    return (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
+    var c = (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
+    Reflect.setField(c.globals(),"name",name);
+    return c;
   }
 
   public static function
@@ -160,8 +162,11 @@ class Parser {
     var
       p = new Parser(),
       hxp = p.fromReader(new ChunkedFile(f));
+
     
-    return (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
+    var c = (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
+    Reflect.setField(c.globals(),"name",Os.path(f,NAME));
+    return c;
   }
   
   public function
@@ -354,7 +359,7 @@ class Parser {
       .add("depends",false,Validate.depends);
     
     Validate.applyAllTo(hxp);
-
+    
     return new Config(hxp.hbl);
   }
 

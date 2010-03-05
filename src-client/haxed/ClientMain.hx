@@ -147,7 +147,7 @@ class ClientMain {
     } else
       haxed_haxed = Os.fileIn(hf);
     
-    return Parser.fromString(haxed_haxed);
+    return Parser.fromString(haxed_haxed,"haxed");
   }  
 
   static function
