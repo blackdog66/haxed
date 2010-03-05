@@ -114,11 +114,9 @@ trace("excludes are "+excludes);
               throw "include dir "+d+" does not exist";
             
             if (Os.isDir(d)) {
-              trace("TRYING "+d);
               Os.copyTree(Os.slash(d),packDir,excluder);
             } else {
               var norelatives = ~/(\.{1,2}\/)/g.replace(d,"");
-              trace("norels "+norelatives);
               var p = Os.path(norelatives,DIR);
               if (p != null)
                 Os.mkdir(packDir+p);
@@ -162,9 +160,12 @@ trace("excludes are "+excludes);
     sources(confDir,config);
     xml(config);
     json(config);
+
     var cf = toPackDir(config.file());
-    if (!Os.exists(cf))
+    if (!Os.exists(cf)) {
+      trace("config file "+cf);
       Os.cp(config.file(),cf);
+    }
     
     return zip(config);
   }
