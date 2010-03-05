@@ -377,7 +377,7 @@ class ClientCore {
   newHxp(interactive:Global) {
     if (interactive == null) {
       // then copy the template - if it doesn't exist create it from the resource
-      var nf = ClientTools.getRepos() + Common.HXP_TEMPLATE;
+      var nf = ClientTools.versionDir("haxed") + Common.HXP_TEMPLATE;
       if (!Os.exists(nf)) {
         Os.fileOut(nf,haxe.Resource.getString("HaxedTemplate"));
       }
