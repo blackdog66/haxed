@@ -288,7 +288,7 @@ class Config {
   
   public function
   file():String {
-    return Reflect.field(data,FILE);
+    return globals().name + "."+Common.HXP_EXT;
   }
 
   public function
@@ -339,7 +339,7 @@ class ConfigJson extends Config {
 class Common {
   public static var CONFIG_FILE = "haxed.json";
   public static var HXP_EXT = "haxed";
-  public static var HXP_FILE = "default." + HXP_EXT;
+  public static var HXP_FILE = "YOUR_PROJECT_NAME." + HXP_EXT;
   public static var HXP_TEMPLATE = "template." + HXP_EXT;
 
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;

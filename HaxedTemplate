@@ -1,12 +1,12 @@
-# You can save this to your haxelib repo dir (hxp config) to customise for
-# future projects.
 
 # This file doesn't like tabs, spaces only pls.
 # By default haxelib will include all files within the current directory,
 # so make sure you specify just the ones you want to include with pack include
+
+# Please note, the project name is now the name of this file!!!
+
 ---
 project:
-    name:               myproject
     website:            http://myproject.com
     version:            1.2.3
     comments:           freeform
