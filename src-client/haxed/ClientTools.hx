@@ -42,7 +42,6 @@ class ClientTools {
     
     var config = Os.slash(home)+".haxelib";
     if (create || Os.exists(config)) {
-      trace("config is "+config);
       return config;
     }
 
