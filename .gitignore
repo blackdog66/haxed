@@ -6,11 +6,13 @@ www/lib/
 *.db
 *.json
 .svn/
-ritchie/
+blackdog/
 /repo
 /www/files
 /www/lib
 /www/res
 /www/test.php
 /www/Controller.js
+/www/fubar.err
+/www/repo.php
 
