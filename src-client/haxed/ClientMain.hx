@@ -157,9 +157,6 @@ class ClientMain {
 
     config = createDefaultHaxedLib();
 
-    trace(config);
-    Tasks.init();
-    
     var
       client = new ClientRestful(),
       commandCtx = ClientCtrl.process();
