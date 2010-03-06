@@ -31,6 +31,7 @@ private enum State {
   SProp;
   SVal;
   SMulti;
+  SMultiContinue;
   SIndent;
   SError(e:String);
   SHereDoc;
@@ -117,9 +118,10 @@ class Parser {
     
     tk.match(~/\t/,function(re) { return TTab; })
       .match(~/#/,function(re) {return TComment; },Discard)
-      .match(~/^\s+(?=\S)/,function(re) {
-        return TIndent(re.matchedPos().len);})
-      .match(~/^\s+/,function (re) { return TWhite; })
+      .match(~/^[ ]+(?=\S)/,function(re) {
+          return TIndent(re.matchedPos().len);
+        })
+      .match(~/^\s+\n/,function (re) { return TWhite; })
       .match(~/^---.*?\n/,function(re) { return TDoc; })
       .match(~/^([a-zA-Z-]+):(?=\s)/,function(re) {
           return TKey(re.matched(1)); })
@@ -250,7 +252,8 @@ class Parser {
                SProp;
                
              default:
-               SError("After script - bad indent, expecting "+me.keyIndent+" got "+size);
+               SMultiContinue;
+               //SError("After script - bad indent, expecting "+me.keyIndent+" got "+size);
              }           
          case TDoc:
            SSection;
@@ -258,6 +261,11 @@ class Parser {
            default:
              SMulti;
            }           
+       }),
+
+     ONTRAN(SMultiContinue,Str,function(s:String) {
+         me.multiVal.add(' '+s);
+         return SMulti;
        }),
             
      ONTRAN(SMulti,Str,function(s:String) {
