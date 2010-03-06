@@ -150,6 +150,15 @@ class ClientMain {
     return Parser.fromString(haxed_haxed,"haxed");
   }  
 
+  public static function
+  createProjectHaxedDir() {
+    if (Os.exists(Common.HAXED_DIR))
+      Os.rmdir(Common.HAXED_DIR);
+    
+     if (!Os.exists(Common.TASK_DIR))
+      Os.mkdir(Common.TASK_DIR);
+  }
+
   static function
   main() {
 
@@ -186,16 +195,20 @@ class ClientMain {
       case TEST(path):
         client.test(path);
       case PACK(hxpFile):
+        createProjectHaxedDir();
         client.packit(hxpFile);
       case INSTALL(projectName,version):
         client.install(options,projectName,version);
       case UPGRADE:
         client.upgrade();
       case NEW(interactive):
+        createProjectHaxedDir();
         client.newHxp(interactive);
       case BUILD(config,target):
+        createProjectHaxedDir();
         client.build(config,target,options);
       case TASK(config,task,prms):
+        createProjectHaxedDir();
         client.task(config,task,prms,options);
    
       }
