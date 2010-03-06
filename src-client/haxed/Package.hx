@@ -147,7 +147,7 @@ trace("excludes are "+excludes);
   public static function
   zip(conf:Config) {
     var name = conf.globals().name+".zip";
-    var outf = outFile(name,conf.file());
+    var outf = outFile(".haxed/"+name,conf.file());
     trace("Zipping:"+outf);
     Os.zip(outf,Os.files(packDir,null),packDir);
     trace("Created "+outf);
