@@ -3,6 +3,8 @@ package haxed.server;
 import bdog.Os;
 import bdog.Git;
 import haxed.Common;
+import haxed.License;
+
 using Lambda;
 
 #if php
