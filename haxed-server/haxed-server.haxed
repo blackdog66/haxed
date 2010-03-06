@@ -2,11 +2,11 @@
 ---
 
 import:
-        classes:        bdog.Os
+        classes:        bdog.Os haxed.ClientTools
 
 ---
+
 project:
-    name:               haxed-server
     website:            http://blackdog66.wordpress.com
     version:            0.5
     comments:           first
@@ -29,6 +29,16 @@ build:
       target:           php
       target-file:      www
       main-class:       haxed.server.ServerMain
-      depends:          haxed
+      pre-task:         copyWWW
+
+---
+
+# copy the www from haxed-server to the current directory
+
+task:
+        name:           copyWWW
+        main-class:     HSTasks
+        depends:        haxed-server
+
 
         
