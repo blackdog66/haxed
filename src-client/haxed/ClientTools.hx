@@ -36,9 +36,9 @@ class ClientTools {
   
   public static function
   getConfigFile(create=false) {
-    var home = neko.Sys.getEnv("HOME");
+    var home = Os.env("HOME");
     if (home == null)
-      home = neko.Sys.getEnv("HOMEPATH");
+      home = Os.env("HOMEPATH");
     
     var config = Os.slash(home)+".haxelib";
     if (create || Os.exists(config)) {
