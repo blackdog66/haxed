@@ -39,20 +39,10 @@ class TaskRunner {
 
 class Tasks {
 
-  static var HAXED_DIR = "./.haxed/";
-  static var TASK_DIR = HAXED_DIR+"tasks/";
-  static var CP_DIR = HAXED_DIR+"src/";
+  static var CP_DIR = Common.HAXED_DIR+"src/";
   
   var task:Task;
   var exeName:String;
-
-  public static function init() {
-    if (Os.exists(HAXED_DIR))
-      Os.rmdir(HAXED_DIR);
-    
-     if (!Os.exists(TASK_DIR))
-      Os.mkdir(TASK_DIR);
-  }
   
   public static function
   run(task:Task,?prms:Array<Dynamic>) {
@@ -61,12 +51,11 @@ class Tasks {
   }
   
   public function new(t:Task,?taskID:String) {
-    init();
     task = t;
     if (taskID == null)
-      exeName = TASK_DIR+task.name+".n";
+      exeName = Common.TASK_DIR+task.name+".n";
     else
-      exeName = TASK_DIR+taskID+".n";
+      exeName = Common.TASK_DIR+taskID+".n";
   }
 
   public function
@@ -80,7 +69,7 @@ class Tasks {
       doBuild = forceBuild;
 
     if (cliOptions != null) {
-      if (cliOptions.flag("-compile") && Os.exists(TASK_DIR)) {
+      if (cliOptions.flag("-compile") && Os.exists(Common.TASK_DIR)) {
         Os.rm(exeName);
       }
     }

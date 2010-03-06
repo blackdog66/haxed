@@ -341,7 +341,10 @@ class Common {
   public static var HXP_EXT = "haxed";
   public static var HXP_FILE = "YOUR_PROJECT_NAME." + HXP_EXT;
   public static var HXP_TEMPLATE = "template." + HXP_EXT;
+  public static var HAXED_DIR = "./.haxed/";
+  public static var TASK_DIR = HAXED_DIR+"tasks/";
 
+  
   static var alphanum = ~/^[A-Za-z0-9_.-]+$/;
   
   public static function

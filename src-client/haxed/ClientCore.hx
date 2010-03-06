@@ -360,7 +360,7 @@ class ClientCore {
   public function
   test(filePath:String) {
     var
-      file = neko.io.Path.withoutDirectory(filePath);
+      file = Os.path(filePath,FILE);
     unpack(filePath,file);
   }
 
@@ -449,7 +449,6 @@ project:
   runTask(config:Config,task:Task,prms:Array<Dynamic>,options:Options){    
 
     if (options.flag("-clean")) {
-      Tasks.init();
       Os.print("Cleaning - reinitialised .haxed dir");
     }
 
