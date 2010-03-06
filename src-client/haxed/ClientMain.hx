@@ -120,6 +120,7 @@ class ClientMain {
       Os.fileOut(hd+".current","1.0");
       Os.mkdir(dd+"haxed");
       Os.mkdir(dd+"bdog");
+      Os.mkdir(dd+"hscript");
       
       Os.fileOut(dd+"haxed/Tasks.hx",hrs("tasks_hx"));
       Os.fileOut(dd+"haxed/Common.hx",hrs("common_hx"));
@@ -127,6 +128,14 @@ class ClientMain {
       Os.fileOut(dd+"haxed/ClientTools.hx",hrs("tools_hx"));
       Os.fileOut(dd+"haxed/Marshall.hx",hrs("marshall_hx"));
       Os.fileOut(dd+"haxed/License.hx",hrs("license_hx"));
+      Os.fileOut(dd+"haxed/Parser.hx",hrs("parser_hx"));
+      Os.fileOut(dd+"haxed/Validate.hx",hrs("validate_hx"));
+
+      Os.fileOut(dd+"hscript/Bytes.hx",hrs("hsbytes_hx"));
+      Os.fileOut(dd+"hscript/Expr.hx",hrs("hsexpr_hx"));
+      Os.fileOut(dd+"hscript/Interp.hx",hrs("hsinterp_hx"));
+      Os.fileOut(dd+"hscript/Parser.hx",hrs("hsparser_hx"));
+      
       Os.fileOut(dd+"bdog/JSON.hx",hrs("json_hx"));
       Os.fileOut(dd+"bdog/Os.hx",hrs("os_hx"));
       Os.fileOut(dd+"bdog/Reader.hx",hrs("reader_hx"));

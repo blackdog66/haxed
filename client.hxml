@@ -12,9 +12,16 @@
 -resource src-client/haxed/Builder.hx@builder_hx
 -resource src-client/haxed/ClientTools.hx@tools_hx
 
+-resource src-common/haxed/Parser.hx@parser_hx
 -resource src-common/haxed/Common.hx@common_hx
 -resource src-common/haxed/Marshall.hx@marshall_hx
 -resource src-common/haxed/License.hx@license_hx
+-resource src-common/haxed/Validate.hx@validate_hx
+
+-resource src-common/hscript/Bytes.hx@hsbytes_hx
+-resource src-common/hscript/Expr.hx@hsexpr_hx
+-resource src-common/hscript/Interp.hx@hsinterp_hx
+-resource src-common/hscript/Parser.hx@hsparser_hx
 
 -resource submodules/core/bdog/Os.hx@os_hx
 -resource submodules/core/bdog/JSON.hx@json_hx
@@ -23,5 +30,4 @@
 -resource submodules/core/bdog/Tokenizer.hx@toks_hx
 -resource submodules/core/bdog/SMachine.hx@smachine_hx
 -resource submodules/core/bdog/Git.hx@git_hx
-
 
