@@ -29,7 +29,7 @@ class TaskRunner {
     var fn = Reflect.field(this,task);
     if (fn == null) throw("Task "+task+" does not exist");
 
-    //  throw("call is "+task+", prms are "+prms);
+    //throw("call is "+task+", prms are "+prms+" length:"+prms.length);
     if (Reflect.isFunction(fn)) {
       neko.Lib.println(Reflect.callMethod(this,fn,prms));
     }
@@ -83,9 +83,9 @@ class Tasks {
 
     var
       cp = task.classPath,
-      defaultClasspaths = [".",ClientTools.projectDir("haxed")];
+      defaultClasspaths = [".",ClientTools.versionDir("haxed")];
 
-    cp = (cp == null) ? defaultClasspaths : cp.concat(defaultClasspaths);
+    cp = (cp == null) ? defaultClasspaths : defaultClasspaths.concat(cp);
     
     trace("classpaths are "+cp);
     
