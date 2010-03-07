@@ -2,16 +2,16 @@
 ---
 
 import:
-        classes:        bdog.Os haxed.ClientTools
+        classes:        bdog.Os
 
 ---
 
 project:
     website:            http://blackdog66.wordpress.com
     version:            0.5
-    comments:           first
+    comments:           not fully finished
     description:        Creates a haxed server downloadable lib
-    author:             null
+    author:             blackdog
     author-email:       blackdog@ipowerhouse.com
     tags:               haxed server 
     license:            GPL
@@ -20,7 +20,7 @@ project:
 
 pack:
         include:        ./
-                        ../src-server
+
 ---
 
 build: 
@@ -30,6 +30,8 @@ build:
       target-file:      www
       main-class:       haxed.server.ServerMain
       pre-task:         copyWWW
+      post-task:        makeRepo
+      options:          -resource server.json@serverConfig -D GITSTORE
 
 ---
 
@@ -37,6 +39,12 @@ build:
 
 task:
         name:           copyWWW
+        main-class:     HSTasks
+        depends:        haxed-server
+---
+
+task:
+        name:           makeRepo
         main-class:     HSTasks
         depends:        haxed-server
 
