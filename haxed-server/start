@@ -1,0 +1,2 @@
+spawn-fcgi -p 10000 php-cgi
+nginx -p . -c nginx/nginx.conf

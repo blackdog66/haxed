@@ -69,14 +69,7 @@ class Tasks {
       doBuild = forceBuild;
 
     if (cliOptions != null) {
-      if (cliOptions.flag("-compile") && Os.exists(Common.TASK_DIR)) {
-        Os.rm(exeName);
-      }
-    }
-
-    if (Os.exists(exeName)) {
-      if (Os.newer(task.mainClass.replace(".","/")+".hx",exeName)) {
-        Os.print("Recompiling: " + task.mainClass+ ".hx is newer than "+ exeName);
+      if (cliOptions.flag("-compile")) {
         doBuild = true;
       }
     }

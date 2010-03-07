@@ -120,7 +120,6 @@ class ClientRestful extends ClientCore {
   submit(options:Options,password:String,packagePath:String,fn:String->Status->Bool) {
     var u = url(options.repo,"submit");
     Os.filePost(packagePath,u,true,{password:password},function(d) {
-        trace("submission return is --"+d+"--");
         var s = Marshall.fromJson(JSON.decode(d));
         if (fn != null)
           fn(options.repo,s);

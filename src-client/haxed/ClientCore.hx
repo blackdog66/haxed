@@ -419,14 +419,9 @@ project:
       fromLib = prj != null;
     
     if (fromLib) {
-      trace("getting lib path for "+prj);
-      var p = ClientTools.internalPath([
-        {prj:prj,ver:ClientTools.currentVersion(prj),op:null}
-       ]),
-       path = p.first();
-
+      var path = ClientTools.versionDir(prj);
       if (path != null){
-        config = Parser.configuration(path+prj+".haxed");
+        config = Parser.configuration(path+prj+"."+Common.HXP_EXT);
       } else {
         throw "Can't find "+prj +".haxed or installed library "+prj;
       }
@@ -453,14 +448,16 @@ project:
     }
 
     var
-      taskID = Os.path(config.file(),NAME)+"-"+task.mainClass,
+      prj = config.globals().name,
+      pathToConfig = ClientTools.versionDir(prj)+config.file(),
+      taskID = prj+"-"+task.mainClass,
       t = new haxed.Tasks(task,taskID),
-      forceCompile = Os.newer(config.file(),t.outputFile());
+      forceCompile = Os.newer(pathToConfig,t.outputFile());
 
     if (forceCompile) {
-      Os.print("Recompiling: " + config.file() + " is newer than "+ t.outputFile());
+      Os.print("Recompiling: " + pathToConfig + " is newer than "+ t.outputFile());
     }
-    
+
     t.execute(prms,options,forceCompile);
   }
 

@@ -49,14 +49,7 @@ class Builder {
   compile(c:Config,target:String,fromLib:Bool) {
     var
       builds = c.build(),
-      libRoot:String = null;
-
-    if (fromLib) {
-      var prj = c.globals().name;
-      libRoot = ClientTools
-        .internalPath([{prj:prj,ver:ClientTools.currentVersion(prj),op:null}])
-        .first();
-    }
+      libRoot =  (fromLib) ? ClientTools.versionDir(c.globals().name) : null;
 
     compileBuild(builds,target,libRoot);
    
@@ -76,7 +69,7 @@ class Builder {
                 TARGET: b.targetFile ,
                 OTHER: (b.options != null) ? b.options.join(" ").trim() : ""};
 
-      neko.Lib.println("Building "+b.name);
+      neko.Lib.println("Building "+b.name+" with "+libRoot);
 
       var o = (Os.process("haxe -main ::MAIN:: -::TT:: ::TARGET:: ::LIBS:: ::CPS:: ::OTHER::",false,ctx)),
         filtered = o.split("\n")

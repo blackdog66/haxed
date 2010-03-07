@@ -161,8 +161,8 @@ class ClientMain {
 
   public static function
   createProjectHaxedDir() {
-    if (Os.exists(Common.HAXED_DIR))
-      Os.rmdir(Common.HAXED_DIR);
+    if (!Os.exists(Common.HAXED_DIR))
+      Os.mkdir(Common.HAXED_DIR);
     
      if (!Os.exists(Common.TASK_DIR))
       Os.mkdir(Common.TASK_DIR);
