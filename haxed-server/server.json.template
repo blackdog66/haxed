@@ -1,6 +1,6 @@
 {
-   "serverName":"ipowerhouse haxelib Repo",
-   "dataDir": "/home/blackdog/Projects/haxelib/",
+   "serverName":"haxelib repo",
+   "dataDir": "::dataDir::",
    "adminEmail": "blackdog@ipowerhouse.com",
    "licenses":
         [{"pub":true,"name":"GPL","url":"http://www.gnu.org/licenses/gpl.html"},
