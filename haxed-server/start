@@ -1,2 +1,2 @@
-spawn-fcgi -p 10000 php-cgi
+spawn-fcgi -p 10000 `which php-cgi`
 nginx -p . -c nginx/nginx.conf
