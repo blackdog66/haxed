@@ -86,14 +86,18 @@ class ServerGit implements ServerStore {
       haxedName =  glbs.name,
       haxedConf = ZipReader.content(tmpFile,haxedName),
       pkgName = Common.pkgName(glbs.name,glbs.version),
-      git = new Git(projectDir(haxedName));
+      git = new Git(repoTop+haxedName);
     
     var newZip = git.dir+"tmp.zip";
 
     Os.mv(tmpFile,newZip);
 
     git.inRepo(function() {
+        try {
         ZipReader.unzip(newZip);
+        } catch(ex:Dynamic) {
+          
+        }
         Os.rm(newZip);
       });
     

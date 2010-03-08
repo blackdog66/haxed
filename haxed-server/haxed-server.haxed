@@ -30,8 +30,7 @@ build:
       target-file:      www
       main-class:       haxed.server.ServerMain
       pre-task:         copyWWW
-      post-task:        makeRepo
-      options:          -resource server.json@serverConfig -D GITSTORE
+      options:          --php-front repo.php -D GITSTORE
 
 ---
 
@@ -41,12 +40,7 @@ task:
         name:           copyWWW
         main-class:     HSTasks
         depends:        haxed-server
----
 
-task:
-        name:           makeRepo
-        main-class:     HSTasks
-        depends:        haxed-server
 
 
         

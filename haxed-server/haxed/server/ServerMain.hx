@@ -3,13 +3,8 @@ package haxed.server;
 import haxed.Common;
 import haxed.Marshall;
 import haxed.License;
+import bdog.Os;
 import bdog.JSON;
-
-#if php
-import php.Lib;
-#elseif neko
-import neko.Lib;
-#end
 
 #if GITSTORE
 import haxed.server.ServerGit;
@@ -33,7 +28,8 @@ class ServerMain {
     var
       repo:ServerStore,
       dinfo = ServerCtrl.dispatch(),
-      config:ServerConf = JSON.decode(haxe.Resource.getString("serverConfig"));
+      sdir =  untyped __php__('$_SERVER["PWD"]') ,
+      config:ServerConf = JSON.decode(Os.fileIn(sdir+"/server.json"));
 
     License.set(config.licenses);
 
@@ -43,7 +39,7 @@ class ServerMain {
     repo = new ServerCore(config.dataDir);
     #end
     
-    Lib.print(Marshall.toJson(
+    Os.print(Marshall.toJson(
       switch(dinfo.cmdCtx) {
       case REMOTE(cmd,options):
         switch(cmd) {
