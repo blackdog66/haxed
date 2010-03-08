@@ -1,0 +1,69 @@
+
+haxed-server
+------------
+
+Intallation
+-----------
+
+Download a haxed client - or build your own from http://www.github.com/blackdog66/haxed, to bootstrap a haxed-server from source, follow the instructions in the README in haxed, otherwise ...
+
+To install a haxed-server
+
+1. Run haxed install, to install haxed-server in your haxed repository.
+
+   haxed install haxed-server
+
+2. cd to where you want to create your runtime dir, e.g.
+
+   mkdir server-dir
+   cd server-dir
+
+3. Now, generate the haxed-server files from the template you installed in 1.
+
+   haxed build haxed-server
+
+   This 
+
+   a. creates a www directory with the default haxed-server website in www 
+   b. compiles haxed-server code to php into the www/lib directory
+   c. generates a default nginx configuration
+   d. the repository dir is in server-dir/repo, with downloaded zip files served from
+      server-dir/repo/__files__
+
+   Please note the default installation is for a git repository - so you need git 
+   installed. A sqlite database implementation is also available but I don't use it
+   so someone who does can document it.
+
+Configuring you webserver
+-------------------------
+
+For the nginx default configuration you need
+    
+    nginx the latest dev build is fine (you need one with a -p option)
+    spawn-fcgi installed (a lighttpd subproject) 
+    php-5.3 compiled with a php-cgi
+    ports 10000 and 8200 clear 
+
+if this is the case then
+
+   ./start
+
+   should start an nginx instance on port 8200, talking to php slaves on port 10000
+
+
+Populating Your Repository
+--------------------------
+
+To make packages available in your new haxed repository on port 8200
+
+1. Make a new Project
+
+   haxed new
+
+   Tweak the settings of YOUR_NEW_PROJECT.haxed and rename it to your project name.
+
+
+2. Submit your Package
+
+   haxed submit -R localhost:8200 myproject
+
