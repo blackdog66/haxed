@@ -19,19 +19,19 @@ class HSTasks extends TaskRunner {
       vd = ClientTools.versionDir("haxed-server"),
       src = vd +"www",
       dst = Os.cwd();
-    
+
+    try {
     Os.copyTree(src,dst);
-    Os.cp(vd+"server.json.sample","server.json");
+    var cfg = Os.fileIn(vd+"server.json.template");
+    Os.fileOut(dst+"/server.json",cfg,{dataDir:dst+"repo/"});
     Os.cp(vd+"start","start");
     Os.copyTree(vd+"nginx",dst);
     Os.mkdir("./logs");
-    
+    Os.mkdir("./repo");
+    } catch(ex:Dynamic) {
+      return ex.toString + "tried "+src+" to "+dst;
+    }
     return "copied "+src+" to "+dst;
   }
 
-  public function
-  makeRepo() {
-    Os.mkdir("./repo/__files__/");
-    return "made repo dir";
-  }
 }
