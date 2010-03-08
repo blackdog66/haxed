@@ -103,7 +103,7 @@ class ClientCore {
       if( dev != null )
         versions.push("[dev:"+dev+"]");
 
-      Os.print(Common.unsafe(p) + ": "+versions.join(" "));
+      Os.println(Common.unsafe(p) + ": "+versions.join(" "));
     }
   }
   
@@ -116,7 +116,7 @@ class ClientCore {
         throw "Project "+prj+" is not installed";
 
       Os.rmdir(pdir);
-      Os.print("Project "+prj+" removed");
+      Os.println("Project "+prj+" removed");
       return;
     }
 
@@ -130,20 +130,20 @@ class ClientCore {
       throw "Can't remove current version of project "+prj;
 
     Os.rmdir(vdir);
-    Os.print("Project "+prj+" version "+version+" removed");
+    Os.println("Project "+prj+" version "+version+" removed");
   }
 
   public function
   path(projects:Array<PrjVer>) {
     for (p in ClientTools.internalPath(projects)) {
-      Os.print(p);
+      Os.println(p);
     }
   }
 
   public function
   doInstall(options:Options,repoUrl,prj,ver,license) {
     if (Os.exists(ClientTools.versionDir(prj,ver))) {
-      Os.print("You already have "+prj+" version "+ver+" installed");
+      Os.println("You already have "+prj+" version "+ver+" installed");
       setCurrentVersion(prj,ver);
       return true;
     }
@@ -151,9 +151,9 @@ class ClientCore {
     if(!License.isPublic(license)) {
       var l = License.getUrl(license);
       var resp = haxe.Http.requestUrl(l);
-      Os.print(resp) ;
+      Os.println(resp) ;
       if (Os.ask("Do you accept the license?") == No) {
-        Os.print("Discontinuing install");
+        Os.println("Discontinuing install");
         neko.Sys.exit(0);
       }
     }
@@ -186,7 +186,7 @@ class ClientCore {
       throw e;
     };
 
-    Os.print("Downloading "+fileName+"...");
+    Os.println("Downloading "+fileName+"...");
     h.customRequest(false,progress); 
   }
 
@@ -228,7 +228,7 @@ class ClientCore {
     
   public function
   config(options:Options){
-	Os.print(ClientTools.getRepository());
+	Os.println(ClientTools.getRepository());
   }
 
   public function
@@ -240,10 +240,10 @@ class ClientCore {
     if( dir == null ) {
       if(Os.exists(devfile) )
         Os.rm(devfile);
-      Os.print("Development directory disabled");
+      Os.println("Development directory disabled");
     } else {
       Os.fileOut(devfile,dir);
-      Os.print("Development directory set to "+dir);
+      Os.println("Development directory set to "+dir);
     }
   }
 
@@ -252,7 +252,7 @@ class ClientCore {
     var pdir = ClientTools.projectDir(prj);
     if (!Os.exists(pdir)) throw "setCurrentVersion: "+pdir+" does not exist";
     Os.fileOut(pdir + ".current",version);
-    Os.print("  Current version is now "+version);
+    Os.println("  Current version is now "+version);
   }
   
   public function
@@ -264,7 +264,7 @@ class ClientCore {
       throw "Project "+prj+" version "+version+" is not installed";
 
     if (ClientTools.currentVersion(prj) == version) {
-      Os.print("Version is "+version);
+      Os.println("Version is "+version);
       return ;
     }
     
@@ -277,7 +277,7 @@ class ClientCore {
       try {
         Os.mkdir(path);
       } catch( e : Dynamic ) {
-        Os.print("Failed to create directory '"+path
+        Os.println("Failed to create directory '"+path
                  +"' ("+Std.string(e)+"), maybe you need appropriate user rights");
         neko.Sys.exit(1);
       }
@@ -301,7 +301,7 @@ class ClientCore {
         continue;
 
       var p = Common.unsafe(prj);
-      Os.print("Checking "+p);
+      Os.println("Checking "+p);
 
       getInfo(p,function(inf) {
           if(!Os.exists(ClientTools.versionDir(p,inf.curversion))) {
@@ -322,9 +322,9 @@ class ClientCore {
     }
     
     if( update )
-      Os.print("Done");
+      Os.println("Done");
     else
-      Os.print("All projects are up-to-date");
+      Os.println("All projects are up-to-date");
   }
 
   public function
@@ -444,7 +444,7 @@ project:
   runTask(config:Config,task:Task,prms:Array<Dynamic>,options:Options){    
 
     if (options.flag("-clean")) {
-      Os.print("Cleaning - reinitialised .haxed dir");
+      Os.println("Cleaning - reinitialised .haxed dir");
     }
 
     var
@@ -455,7 +455,7 @@ project:
       forceCompile = Os.newer(pathToConfig,t.outputFile());
 
     if (forceCompile) {
-      Os.print("Recompiling: " + pathToConfig + " is newer than "+ t.outputFile());
+      Os.println("Recompiling: " + pathToConfig + " is newer than "+ t.outputFile());
     }
 
     t.execute(prms,options,forceCompile);
@@ -480,7 +480,7 @@ project:
             }
           }
 
-          if (!gotTask) Os.print("Warning: task "+ name + "  does not exist");
+          if (!gotTask) Os.println("Warning: task "+ name + "  does not exist");
         }
       }
     }

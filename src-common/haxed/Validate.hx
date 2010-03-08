@@ -110,13 +110,13 @@ class Validate {
 
   public static function
   err(msg,section,fld) {
-    Os.print("Failed validation for "+section+":"+fld+" "+msg);
+    Os.println("Failed validation for "+section+":"+fld+" "+msg);
     Os.exit(1);
   }
 
   public static function
   warn(msg:String,section:String,?fld:String) {
-    Os.print("Warning: "+section + ((fld != null) ? ":"+ fld : "") +" "+msg);
+    Os.println("Warning: "+section + ((fld != null) ? ":"+ fld : "") +" "+msg);
   }
 
   public static function
@@ -199,7 +199,7 @@ class Validate {
 
 
 #if debug
-      Os.println("Validating "+sectionID);
+      Os.printlnln("Validating "+sectionID);
 #end
       
       var fldCopy = Reflect.copy(section);

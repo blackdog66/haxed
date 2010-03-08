@@ -45,8 +45,8 @@ class ClientRestful extends ClientCore {
       };
     }
     h.onError = function(e:String) {
-      Os.print("Error requesting "+ r + "&" + parameters);
-      Os.print("Server not available? Checking next repo ...");
+      Os.println("Error requesting "+ r + "&" + parameters);
+      Os.println("Server not available? Checking next repo ...");
       fn(null);
     };
     

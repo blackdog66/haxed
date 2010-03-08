@@ -44,7 +44,7 @@ class ClientCtrl {
 
   public
   static function println(str:String) {
-    Os.print(str);
+    Os.println(str);
   }
   
   static
@@ -90,7 +90,7 @@ class ClientCtrl {
 
   static function
   err(fld,msg) {
-    Os.print(((msg == null) ? " ! bad value for "+ fld : msg));
+    Os.println(((msg == null) ? " ! bad value for "+ fld : msg));
   }
 
   static function
@@ -146,7 +146,7 @@ class ClientCtrl {
 
     if (exists) {
       if (!Os.exists(file)) {
-        Os.print(file +" does not exist");
+        Os.println(file +" does not exist");
         neko.Sys.exit(0);
       }
     }
@@ -176,7 +176,7 @@ class ClientCtrl {
         return found;
       
       } else {
-        Os.print("Can't find "+t+" "+searchFor);
+        Os.println("Can't find "+t+" "+searchFor);
         neko.Sys.exit(0);
       }
       
@@ -332,7 +332,7 @@ class ClientCtrl {
             }
           }
       } else {
-        Os.print("Can't find task "+taskName +" in file "+file);
+        Os.println("Can't find task "+taskName +" in file "+file);
         Os.exit(0);
       }
           
@@ -396,12 +396,12 @@ class ClientCtrl {
   public static
   function usage() {
     commandHelp();
-    Os.print("Library Manager for Haxe "+ClientMain.VERSION+" - (c) 2010 ");
-    Os.print(" Usage : haxed command [options]");
-    Os.print(" ---------------------------------------------");
-    Os.print(" Commands :");
+    Os.println("Library Manager for Haxe "+ClientMain.VERSION+" - (c) 2010 ");
+    Os.println(" Usage : haxed command [options]");
+    Os.println(" ---------------------------------------------");
+    Os.println(" Commands :");
     for(c in commands.keys())
-      Os.print("  "+c+" : "+commands.get(c));
+      Os.println("  "+c+" : "+commands.get(c));
     neko.Sys.exit(1);
   }
 

@@ -29,8 +29,8 @@ class ClientMain {
       if (options.flag("-j")) {
         toJson(obj,rurl);
       } else {
-        Os.print(formatRepoUrl(rurl));
-        Os.print(formatter(obj));
+        Os.println(formatRepoUrl(rurl));
+        Os.println(formatter(obj));
       }
 
       if (options.flag("-R"))
@@ -53,55 +53,55 @@ class ClientMain {
       handleOptions(options,rurl,ui,formatUserInfo);
       true;
     case OK_SUBMIT:
-      Os.print("Submission Successful");
+      Os.println("Submission Successful");
       true;
     case OK_REGISTER:
-      Os.print("Registration Successful");
+      Os.println("Registration Successful");
       false;
     case OK_LICENSES(licenses):
       handleOptions(options,rurl,licenses,formatLicenses);
     case OK_ACCOUNT:
-      Os.print("Account updated successfully");
+      Os.println("Account updated successfully");
       return false;
     case OK_PROJECTS(prj):
       handleOptions(options,rurl,prj,formatProjects);
     case OK_SERVERINFO(si):
        handleOptions(options,rurl,si,formatServerInfo);
     case OK_REMINDER:
-      Os.print("Email sent");
+      Os.println("Email sent");
       return false;
     case OK_TOPTAGS(tt):
       handleOptions(options,rurl,tt,formatTopTags);
     case ERR_REMINDER:
-      Os.print("Email not sent");
+      Os.println("Email not sent");
       return false;
     case ERR_PROJECTNOTFOUND:
       return false;
     case ERR_UNKNOWN:
       false; //not handled check next server if one exists
     case ERR_REGISTERED:
-      Os.print("Already registered");
+      Os.println("Already registered");
       false;
     case ERR_LICENSE(lics):
-      Os.print("Repository does not accept this license :"+lics.given);
+      Os.println("Repository does not accept this license :"+lics.given);
       handleOptions(options,rurl,lics.licenses,formatLicenses);
     case ERR_USER(u):
-      Os.print("User not known:"+u);
+      Os.println("User not known:"+u);
       true;
     case ERR_NOTHANDLED:
-      Os.print("Server didn't know that option");
+      Os.println("Server didn't know that option");
       return false;
     case ERR_PASSWORD(which):
-      Os.print("Bad password" + ((which != "") ? "for "+which : ""));
+      Os.println("Bad password" + ((which != "") ? "for "+which : ""));
       return false;
     case ERR_EMAIL(which):
-      Os.print("Bad email" + ((which != "") ? "for "+which : ""));
+      Os.println("Bad email" + ((which != "") ? "for "+which : ""));
       return false;
     case ERR_DEVELOPER:
-      Os.print("Given author is not a developer");
+      Os.println("Given author is not a developer");
       return false;
     case ERR_HAXELIBJSON:
-      Os.print(Common.CONFIG_FILE +" is missing");
+      Os.println(Common.CONFIG_FILE +" is missing");
       return false;
     }
   }
@@ -241,9 +241,9 @@ class ClientMain {
             return handleServerResponse(options,rurl,s);
           });
       case SUBMIT(hxpFile):
-        Os.print("packing ...");
+        Os.println("packing ...");
         var packagePath = client.packit(hxpFile);
-        Os.print("submitting ...");
+        Os.println("submitting ...");
         var password = options.getSwitch("-P");
         client.submit(options,password,packagePath,function(rurl:String,s:Status) {
             return handleServerResponse(options,rurl,s);
