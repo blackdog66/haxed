@@ -32,3 +32,12 @@ haxed test haxed-server
 
 this will create a zip file, and then install it in your haxed
 repository, then you can return to the haxed build step.
+
+You'll still need to point your webserver at it.
+
+haxed.json and haxelib.xml
+------------------------
+
+I generate these two files on packing, the first because php can't compile my parser for some reason (it should be able to) and haxelib.json is the compiled .haxed file. The second for compatibility with old haxelib.
+
+I will want to remove both at some stage, the .haxed file should be the only spec.
