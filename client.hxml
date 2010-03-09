@@ -30,4 +30,5 @@
 -resource submodules/core/bdog/Tokenizer.hx@toks_hx
 -resource submodules/core/bdog/SMachine.hx@smachine_hx
 -resource submodules/core/bdog/Git.hx@git_hx
+-resource submodules/core/bdog/Log.hx@log_hx
 
