@@ -143,6 +143,7 @@ class ClientMain {
       Os.fileOut(dd+"bdog/Tokenizer.hx",hrs("toks_hx"));
       Os.fileOut(dd+"bdog/SMachine.hx",hrs("smachine_hx"));
       Os.fileOut(dd+"bdog/Git.hx",hrs("git_hx"));
+      Os.fileOut(dd+"bdog/Log.hx",hrs("log_hx"));
       
     }
 
