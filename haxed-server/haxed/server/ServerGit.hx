@@ -5,6 +5,7 @@ import bdog.Git;
 import haxed.Common;
 import haxed.License;
 
+using StringTools;
 using Lambda;
 
 #if php
@@ -24,6 +25,7 @@ class ServerGit implements ServerStore {
   static var TMP_DIR = Os.separator + Os.slash("tmp");
   var repoTop:String;
   var fileDir:String;
+  static var rePrj = ~/^__|\./;
   
   public function new(dd) {
     repoTop = Os.slash(dd);
@@ -36,8 +38,22 @@ class ServerGit implements ServerStore {
   cleanup() {
   } 
 
-  function projectDir(p:String) {
+  inline function projectDir(p:String) {
     return Os.slash(repoTop + p);
+  }
+
+  inline function getConfig(p:String) {
+    return new ConfigJson(Os.fileIn(projectDir(p)+Common.CONFIG_FILE));
+  }
+  
+  function prjNames() {
+    return Lambda.filter(Os.dir(repoTop),function(f) {
+        return ! rePrj.match(f);
+      });
+  }
+
+  inline function ggit(p:String) {
+    return new Git(projectDir(p));
   }
   
   public function
@@ -76,38 +92,35 @@ class ServerGit implements ServerStore {
     var
       conf = new ConfigJson(json),
       glbs = conf.globals(),
-      email = glbs.authorEmail;
-    
-    var lc = checkLicense(glbs.license);
+      email = glbs.authorEmail,    
+      lc = checkLicense(glbs.license);
+
     if (lc != null)
       return lc;
 
     var
       haxedName =  glbs.name,
       haxedConf = ZipReader.content(tmpFile,haxedName),
-      pkgName = Common.pkgName(glbs.name,glbs.version),
-      git = new Git(repoTop+haxedName);
+      version = glbs.version,
+      pkgName = Common.pkgName(glbs.name,version),
+      git = ggit(haxedName);
     
-    var newZip = git.dir+"tmp.zip";
+    var newZip = git.dir+"__tmp__.zip";
 
     Os.mv(tmpFile,newZip);
 
     git.inRepo(function() {
-        try {
         ZipReader.unzip(newZip);
-        } catch(ex:Dynamic) {
-          
-        }
         Os.rm(newZip);
       });
     
-        
     git.commit(glbs.comments);
-    //Git.tag(Common.pkgName(glbs.name,glbs.version));
+    git.tag(version);
+    git.archive(pkgName,fileDir,version);
     
     return OK_SUBMIT;
   }
-  
+
   public function
   register(email:String,pass:String,fullName:String):Status {
     if (user(email) != ERR_UNKNOWN)
@@ -148,17 +161,7 @@ class ServerGit implements ServerStore {
     if(!Os.exists(pd))
       return ERR_PROJECTNOTFOUND;
 
-    var
-      info = getInfo(new ConfigJson(Os.fileIn(pd+Common.CONFIG_FILE))),
-      commit = options.getSwitch("-archive"),
-      git = new Git(pd);
-
-    if (commit != null) 
-      git.archive(info.name,commit,fileDir);
-    else
-      git.archive(info.name,info.versions[0].commit,fileDir);
-    
-    return OK_PROJECT(info);   
+    return OK_PROJECT(getInfo(getConfig(pd)));   
   }
   
   public function
@@ -166,21 +169,21 @@ class ServerGit implements ServerStore {
     var
       g = p.globals(),
       versions = getVersions(g.name);
-     return {
+
+    return {
      	name: g.name,
         desc:g.description ,
       	website:g.website,
       	owner: g.author,
       	license:g.license,
-        curversion:versions[0].commit,
+        curversion:ggit(g.name).describe(),
         tags:[{tag:"dummy"}],
         versions:versions
       };    
   }
 
   function getVersions(p:String):Array<VersionInfo> {
-    var git = new Git(projectDir(p));
-    return git.log().map(function(le) {
+    return ggit(p).log().map(function(le) {
         return { date: le.date, name:le.author,comments:le.comment,commit:le.commit };
       }).array();
   }
@@ -205,8 +208,10 @@ class ServerGit implements ServerStore {
 
   public function
   projects(options) {
-    
-    return OK_PROJECTS(null);
+    var me = this ;
+    return OK_PROJECTS(prjNames().map(function(p) {
+        return me.getInfo(me.getConfig(p));
+        }).array());
   }
 
   public function
