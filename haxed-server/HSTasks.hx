@@ -25,6 +25,7 @@ class HSTasks extends TaskRunner {
     var cfg = Os.fileIn(vd+"server.json.template");
     Os.fileOut(dst+"/server.json",cfg,{dataDir:dst+"repo/"});
     Os.cp(vd+"start","start");
+    Os.command("chmod +x start");
     Os.copyTree(vd+"nginx",dst);
     Os.mkdir("./logs");
     Os.mkdir("./repo");
