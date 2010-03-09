@@ -46,6 +46,8 @@ class ServerMain {
     #else
     repo = new ServerCore(config.dataDir);
     #end
+
+    php.Web.setHeader("Content-Type","application/json");
     
     Os.print(Marshall.toJson(
       switch(dinfo.cmdCtx) {
