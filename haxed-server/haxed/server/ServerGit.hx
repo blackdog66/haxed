@@ -184,7 +184,13 @@ class ServerGit implements ServerStore {
 
   function getVersions(p:String):Array<VersionInfo> {
     return ggit(p).log().map(function(le) {
-        return { date: le.date, name:le.author,comments:le.comment,commit:le.commit };
+        return {
+        	date: le.date,
+            name:le.author,
+            comments:le.comment,
+            commit:le.commit,
+            version:le.version
+         };
       }).array();
   }
 
