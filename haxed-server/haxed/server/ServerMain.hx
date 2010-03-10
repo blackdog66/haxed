@@ -23,10 +23,6 @@ class ServerMain {
 
   public static var config:ServerConf;
 
-  #if debug
-  public static var log:bdog.Log;
-  #end
-  
   public static
   function main() {
     var
@@ -34,10 +30,6 @@ class ServerMain {
       dinfo = ServerCtrl.dispatch(),
       sdir =  untyped __php__('$_SERVER["PWD"]') ,
       config:ServerConf = JSON.decode(Os.fileIn(sdir+"/server.json"));
-
-    #if debug
-    log = new bdog.Log(sdir,"errs");
-    #end
 
     License.set(config.licenses);
 
