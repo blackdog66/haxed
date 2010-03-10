@@ -10,7 +10,8 @@ using Lambda;
 class Package {
 
   public static var packDir = "/tmp/haxed-pkg/";
-
+  static var defaultExcludes =  [".git",".svn","CVS",".haxed"];
+  
   public static function
   confDir(confFile:String) {
     var p  = neko.io.Path.directory(confFile);
@@ -97,7 +98,7 @@ class Package {
           	.map(function(el) {
               return (el.startsWith("./")) ? el.substr(2) : el ;
             })
-          .array().concat([".git",".svn","CVS",".haxed"]),
+          .array().concat(defaultExcludes),
           len = excludes.length,
           excluder = function(s:String) {
           	for (i in 0...len) {
@@ -129,7 +130,17 @@ trace("excludes are "+excludes);
       // relying on having CD'd to the conf dir already
       
       if (builds == null && include == null) {
-        Os.copyTree("./",packDir); 
+        var
+          len = defaultExcludes.length,
+          excluder = function(s:String) {
+          	for (i in 0...len) {
+              if (s.startsWith(defaultExcludes[i]))
+                return true;
+            }
+            return false;
+          }
+
+        Os.copyTree("./",packDir,excluder); 
       }
   }
 
@@ -148,7 +159,6 @@ trace("excludes are "+excludes);
   zip(conf:Config) {
     var name = conf.globals().name+".zip";
     var outf = outFile(".haxed/"+name,conf.file());
-    trace("Zipping:"+outf);
     Os.zip(outf,Os.files(packDir,null),packDir);
     trace("Created "+outf);
     return outf;
@@ -163,7 +173,6 @@ trace("excludes are "+excludes);
 
     var cf = toPackDir(config.file());
     if (!Os.exists(cf)) {
-      trace("config file "+cf);
       Os.cp(config.file(),cf);
     }
     
