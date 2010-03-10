@@ -36,6 +36,7 @@ typedef UserInfo = {
 typedef VersionInfo = {
   #if GITSTORE
   var commit:String;
+  var version:String;
   #end
   var date : String;
   var name : String;
