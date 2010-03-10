@@ -390,12 +390,11 @@ class ClientCore {
       var tmpl = '
 ---
 project:
-    name:               ::name::
     website:            ::website::
     version:            ::version::
     comments:           ::comments::
     description:        ::description::
-    author:             ::authorName::
+    author:             ::author::
     author-email:       ::authorEmail::
     tags:               ::foreach tags::::tag:: ::end::
     license:            ::license::
