@@ -347,9 +347,13 @@ class ClientCtrl {
 
     case "submit":
       var
-        path = param("Zip file"),
+        path = checkHaxedExt(param("haxed file")),
         password = param("Password");
-      
+
+      if (!options.flag("-R")) {
+        Os.println("Don't forget -R host:port to let haxed know where to upload");
+        Os.exit(1);
+      }
       options.addSwitch("-P",password);
       REMOTE(SUBMIT(path),options);
 
