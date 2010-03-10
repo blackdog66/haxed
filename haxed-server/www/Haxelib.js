@@ -3,7 +3,16 @@
 
 var Haxelib = (function() {
 
-    var filter = "None";
+    var
+        filter = "None",
+        myModifiers = {
+          toHTML: function(str) {
+            return str.replace(/\\n/g,"<br/>");
+          },
+          toURL: function(str) {
+              return '<a href="'+str+'" target="_new">'+str+'</a>';
+          }
+        };
 
     function url(u) {
         return "repo.php?method="+u;
@@ -34,11 +43,17 @@ var Haxelib = (function() {
            return;
         }
 
-        var r = TrimPath.processDOMTemplate('tmpl-prj-list',{
-                  projects:d.PAYLOAD,
-                  filter:getFilter,
-                  safe:safe
-            });
+        var
+        data = {
+            projects:d.PAYLOAD,
+            filter:getFilter,
+            safe:safe
+            },
+        r;
+
+        data._MODIFIERS = myModifiers;
+
+        r = TrimPath.processDOMTemplate('tmpl-prj-list',data);
 
         $("#prj-list").html(r);
         $('.project-header').toggle(

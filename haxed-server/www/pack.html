@@ -24,20 +24,23 @@ Filter:&nbsp;<span id="filter-scope">${filter()}
 {for p in projects}
 <a href="/files/${p.name}-${safe(p.curversion)}.zip">Download</a>
 <span class="project-header">
-${p.name} ${p.license} <b>${p.curversion}</b>
+<b>${p.name} ${p.curversion}</b> Author: ${p.owner}, License: ${p.license}
 </span>
 <span class="project">
 <blockquote>
 <div class="details">
-  Desc:   ${p.desc}<br/>
-  WebSite: ${p.website}<br/>
-  Owner:    ${p.owner}<br/>
-  Tags: {for t in p.tags} ${t.tag} {/for}<p/>
+  <p>
+  <blockquote>
+  ${p.desc|toHTML}
+  </blockquote>
+  </p>
+  <b>WebSite</b>: ${p.website|toURL}<br/>
+  <b>Tags</b>: {for t in p.tags} ${t.tag} {/for}<p/>
   <b>Releases</b><br/>
   <ol>
   {for v in p.versions}
-  	<li>Version ${v.name} uploaded on ${v.date}<br/>
-  		${v.comments} <a href="/files/${p.name}-${safe(v.name)}.zip">Download</a>
+  	<li><a href="/files/${p.name}-${safe(v.version)}.zip">Download</a>&nbsp;${v.version} ,  uploaded on ${v.date}<br/>
+  	${v.comments} 
     </li>
   {/for}
     </ol>
