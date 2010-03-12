@@ -20,12 +20,19 @@ import neko.Lib;
 
 typedef Project = Config;
 
+typedef ProjectTags = {
+  var prj:String;
+  var tags:List<String>;
+};
+
+
 class ServerGit implements ServerStore {
   
   static var TMP_DIR = Os.separator + Os.slash("tmp");
   var repoTop:String;
   var fileDir:String;
   static var rePrj = ~/^__|\./;
+  static var reTags = ~/tags:\s+(.+)$/;
   
   public function new(dd) {
     repoTop = Os.slash(dd);
@@ -35,24 +42,27 @@ class ServerGit implements ServerStore {
   }
 
   public function
-  cleanup() {
-  } 
+  cleanup() {} 
 
-  inline function projectDir(p:String) {
+  inline function
+  projectDir(p:String) {
     return Os.slash(repoTop + p);
   }
 
-  inline function getConfig(p:String) {
+  inline function
+  getConfig(p:String) {
     return new ConfigJson(Os.fileIn(projectDir(p)+Common.CONFIG_FILE));
   }
   
-  function prjNames() {
+  function
+  prjNames() {
     return Lambda.filter(Os.dir(repoTop),function(f) {
         return ! rePrj.match(f);
       });
   }
 
-  inline function ggit(p:String) {
+  inline function
+  ggit(p:String) {
     return new Git(projectDir(p));
   }
   
@@ -121,24 +131,8 @@ class ServerGit implements ServerStore {
     return OK_SUBMIT;
   }
 
-  public function
-  register(email:String,pass:String,fullName:String):Status {
-    if (user(email) != ERR_UNKNOWN)
-      return ERR_REGISTERED;
-
-    return OK_REGISTER;
-  }
-
-  public function
-  user(email:String):Status {
-    return OK_USER({
-        fullname : "blah",
-        email : "blach",
-        projects : null
-    });
-  }
-
-  function checkLicense(lic:String):Status {
+  function
+  checkLicense(lic:String):Status {
     var
       licenses= License.getAll(),
       l = Lambda.filter(licenses,function(el) {
@@ -148,10 +142,84 @@ class ServerGit implements ServerStore {
     if (l.first() == null) return ERR_LICENSE({licenses:licenses,given:lic});
     return null;
   }
-                                    
+
+  function
+  getProjectTags():List<ProjectTags> {
+    var find = "find "+repoTop+" -maxdepth 2 -name *haxed -exec grep -H tags: {} \\;";
+    return
+      Os.process(find)
+      .split("\n")
+      .map(function(l) {
+          var re = ~/^(\S+)\s*tags:\s*(\S.*)$/;
+          if (re.match(l))
+            return {
+            	prj:Os.path(re.matched(1),NAME),
+                tags:Lambda.list(re.matched(2).trim().split(" "))
+            };
+          return null;
+        })
+      .filter(function(el) { return el != null ; });
+  }
+
+  public static function
+  countBy<T>(recs:Iterable<T>):Hash<Int> {
+    var h = new Hash<Int>();    
+    for (r in recs) {
+      var f = Std.string(r);
+      if (!h.exists(f))
+        h.set(f,1);
+      else {
+        var c = h.get(f);
+        h.set(f,c++);
+      }
+    }
+    return h;
+  }
+
+  function
+  mappableHash<T>(h:Hash<T>):List<{k:String,v:T}> {
+    var l = new List<{k:String,v:T}>();
+    for(i in h.keys()) {
+      l.add({k:i,v:h.get(i)});
+    }
+    return l;
+  }
+
+  function
+  getProjectInfo(prjNames:List<String>) {
+    var me = this;
+    return
+      prjNames.map(function(p) {
+        return me.getInfo(me.getConfig(p));
+        });
+  }
+  
+  function
+  findTags():Array<String> {
+    return
+      getProjectTags()
+      .fold(function(a:ProjectTags,b:Array<String>) {
+          for (i in a.tags)
+            if (i.trim() != "")
+              b.push(i);
+          return b; 
+        },new Array<String>());
+  }
+
+  function
+  findProjectsByTag(tag:String):List<String> {
+    return
+      getProjectTags()
+      .filter(function(el) {
+          return el.tags.exists(function(e) { return e == tag; }) ; })
+      .map(function(el) { return el.prj; });
+  }
+  
   public function
   topTags(n:Int):Status {
-    return OK_TOPTAGS({tags: null });
+    return OK_TOPTAGS({tags:mappableHash(countBy(findTags())).map(function(el) {
+        return { count:el.v, tag:el.k };
+          }).array()});
   }
 
   public function
@@ -162,6 +230,14 @@ class ServerGit implements ServerStore {
       return ERR_PROJECTNOTFOUND;
 
     return OK_PROJECT(getInfo(getConfig(pd)));   
+  }
+
+  function getTags(t:Array<String>) {
+    return
+      if (t != null)
+        t.map(function(t) { return {tag : t }; }).array()
+        else
+          [{tag:null}];
   }
   
   public function
@@ -177,7 +253,7 @@ class ServerGit implements ServerStore {
       	owner: g.author,
       	license:g.license,
         curversion:ggit(g.name).describe(),
-        tags:[{tag:"dummy"}],
+        tags:getTags(g.tags),
         versions:versions
       };    
   }
@@ -197,14 +273,37 @@ class ServerGit implements ServerStore {
   public function
   search(query:String,opts:Options):Status {
     var found ;
-
-     return ERR_PROJECTNOTFOUND;
+    
+    if (opts.getSwitch("-St") != null) {
+      return OK_PROJECTS(getProjectInfo(findProjectsByTag(query)).array());
+    }
+    
+    return ERR_PROJECTNOTFOUND;
   }
 
   public function license():Status {
     return OK_LICENSES(License.getAll());
   }
+
+  // user management ...
   
+  public function
+  register(email:String,pass:String,fullName:String):Status {
+    if (user(email) != ERR_UNKNOWN)
+      return ERR_REGISTERED;
+
+    return OK_REGISTER;
+  }
+
+  public function
+  user(email:String):Status {
+    return OK_USER({
+        fullname : "blah",
+        email : "blach",
+        projects : null
+    });
+  }
+
   public function
   account(cemail:String,cpass:String,nemail:String,npass:String,
           nName:String):Status {
@@ -215,9 +314,7 @@ class ServerGit implements ServerStore {
   public function
   projects(options) {
     var me = this ;
-    return OK_PROJECTS(prjNames().map(function(p) {
-        return me.getInfo(me.getConfig(p));
-        }).array());
+    return OK_PROJECTS(getProjectInfo(prjNames()).array());
   }
 
   public function
