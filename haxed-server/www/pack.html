@@ -5,10 +5,18 @@
 	</div>
     Standard Search<p/>
     <div style="text-align:center">
-    	Query:<input type="text" id="txtQuery" style="width:180px"/><p/>
+      Fld:<select id="selFld" name="selFld">
+          <option value="description">Description</option
+          <option value="license">License</option>
+          <option value="author">Author</option>
+          <option value="website">Website</option>
+          <option value="comments">Comments</option>
+        </select>
+      <input type="text" id="txtQuery" style="width:180px"/><p/>
 		<div style="" id="result-space">
 
 		</div>
+       
         <input type="button" id="btnQuery" value="Search"/>
     </div>
 </div>
@@ -16,7 +24,7 @@
 </div>
 
 <textarea id="tmpl-prj-list" style="display:none">
-Filter:&nbsp;<span id="filter-scope">${filter()}
+Filter:&nbsp;<span id="filter-field">${filterFld()}</span><span id="filter-scope">${filter()}
 {if filter() != "None"}
 (<a href="#" id="nofilter">Remove</a>)
 {/if}
