@@ -5,6 +5,7 @@ var Haxelib = (function() {
 
     var
         filter = "None",
+        filterFld = "",
         myModifiers = {
           toHTML: function(str) {
             return str.replace(/\\n/g,"<br/>");
@@ -37,6 +38,14 @@ var Haxelib = (function() {
         return filter;
     }
 
+    function setFilterFld(ff) {
+       filterFld = ff;
+    }
+
+    function getFilterFld() {
+       return filterFld;
+    }
+
     function renderPackageList(d) {
         if (d.ERR === "ERR_PROJECTNOTFOUND") {
            $("#prj-list").html("None found");
@@ -47,6 +56,10 @@ var Haxelib = (function() {
         data = {
             projects:d.PAYLOAD,
             filter:getFilter,
+            filterFld:function() {
+                var fv = getFilterFld();
+                return (fv === "") ? "" : fv + " contains ";
+            },
             safe:safe
             },
         r;
@@ -64,6 +77,7 @@ var Haxelib = (function() {
 
         $("#nofilter").click(function() {
             setFilter("None");
+            setFilterFld("");
             queryAll();
         });
     }
@@ -73,7 +87,7 @@ var Haxelib = (function() {
     }
 
     function queryNames() {
-        $.getJSON(url("search")+"&query="+getFilter(),renderPackageList);
+        $.getJSON(url("search")+"&query="+getFilter()+"&-Sf="+getFilterFld(),renderPackageList);
     }
 
     function queryAll() {
@@ -95,6 +109,7 @@ var Haxelib = (function() {
     function setupSearch() {
 		$("#btnQuery").click(function() {
            setFilter($("#txtQuery").val());
+           setFilterFld($('#selFld').val());
            queryNames();
         });
     }

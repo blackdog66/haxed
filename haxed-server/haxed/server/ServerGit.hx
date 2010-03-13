@@ -22,7 +22,7 @@ typedef Project = Config;
 
 typedef ProjectTags = {
   var prj:String;
-  var tags:List<String>;
+  var val:String;
 };
 
 
@@ -144,17 +144,17 @@ class ServerGit implements ServerStore {
   }
 
   function
-  getProjectTags():List<ProjectTags> {
-    var find = "find "+repoTop+" -maxdepth 2 -name *haxed -exec grep -H tags: {} \\;";
+  keySearch(k:String):List<ProjectTags> {
+    var find = "find "+repoTop+" -maxdepth 2 -name *haxed -exec grep -H "+k+" {} \\;";
     return
       Os.process(find)
       .split("\n")
       .map(function(l) {
-          var re = ~/^(\S+)\s*tags:\s*(\S.*)$/;
+          var re = new EReg("^(\\S+)\\s*"+k+"\\s*(\\S.*)$","");
           if (re.match(l))
             return {
             	prj:Os.path(re.matched(1),NAME),
-                tags:Lambda.list(re.matched(2).trim().split(" "))
+                val:re.matched(2).trim()
             };
           return null;
         })
@@ -176,6 +176,14 @@ class ServerGit implements ServerStore {
     return h;
   }
 
+  public static function
+  unique<T>(recs:Iterable<T>):List<String> {
+    var l = new List<String>();
+    for (k in countBy(recs).keys())
+      l.add(k);
+    return l;
+  }
+  
   function
   mappableHash<T>(h:Hash<T>):List<{k:String,v:T}> {
     var l = new List<{k:String,v:T}>();
@@ -197,9 +205,9 @@ class ServerGit implements ServerStore {
   function
   findTags():Array<String> {
     return
-      getProjectTags()
+      keySearch("tags:")
       .fold(function(a:ProjectTags,b:Array<String>) {
-          for (i in a.tags)
+          for (i in a.val.split(" "))
             if (i.trim() != "")
               b.push(i);
           return b; 
@@ -209,10 +217,23 @@ class ServerGit implements ServerStore {
   function
   findProjectsByTag(tag:String):List<String> {
     return
-      getProjectTags()
+      keySearch("tags:")
+      .map(function(el) { return { prj:el.prj,tags:el.val.split(" ") }; })
       .filter(function(el) {
           return el.tags.exists(function(e) { return e == tag; }) ; })
       .map(function(el) { return el.prj; });
+  }
+
+  function findProjectsByFld(f:String,v:String) {
+    var prjNames = 
+      keySearch(f+":")
+      .filter(function(el) {
+          return el.val.indexOf(v) != -1;
+        })
+      .map(function(el) {
+          return el.prj;
+        });
+    return unique(prjNames);
   }
   
   public function
@@ -262,6 +283,7 @@ class ServerGit implements ServerStore {
     return ggit(p).log().map(function(le) {
         return {
         	date: le.date,
+
             name:le.author,
             comments:le.comment,
             commit:le.commit,
@@ -269,13 +291,18 @@ class ServerGit implements ServerStore {
          };
       }).array();
   }
-
+  
   public function
   search(query:String,opts:Options):Status {
     var found ;
     
     if (opts.getSwitch("-St") != null) {
       return OK_PROJECTS(getProjectInfo(findProjectsByTag(query)).array());
+    }
+
+    var fld = opts.getSwitch("-Sf");
+    if (fld != null) {
+      return OK_PROJECTS(getProjectInfo(findProjectsByFld(fld,query)).array());
     }
     
     return ERR_PROJECTNOTFOUND;

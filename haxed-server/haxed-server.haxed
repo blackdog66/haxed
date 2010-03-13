@@ -8,8 +8,8 @@ import:
 
 project:
     website:            http://blackdog66.wordpress.com
-    version:            0.5
-    comments:           not fully finished
+    version:            0.1
+    comments:           a PHP, Git backend haxed configuration
     description:        Creates a haxed server downloadable lib
     author:             blackdog
     author-email:       blackdog@ipowerhouse.com
