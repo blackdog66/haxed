@@ -60,6 +60,10 @@ class Builder {
     for (b in builds) {
       if (b.name == target || b.name == null || target == "all") {
 
+        var haxe_library_path = Os.env("HAXE_LIBRARY_PATH");
+        if (haxe_library_path != null)
+          b.classPath.push(haxe_library_path);
+        
         b.classPath.push(ClientTools.versionDir("haxed"));
         
         var ctx = { MAIN:b.mainClass,
@@ -69,7 +73,7 @@ class Builder {
                 TARGET: b.targetFile ,
                 OTHER: (b.options != null) ? b.options.join(" ").trim() : ""};
 
-      neko.Lib.println("Building "+b.name+" with "+libRoot);
+      neko.Lib.println("Building "+b.name+" with "+b.classPath+" options "+b.options);
 
       var o = (Os.process("haxe -main ::MAIN:: -::TT:: ::TARGET:: ::LIBS:: ::CPS:: ::OTHER::",false,ctx)),
         filtered = o.split("\n")

@@ -216,9 +216,16 @@ class ClientCore {
     setCurrentVersion(prj,ver);
     Os.rm(filePath);
 
-    var defaultBuild = conf.defaultBuild();
-    if (defaultBuild != null) {
-      var deps = defaultBuild.depends;
+    var
+      deps = [],
+      defaultBuild = conf.getBuild();
+
+    if (glbs.depends != null)
+      deps.concat(glbs.depends);
+      
+    if (defaultBuild != null && defaultBuild.depends != null) {
+      deps.concat(defaultBuild.depends);
+
       if (deps != null) {
         for(d in deps)
           install(new Options(),d.prj,d.ver);

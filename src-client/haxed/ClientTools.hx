@@ -97,7 +97,7 @@ class ClientTools {
     return Os.slash(getRepos() + Common.safe(prj));
   }
 
-  public static inline function
+  public static function
   versionDir(prj,?ver) {
     if (ver == null) ver = currentVersion(prj);
     return Os.slash(projectDir(prj) + Common.safe(ver));
@@ -142,16 +142,8 @@ class ClientTools {
 
     l.add({ prj : prj, ver : version, op:null });
 
-    var
-      conf = ClientTools.configuration(prj),
-      defaultBuild = conf.defaultBuild();
-
-    if (defaultBuild != null) {
-      var deps = defaultBuild.depends;
-      if (deps != null) {
-      for( d in deps )
-        checkRec(d.prj,if( d.ver == "" ) null else d.ver,l);
-      }
+    for( d in configuration(prj).getDepends()) {
+      checkRec(d.prj,( d.ver == "" ) ? null : d.ver,l);
     }
   }
   
@@ -186,7 +178,7 @@ class ClientTools {
       var ndir = Os.slash(Os.slash(pdir) + "ndll");
 
       if(Os.exists(ndir) ) {
-        var sysdir = Os.slash(ndir)+neko.Sys.systemName();
+        var sysdir = Os.slash(ndir) + neko.Sys.systemName();
         if( !Os.exists(sysdir) )
           throw "Project "+d.prj+" version "+d.ver+" does not have a neko dll for your system";
         out.add("-L "+ndir);

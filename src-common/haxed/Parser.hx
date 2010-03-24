@@ -342,7 +342,8 @@ class Parser {
       .add("description",true)
       .add("comments",true)
       .add("tags",false,Validate.toArray)
-      .add("license",true,function(v) { return v.toUpperCase() ;} );
+      .add("license",true,function(v) { return v.toUpperCase() ;} )
+      .add("depends",false,Validate.depends);
     
     Validate.forSection(Config.BUILD)
       .add("name",false,Validate.name)

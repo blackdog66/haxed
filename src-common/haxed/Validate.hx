@@ -216,9 +216,7 @@ class Validate {
           
           if (givenVal == null)
             continue;
-          
-          //          givenVal = script(givenVal,sectionID);
-          
+                    
           if (constraint.valid != null) {
             givenVal = constraint.valid(givenVal);
             if (givenVal == null) err("",sectionID,fld);

@@ -421,7 +421,8 @@ class ClientCtrl {
         tags:Validate.toArray(param("Tags")),
         website:param("Website",Validate.url),
         license:param("License"),
-        derivesFrom:null
+        derivesFrom:null,
+        depends:null
         };
     }
 }

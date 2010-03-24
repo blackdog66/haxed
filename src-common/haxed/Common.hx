@@ -222,6 +222,7 @@ typedef Global = {
   var website:String;
   var license:String;
   var derivesFrom:Array<String>;
+  var depends:Array<PrjVer>;
 }
   
 typedef Build = {
@@ -259,7 +260,6 @@ class Config {
   public static var FILE = "file";
   public static var PACK = "pack";
   public static var TASK = "task";
-  public static var DEFAULT_BUILD = "default";
 
   public var data:Dynamic;
 
@@ -267,27 +267,27 @@ class Config {
     data = d;
   }
   
-  public function
+  public inline function
   globals():Global {
     return Reflect.field(data,GLOBAL);
   }
   
-  public function
+  public inline function
   build():Array<Build> {
     return Reflect.field(data,BUILD);
   }
 
-  public function
+  public inline function
   pack():Pack {
     return Reflect.field(data,PACK);
   }
 
-  public function
+  public inline function
   tasks():Array<Task> {
     return Reflect.field(data,TASK);
   }
   
-  public function
+  public inline function
   file():String {
     return globals().name + "."+Common.HXP_EXT;
   }
@@ -300,35 +300,46 @@ class Config {
   }
 
   public function
-  getBuild(n:String) {
-    for (b in build())
-      if (b.name == n)
-        return b;
-    return null;
-  }
-
-  public function
   getTask(n:String) {
     for (t in tasks())
       if (t.name == n)
         return t;
     return null;
   }
-  
+
+  public function
+  getDepends(?build:String) {
+    var
+      deps = [],
+      gd = globals().depends;
+     
+    if (gd != null)
+      deps = deps.concat(gd);
+
+    if (build != null) {
+      var bd = getBuild(build).depends;
+      if (bd != null)
+        deps = deps.concat(bd);
+    }
+
+    return deps;
+  }
   
   public function
-  defaultBuild() {
+  getBuild(?name:String) {
     var builds = build();
     if (builds != null) {
-      for (b in build()) {
-        if (b.name == DEFAULT_BUILD)
-          return b;
+      if (name != null) {
+        for (b in build()) {
+          if (b.name == name)
+            return b;
+        }
       }
       return builds[0];
     }
     return null;
   }
-}  
+}
 
 class ConfigJson extends Config {
   public
