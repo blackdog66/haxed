@@ -51,12 +51,12 @@ class Builder {
       builds = c.build(),
       libRoot =  (fromLib) ? ClientTools.versionDir(c.globals().name) : null;
 
-    compileBuild(builds,target,libRoot);
+    compileBuild(builds,target,libRoot,c.getDepends());
    
   }
   
   public static function
-  compileBuild(builds:Array<Build>,target:String,?libRoot:String) {
+  compileBuild(builds:Array<Build>,target:String,?libRoot:String,deps:Array<PrjVer>) {
     for (b in builds) {
       if (b.name == target || b.name == null || target == "all") {
 
@@ -66,12 +66,16 @@ class Builder {
         
         b.classPath.push(ClientTools.versionDir("haxed"));
         
-        var ctx = { MAIN:b.mainClass,
-                LIBS:getLibs(b.depends),
-                CPS:getCps(b.classPath,libRoot),
-                TT:b.target,
-                TARGET: b.targetFile ,
-                OTHER: (b.options != null) ? b.options.join(" ").trim() : ""};
+        var
+          allDeps = (b.depends != null) ? b.depends.concat(deps) : deps,
+          ctx = {
+        	MAIN:b.mainClass,
+            LIBS:getLibs(allDeps),
+            CPS:getCps(b.classPath,libRoot),
+            TT:b.target,
+            TARGET: b.targetFile ,
+            OTHER: (b.options != null) ? b.options.join(" ").trim() : ""
+        };
 
       neko.Lib.println("Building "+b.name+" with "+b.classPath+" options "+b.options);
 

@@ -95,7 +95,7 @@ class Tasks {
       postTask:null
       };
 
-      Builder.compileBuild([build],"all");
+      Builder.compileBuild([build],"all",[]);
     }
     
     var sb = new StringBuf();

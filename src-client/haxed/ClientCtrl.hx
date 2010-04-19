@@ -297,15 +297,21 @@ class ClientCtrl {
     case "build":
       var
         file = checkHaxedExt(param("Project"),false),
-        target = param("Target (all)"),
+        target,
         config;
       
-      if (target == "")
+      if (options.flag("-all"))
         target = "all";
+      else {
+        target = param("Target (all)");
+        if (target == "")
+          target = "all";
+      }
 
       if (Os.exists(file)) {
         config = Parser.configuration(file);
-        check(config,"build",target);
+        if (target != "all")
+          check(config,"build",target);
       } else {
         // defer config getting until we can determine if it's from
         // an already installed library
