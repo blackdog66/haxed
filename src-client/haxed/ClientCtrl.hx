@@ -289,7 +289,7 @@ class ClientCtrl {
         vals=askAboutHxp();
         if (Os.exists(vals.name))
           if (Os.ask(vals.name+" exists, overwrite?") == No)
-            neko.Sys.exit(0);
+            Os.exit(0);
       }
 
       LOCAL(NEW(vals),options);

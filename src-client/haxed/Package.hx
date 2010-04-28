@@ -1,6 +1,7 @@
 package haxed;
 
 import bdog.Os;
+import bdog.Zip;
 import haxed.Common;
 import bdog.JSON;
 
@@ -147,19 +148,19 @@ trace("excludes are "+excludes);
   public static function
   xml(conf:Config) {
     var glbs = conf.globals();
-    Os.fileOut(toPackDir("haxelib.xml"),packageXml(conf));
+    Os.write(toPackDir("haxelib.xml"),packageXml(conf));
   }
 
   public static function
   json(conf:Config) {
-    Os.fileOut(toPackDir(Common.CONFIG_FILE),packageJson(conf));
+    Os.write(toPackDir(Common.CONFIG_FILE),packageJson(conf));
   }
 
   public static function
   zip(conf:Config) {
     var name = conf.globals().name+".zip";
     var outf = outFile(".haxed/"+name,conf.file());
-    Os.zip(outf,Os.files(packDir,null),packDir);
+    Zip.zip(outf,Os.files(packDir,null),packDir);
     trace("Created "+outf);
     return outf;
   }

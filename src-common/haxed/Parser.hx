@@ -230,12 +230,21 @@ class Parser {
          var
            output = tk.yank(),
            prefix = output.charAt(0),
-           result = switch(prefix) {
-	         case "=": script(output.substr(1),config);
-	         case "!": try { Os.process(output.trim().substr(1,output.length-3)); }
-            			catch (ex:Dynamic) { ex; }
-         	default:reference(output,config);
-         	}
+           result = null;
+         
+           switch(prefix) {
+           case "=":
+               result = script(output.substr(1),config);
+           case "!":
+             try {
+               Os.process(output.trim().substr(1,output.length-3),true,null,function(r) {
+                   result = r;
+                 });
+             } catch (ex:Dynamic) { ex; }
+             
+         	default:
+              result = reference(output,config);
+           }
 
          me.multiVal.add(result);
          

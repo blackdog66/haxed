@@ -117,33 +117,33 @@ class ClientMain {
     if (!Os.exists(hd)) {
     
       Os.mkdir(dd);
-      Os.fileOut(hd+".current","1.0");
+      Os.write(hd+".current","1.0");
       Os.mkdir(dd+"haxed");
       Os.mkdir(dd+"bdog");
       Os.mkdir(dd+"hscript");
       
-      Os.fileOut(dd+"haxed/Tasks.hx",hrs("tasks_hx"));
-      Os.fileOut(dd+"haxed/Common.hx",hrs("common_hx"));
-      Os.fileOut(dd+"haxed/Builder.hx",hrs("builder_hx"));
-      Os.fileOut(dd+"haxed/ClientTools.hx",hrs("tools_hx"));
-      Os.fileOut(dd+"haxed/Marshall.hx",hrs("marshall_hx"));
-      Os.fileOut(dd+"haxed/License.hx",hrs("license_hx"));
-      Os.fileOut(dd+"haxed/Parser.hx",hrs("parser_hx"));
-      Os.fileOut(dd+"haxed/Validate.hx",hrs("validate_hx"));
+      Os.write(dd+"haxed/Tasks.hx",hrs("tasks_hx"));
+      Os.write(dd+"haxed/Common.hx",hrs("common_hx"));
+      Os.write(dd+"haxed/Builder.hx",hrs("builder_hx"));
+      Os.write(dd+"haxed/ClientTools.hx",hrs("tools_hx"));
+      Os.write(dd+"haxed/Marshall.hx",hrs("marshall_hx"));
+      Os.write(dd+"haxed/License.hx",hrs("license_hx"));
+      Os.write(dd+"haxed/Parser.hx",hrs("parser_hx"));
+      Os.write(dd+"haxed/Validate.hx",hrs("validate_hx"));
 
-      Os.fileOut(dd+"hscript/Bytes.hx",hrs("hsbytes_hx"));
-      Os.fileOut(dd+"hscript/Expr.hx",hrs("hsexpr_hx"));
-      Os.fileOut(dd+"hscript/Interp.hx",hrs("hsinterp_hx"));
-      Os.fileOut(dd+"hscript/Parser.hx",hrs("hsparser_hx"));
+      Os.write(dd+"hscript/Bytes.hx",hrs("hsbytes_hx"));
+      Os.write(dd+"hscript/Expr.hx",hrs("hsexpr_hx"));
+      Os.write(dd+"hscript/Interp.hx",hrs("hsinterp_hx"));
+      Os.write(dd+"hscript/Parser.hx",hrs("hsparser_hx"));
       
-      Os.fileOut(dd+"bdog/JSON.hx",hrs("json_hx"));
-      Os.fileOut(dd+"bdog/Os.hx",hrs("os_hx"));
-      Os.fileOut(dd+"bdog/Reader.hx",hrs("reader_hx"));
-      Os.fileOut(dd+"bdog/ChunkedFile.hx",hrs("chunked_hx"));
-      Os.fileOut(dd+"bdog/Tokenizer.hx",hrs("toks_hx"));
-      Os.fileOut(dd+"bdog/SMachine.hx",hrs("smachine_hx"));
-      Os.fileOut(dd+"bdog/Git.hx",hrs("git_hx"));
-      Os.fileOut(dd+"bdog/Log.hx",hrs("log_hx"));
+      Os.write(dd+"bdog/JSON.hx",hrs("json_hx"));
+      Os.write(dd+"bdog/Os.hx",hrs("os_hx"));
+      Os.write(dd+"bdog/Reader.hx",hrs("reader_hx"));
+      Os.write(dd+"bdog/ChunkedFile.hx",hrs("chunked_hx"));
+      Os.write(dd+"bdog/Tokenizer.hx",hrs("toks_hx"));
+      Os.write(dd+"bdog/SMachine.hx",hrs("smachine_hx"));
+      Os.write(dd+"bdog/Git.hx",hrs("git_hx"));
+      Os.write(dd+"bdog/Log.hx",hrs("log_hx"));
       
     }
 
@@ -153,9 +153,9 @@ class ClientMain {
       
     if (!Os.exists(hf)) {
       haxed_haxed = hrs("haxed_hx");
-      Os.fileOut(hf,haxed_haxed);
+      Os.write(hf,haxed_haxed);
     } else
-      haxed_haxed = Os.fileIn(hf);
+      haxed_haxed = Os.read(hf);
     
     return Parser.fromString(haxed_haxed,"haxed");
   }  

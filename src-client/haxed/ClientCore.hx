@@ -2,6 +2,7 @@
 package haxed;
 
 import bdog.Os;
+import bdog.Zip;
 import bdog.JSON;
 import haxed.Parser;
 import haxed.Package;
@@ -195,7 +196,7 @@ class ClientCore {
     var
       f = neko.io.File.read(filePath,true),
       zip = neko.zip.Reader.readZip(f),
-      json = Os.readFromZip(zip,Common.CONFIG_FILE);
+      json = Zip.readFromZip(zip,Common.CONFIG_FILE);
 
     f.close();
     
@@ -212,7 +213,7 @@ class ClientCore {
     Os.safeDir(pdir);
     var target = ClientTools.versionDir(prj,ver);
     Os.safeDir(target);
-    Os.unzip(zip,target);
+    Zip.unzip(zip,target);
     setCurrentVersion(prj,ver);
     Os.rm(filePath);
 
@@ -249,7 +250,7 @@ class ClientCore {
         Os.rm(devfile);
       Os.println("Development directory disabled");
     } else {
-      Os.fileOut(devfile,dir);
+      Os.write(devfile,dir);
       Os.println("Development directory set to "+dir);
     }
   }
@@ -258,7 +259,7 @@ class ClientCore {
   setCurrentVersion(prj:String,version:String) {
     var pdir = ClientTools.projectDir(prj);
     if (!Os.exists(pdir)) throw "setCurrentVersion: "+pdir+" does not exist";
-    Os.fileOut(pdir + ".current",version);
+    Os.write(pdir + ".current",version);
     Os.println("  Current version is now "+version);
   }
   
@@ -290,7 +291,7 @@ class ClientCore {
       }
     }
 
-    Os.fileOut(ClientTools.getConfigFile(true),path) ;
+    Os.write(ClientTools.getConfigFile(true),path) ;
   }
 
   public function
@@ -386,7 +387,7 @@ class ClientCore {
       // then copy the template - if it doesn't exist create it from the resource
       var nf = ClientTools.versionDir("haxed") + Common.HXP_TEMPLATE;
       if (!Os.exists(nf)) {
-        Os.fileOut(nf,haxe.Resource.getString("HaxedTemplate"));
+        Os.write(nf,haxe.Resource.getString("HaxedTemplate"));
       }
 
       Os.cp(nf,Common.HXP_FILE);
@@ -406,7 +407,7 @@ project:
     tags:               ::foreach tags::::tag:: ::end::
     license:            ::license::
 ';
-      Os.fileOut(interactive.name+".haxed",tmpl,interactive);
+      Os.write(interactive.name+".haxed",tmpl,interactive);
       
     }
   }

@@ -75,7 +75,7 @@ class ClientTools {
     }
 
     var rep = try {
-      Os.fileIn(getConfigFile());
+      Os.read(getConfigFile());
     } catch( e : Dynamic ) {
       throw "This is the first time you are running haxed. Please run haxed setup first";
     }
@@ -106,7 +106,7 @@ class ClientTools {
   public static function
   currentVersion(prj) {
     try {
-      return Os.fileIn(projectDir(prj) + ".current");
+      return Os.read(projectDir(prj) + ".current");
     } catch(exc:Dynamic) {
       return null;
     }
@@ -115,7 +115,7 @@ class ClientTools {
   public static function
   devVersion(prj) {
     try {
-      return Os.fileIn(projectDir(prj) + ".dev");
+      return Os.read(projectDir(prj) + ".dev");
     } catch (exc:Dynamic) {
       return null;
     }

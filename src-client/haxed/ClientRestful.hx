@@ -3,6 +3,7 @@ package haxed;
 
 import bdog.JSON;
 import bdog.Os;
+import bdog.Http;
 import haxed.Common;
 import haxed.ClientCore;
 
@@ -119,7 +120,7 @@ class ClientRestful extends ClientCore {
   public function
   submit(options:Options,password:String,packagePath:String,fn:String->Status->Bool) {
     var u = url(options.repo,"submit");
-    Os.filePost(packagePath,u,true,{password:password},function(d) {
+    Http.filePost(packagePath,u,true,{password:password},function(d) {
         var s = Marshall.fromJson(JSON.decode(d));
         if (fn != null)
           fn(options.repo,s);

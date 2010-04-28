@@ -2,6 +2,7 @@ package haxed.compatible;
 
 import haxed.Common;
 import bdog.Os;
+import bdog.Zip;
 import haxed.Package;
 import haxed.Parser;
 import haxed.ClientRestful;
@@ -31,11 +32,11 @@ class Convert {
         zf = neko.io.File.read(f,true),
         zip = neko.zip.Reader.readZip(zf);
 
-      Os.unzip(zip,tmpDir);
+      Zip.unzip(zip,tmpDir);
 
       var
         xmlFile = find(tmpDir,["-name","haxelib.xml"])[0],
-        xml = Os.fileIn(xmlFile),
+        xml = Os.read(xmlFile),
         newPackage;
 
       if (xml == null) {
@@ -60,7 +61,7 @@ class Convert {
                       });
 
       Reflect.setField(data,"email",email);
-      Os.fileOut(tmpDir+"haxelib.json",toHxp(data,haxedFormat()));
+      Os.write(tmpDir+"haxelib.json",toHxp(data,haxedFormat()));
       newPackage = packit(tmpDir+"haxelib.json");
 
       zf.close();
@@ -101,9 +102,9 @@ class Convert {
   public static function
   toHaxed(old:String,newfile:String) {
     var
-      xml = Os.fileIn(old),
+      xml = Os.read(old),
       data = Datas.readData(xml);
-    Os.fileOut(newfile,toHxp(data,jsonFormat()));
+    Os.write(newfile,toHxp(data,jsonFormat()));
   }
   
   static function

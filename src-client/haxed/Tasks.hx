@@ -102,7 +102,9 @@ class Tasks {
     if (prms != null)
       for (p in prms) sb.add(p +" ");
     
-    trace(Os.process("neko "+exeName + " "+task.name+" "+sb.toString().trim()));
+    Os.process("neko "+exeName + " "+task.name+" "+sb.toString().trim(),false,null,function(o) {
+
+      });
     
   }
     

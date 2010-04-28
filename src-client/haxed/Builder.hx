@@ -64,7 +64,7 @@ class Builder {
         if (haxe_library_path != null)
           b.classPath.push(haxe_library_path);
         
-        b.classPath.push(ClientTools.versionDir("haxed"));
+        //b.classPath.push(ClientTools.versionDir("haxed"));
         
         var
           allDeps = (b.depends != null) ? b.depends.concat(deps) : deps,
@@ -77,19 +77,18 @@ class Builder {
             OTHER: (b.options != null) ? b.options.join(" ").trim() : ""
         };
 
-      neko.Lib.println("Building "+b.name+" with "+b.classPath+" options "+b.options);
+      Os.println("Building "+b.name+" with "+b.classPath+" options "+b.options);
 
-      var o = (Os.process("haxe -main ::MAIN:: -::TT:: ::TARGET:: ::LIBS:: ::CPS:: ::OTHER::",false,ctx)),
-        filtered = o.split("\n")
-        .filter(function(l) {return l.trim() != ""; })
-        .array()
-        .join("\n");
+      Os.process("haxe -main ::MAIN:: -::TT:: ::TARGET:: ::LIBS:: ::CPS:: ::OTHER::",false,ctx,function(o) {
+          Os.println(o.split("\n")
+                     .filter(function(l) {return l.trim() != ""; })
+                     .array()
+                     .join("\n"));
+        });
       
-      neko.Lib.println(o);
       }
       
     }
-
   }
   
 }
