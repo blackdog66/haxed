@@ -51,7 +51,6 @@ class Parser {
   
   static function
   script(v:String,c:Config) {
-
     var imports = c.section("import");
     if (imports != null) {
       var classes = Reflect.field(imports,"classes");
@@ -60,11 +59,7 @@ class Parser {
         for (c in cl) {
           var
             t = c.split("."),
-            kls ;
-          if (t.length == 1)
-            kls = t[0];
-          else
-            kls = t.pop();
+            kls = (t.length == 1) ? t[0] : t.pop();
           
           interp.variables.set(kls,Type.resolveClass(c));
         }
@@ -100,9 +95,9 @@ class Parser {
       parts = v.substr(0,v.length-2).trim().split("."),
       sectionName = parts[0],
       val = switch(sectionName) {
-      case "build": Reflect.field(c.getBuild(parts[1]),parts[2]);
-      case "task": Reflect.field(c.getTask(parts[1]),parts[2]);
-      default: Reflect.field(c.section(sectionName),parts[1]);
+         case "build": Reflect.field(c.getBuild(parts[1]),parts[2]);
+         case "task": Reflect.field(c.getTask(parts[1]),parts[2]);
+         default: Reflect.field(c.section(sectionName),parts[1]);
       }
     
     if (val == null)
@@ -145,16 +140,18 @@ class Parser {
   }
 
   function saveProperty() {
-    hxp.setProperty(curProp,multiVal.toString().trim());
+    var val = multiVal.toString().trim();
+    hxp.setProperty(curProp,val);
+    interp.variables.set(hxp.sectionName,hxp.curSection);
   }
 
   public static function
   fromString(s:String,asHaxed=true,name="UNKNOWN"):Config {
     var
       p = new Parser(),
-      hxp = p.fromReader(new StringReader(s));
+      hxp = p.fromReader(new StringReader(s)),
+      c = (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
 
-    var c = (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
     Reflect.setField(c.globals(),"name",name);
     return c;
   }
@@ -163,16 +160,15 @@ class Parser {
   fromFile(f:String,asHaxed=true) {
     var
       p = new Parser(),
-      hxp = p.fromReader(new ChunkedFile(f));
+      hxp = p.fromReader(new ChunkedFile(f)),
+      c = (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
 
-    
-    var c = (asHaxed) ? validate(hxp) : new Config(hxp.hbl);
     Reflect.setField(c.globals(),"name",Os.path(f,NAME));
     return c;
   }
   
   public function
-  fromReader(reader:Reader) {
+  fromReader(reader:Reader) {    
     var
       me = this,
       tk = getTokenizer(reader),
@@ -193,6 +189,7 @@ class Parser {
        
      ONTRAN(SSection,Key,function(k:String) {
          me.hxp.setSection(k);
+         interp.variables.set(k,me.hxp.curSection);         
          return SIndent;
        }),
      
@@ -230,20 +227,14 @@ class Parser {
          var
            output = tk.yank(),
            prefix = output.charAt(0),
-           result = null;
-         
-           switch(prefix) {
-           case "=":
-               result = script(output.substr(1),config);
-           case "!":
-             try {
-               Os.process(output.trim().substr(1,output.length-3),true,null,function(r) {
-                   result = r;
-                 });
-             } catch (ex:Dynamic) { ex; }
-             
+           result = switch(prefix) {
+         	case "=":
+               script(output.substr(1),config);
+           	case "!":
+            	var cmd = output.substr(1,output.length-3).trim();
+               	Os.processSync(cmd,false);
          	default:
-              result = reference(output,config);
+              reference(output,config);
            }
 
          me.multiVal.add(result);
@@ -252,24 +243,31 @@ class Parser {
          return SHereNext;
        }),
 
-     ONTRAN(SHereNext,[Indent,TWhite,TDoc],function(t:TToks) {
-         me.saveProperty();
-           return switch(t) {
-           case TIndent(size):
-             switch(size) {
-             case me.keyIndent:
-               SProp;
-               
-             default:
-               SMultiContinue;
-               //SError("After script - bad indent, expecting "+me.keyIndent+" got "+size);
-             }           
-         case TDoc:
-           SSection;
-           
-           default:
+     ONTRAN(SHereNext,[Indent,TWhite,TDoc,Str],function(t:TToks) {
+         return switch(t) {
+         case TIndent(size):
+           trace("tk.column:"+tk.column());
+           if (size != me.multiIndent && tk.column() == 0) {
+             me.saveProperty();
+             SProp;
+           }
+           else {
+             for (i in 0...size) me.multiVal.add(" ");
              SMulti;
-           }           
+             //SError("After script - bad indent, expecting "+me.keyIndent+" got "+size);
+           }
+         case TDoc:
+           me.saveProperty();
+           SSection;
+
+         case TString(s):
+           me.multiVal.add(s);
+           SMulti;
+           
+         default:
+           me.saveProperty();
+           SMulti;
+         }           
        }),
 
      ONTRAN(SMultiContinue,Str,function(s:String) {
@@ -362,8 +360,8 @@ class Parser {
       .add("target",true,Validate.target)
       .add("target-file",true)
       .add("options",false,Validate.splitOnComma)
-      .add("pre-task",false,Validate.toArray)
-      .add("post-task",false,Validate.toArray);
+      .add("pre-task",false,Validate.splitOnComma)
+      .add("post-task",false,Validate.splitOnComma);
 
     Validate.forSection(Config.PACK)
       .add("include",false,Validate.directories)
@@ -389,11 +387,12 @@ class Parser {
 
 class Hxp {
   public var hbl:Dynamic;
-  var curSection:Dynamic;
+  public var curSection:Dynamic;
   var builds:Array<Build>;
   var tasks:Array<Task>;
   public var sectionOrder:Array<String>;
   var sectionType:String;
+  public var sectionName:String;
   
   public function new() {
     hbl = {};
@@ -407,6 +406,7 @@ class Hxp {
   public function
   setSection(name) {
     curSection = {};
+    sectionName = name;
     switch(name) {
     case Config.BUILD:
       if (Reflect.field(hbl,Config.BUILD) == null)

@@ -5,6 +5,9 @@
 -neko haxed.n
 -main haxed.ClientMain
 
+-debug
+-D TRACESTATES
+
 -resource HaxedTemplate@HaxedTemplate
 -resource haxed.haxed@haxed_hx
 
@@ -24,7 +27,8 @@
 -resource src-common/hscript/Parser.hx@hsparser_hx
 
 -resource /home/blackdog/Projects/hx/core/bdog/Os.hx@os_hx
--resource /home/blackdog/Projects/hx/core/bdog/JSON.hx@json_hx
+-resource /home/blackdog/Projects/hx/core/bdog/JSON.hx@JSON_hx
+-resource /home/blackdog/Projects/hx/core/bdog/Json.hx@json_hx
 -resource /home/blackdog/Projects/hx/core/bdog/Reader.hx@reader_hx
 -resource /home/blackdog/Projects/hx/core/bdog/ChunkedFile.hx@chunked_hx
 -resource /home/blackdog/Projects/hx/core/bdog/Tokenizer.hx@toks_hx

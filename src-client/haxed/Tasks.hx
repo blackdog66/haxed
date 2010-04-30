@@ -79,9 +79,7 @@ class Tasks {
       defaultClasspaths = [".",ClientTools.versionDir("haxed")];
 
     cp = (cp == null) ? defaultClasspaths : defaultClasspaths.concat(cp);
-    
-    trace("classpaths are "+cp);
-    
+        
     if (doBuild) {
       var build:Build = {
       name:task.name,
@@ -102,10 +100,8 @@ class Tasks {
     if (prms != null)
       for (p in prms) sb.add(p +" ");
     
-    Os.process("neko "+exeName + " "+task.name+" "+sb.toString().trim(),false,null,function(o) {
-
-      });
-    
+    trace("executing :"+"neko "+exeName + " "+task.name+" "+sb.toString().trim());
+    var o = Os.processSync("neko "+exeName + " "+task.name+" "+sb.toString().trim(),false,null);
   }
     
 }

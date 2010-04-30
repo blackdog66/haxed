@@ -252,7 +252,6 @@ typedef Repo = {
   var location:String;
   var tag:String;
 }
-
   
 class Config {
   public static var GLOBAL = "project";
@@ -289,7 +288,7 @@ class Config {
   
   public inline function
   file():String {
-    return globals().name + "."+Common.HXP_EXT;
+    return globals().name + "." + Common.HXP_EXT;
   }
 
   public function

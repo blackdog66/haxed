@@ -64,8 +64,6 @@ class Builder {
         if (haxe_library_path != null)
           b.classPath.push(haxe_library_path);
         
-        //b.classPath.push(ClientTools.versionDir("haxed"));
-        
         var
           allDeps = (b.depends != null) ? b.depends.concat(deps) : deps,
           ctx = {

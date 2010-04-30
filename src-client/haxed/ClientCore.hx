@@ -456,13 +456,19 @@ project:
 
     var
       prj = config.globals().name,
-      pathToConfig = ClientTools.versionDir(prj)+config.file(),
       taskID = prj+"-"+task.mainClass,
       t = new haxed.Tasks(task,taskID),
-      forceCompile = Os.newer(pathToConfig,t.outputFile());
+      forceCompile = true;
+      
 
-    if (forceCompile) {
-      Os.println("Recompiling: " + pathToConfig + " is newer than "+ t.outputFile());
+    if (ClientTools.installed(prj)) {
+      var
+        pathToConfig = ClientTools.versionDir(prj)+config.file();
+
+      forceCompile = Os.newer(pathToConfig,t.outputFile());
+      if (forceCompile) {
+        Os.println("Recompiling: " + pathToConfig + " is newer than "+ t.outputFile());
+      }
     }
 
     t.execute(prms,options,forceCompile);
@@ -476,18 +482,20 @@ project:
           prms =  (typ == "pre") ? b.preTask : b.postTask;
 
         if (prms != null) {
-          var
-            name = prms.shift(),
-            gotTask = false;
+          for (TX in prms){
+            var
+              thisTask = TX.split(" "), 
+              name = thisTask.shift(),
+              gotTask = false;
 
-          for (tsk in c.tasks()) {
-            if (tsk.name == name) {
-              gotTask = true;
-              runTask(c,tsk,prms,new Options());
+            for (tsk in c.tasks()) {
+              if (tsk.name == name) {
+                gotTask = true;
+                runTask(c,tsk,thisTask,new Options());
+              }
             }
+            if (!gotTask) Os.println("Warning: task "+ name + "  does not exist");
           }
-
-          if (!gotTask) Os.println("Warning: task "+ name + "  does not exist");
         }
       }
     }

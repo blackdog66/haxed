@@ -136,7 +136,8 @@ class ClientMain {
       Os.write(dd+"hscript/Interp.hx",hrs("hsinterp_hx"));
       Os.write(dd+"hscript/Parser.hx",hrs("hsparser_hx"));
       
-      Os.write(dd+"bdog/JSON.hx",hrs("json_hx"));
+      Os.write(dd+"bdog/JSON.hx",hrs("JSON_hx"));
+      Os.write(dd+"bdog/Json.hx",hrs("json_hx"));
       Os.write(dd+"bdog/Os.hx",hrs("os_hx"));
       Os.write(dd+"bdog/Reader.hx",hrs("reader_hx"));
       Os.write(dd+"bdog/ChunkedFile.hx",hrs("chunked_hx"));

@@ -113,6 +113,11 @@ class ClientTools {
   }
 
   public static function
+  installed(prj) {
+    return Os.exists(projectDir(prj));
+  }
+  
+  public static function
   devVersion(prj) {
     try {
       return Os.read(projectDir(prj) + ".dev");
