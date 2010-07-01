@@ -294,7 +294,7 @@ class Config {
   public function
   section(n:String) {
     var s = Reflect.field(data,n);
-    if (s == null) trace("Warning section:"+n+" does not exist!");
+    //    if (s == null) trace("Warning section:"+n+" does not exist!");
     return s;
   }
 

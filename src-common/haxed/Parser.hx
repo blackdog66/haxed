@@ -102,6 +102,10 @@ class Parser {
     
     if (val == null)
       throw "Can't find "+parts+" in reference "+v;
+
+    #if TRACESTATES
+    trace("ref is "+val+ " for "+v);
+    #end
     
     return val;
   }
@@ -142,7 +146,6 @@ class Parser {
   function saveProperty() {
     var val = multiVal.toString().trim();
     hxp.setProperty(curProp,val);
-    interp.variables.set(hxp.sectionName,hxp.curSection);
   }
 
   public static function
@@ -237,6 +240,9 @@ class Parser {
               reference(output,config);
            }
 
+         #if TRACESTATES
+         trace("RESULT:"+result);
+         #end
          me.multiVal.add(result);
          
          tk.use("default");
@@ -246,7 +252,6 @@ class Parser {
      ONTRAN(SHereNext,[Indent,TWhite,TDoc,Str],function(t:TToks) {
          return switch(t) {
          case TIndent(size):
-           trace("tk.column:"+tk.column());
            if (size != me.multiIndent && tk.column() == 0) {
              me.saveProperty();
              SProp;

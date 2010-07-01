@@ -61,8 +61,9 @@ class Builder {
       if (b.name == target || b.name == null || target == "all") {
 
         var haxe_library_path = Os.env("HAXE_LIBRARY_PATH");
-        if (haxe_library_path != null)
+        if (haxe_library_path != null) {
           b.classPath.push(haxe_library_path);
+        }
         
         var
           allDeps = (b.depends != null) ? b.depends.concat(deps) : deps,
@@ -75,8 +76,10 @@ class Builder {
             OTHER: (b.options != null) ? b.options.join(" ").trim() : ""
         };
 
-      Os.println("Building "+b.name+" with "+b.classPath+" options "+b.options);
-
+     #if debug
+     Os.println("Building "+b.name+" with "+ctx.CPS+" options "+b.options);
+     #end
+     
       Os.process("haxe -main ::MAIN:: -::TT:: ::TARGET:: ::LIBS:: ::CPS:: ::OTHER::",false,ctx,function(o) {
           Os.println(o.split("\n")
                      .filter(function(l) {return l.trim() != ""; })

@@ -1,12 +1,13 @@
 
+
 -cp ./src-client
 -cp ./src-common
 -cp ../core/
 -neko haxed.n
 -main haxed.ClientMain
 
--debug
--D TRACESTATES
+#-debug
+#-D TRACESTATES
 
 -resource HaxedTemplate@HaxedTemplate
 -resource haxed.haxed@haxed_hx

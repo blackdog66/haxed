@@ -37,6 +37,9 @@ class ClientCtrl {
     commands.set("build","build your project");
     commands.set("toptags","most used tags");
     commands.set("task","execute a task");
+
+    trace(neko.Sys.environment());
+    
   }
 
   static var curArg = 0;
