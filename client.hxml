@@ -2,7 +2,6 @@
 
 -cp ./src-client
 -cp ./src-common
--cp ../core/
 -neko haxed.n
 -main haxed.ClientMain
 
@@ -27,13 +26,13 @@
 -resource src-common/hscript/Interp.hx@hsinterp_hx
 -resource src-common/hscript/Parser.hx@hsparser_hx
 
--resource /home/blackdog/Projects/hx/core/bdog/Os.hx@os_hx
--resource /home/blackdog/Projects/hx/core/bdog/JSON.hx@JSON_hx
--resource /home/blackdog/Projects/hx/core/bdog/Json.hx@json_hx
--resource /home/blackdog/Projects/hx/core/bdog/Reader.hx@reader_hx
--resource /home/blackdog/Projects/hx/core/bdog/ChunkedFile.hx@chunked_hx
--resource /home/blackdog/Projects/hx/core/bdog/Tokenizer.hx@toks_hx
--resource /home/blackdog/Projects/hx/core/bdog/SMachine.hx@smachine_hx
--resource /home/blackdog/Projects/hx/core/bdog/Git.hx@git_hx
--resource /home/blackdog/Projects/hx/core/bdog/Log.hx@log_hx
+-resource src-common/bdog/Os.hx@os_hx
+-resource src-common/bdog/JSON.hx@JSON_hx
+-resource src-common/bdog/Json.hx@json_hx
+-resource src-common/bdog/Reader.hx@reader_hx
+-resource src-common/bdog/ChunkedFile.hx@chunked_hx
+-resource src-common/bdog/Tokenizer.hx@toks_hx
+-resource src-common/bdog/SMachine.hx@smachine_hx
+-resource src-common/bdog/Git.hx@git_hx
+-resource src-common/bdog/Log.hx@log_hx
 
